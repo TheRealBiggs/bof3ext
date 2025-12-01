@@ -1,0 +1,2 @@
+#define HFUNC(__arg_return_type_, __arg_name_, __arg_addr_, ...)
+#define FUNC_HOOK(__arg_return_type_, __arg_name_, ...)

@@ -1,0 +1,9 @@
+[submodule "modules/minhook"]
+	path = modules/minhook
+	url = https://github.com/TsudaKageyu/minhook.git
+[submodule "modules/miniaudio"]
+	path = modules/miniaudio
+	url = https://github.com/mackron/miniaudio.git
+[submodule "modules/stb"]
+	path = modules/stb
+	url = https://github.com/nothings/stb.git
