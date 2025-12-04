@@ -10,27 +10,44 @@ module;
 
 export module bof3ext.hooks:window;
 
+import bof3ext.configManager;
 import bof3ext.helpers;
+import bof3.render;
 import bof3.window;
 
 import std;
 
 
-constexpr int RENDER_WIDTH = 320 * 4;
-constexpr int RENDER_HEIGHT = 240 * 4;
-
 const char* WINDOW_TITLE = "Breath of Fire 3";
 
 
 Func<0x5A5160, int, HWND /* hWnd */, BOOL* /* a2 */, BOOL* /* a3 */, int* /* a4 */> sub_5A5160;
+FuncHook<decltype(sub_5A5160)> sub_5A5160Hook = [](auto hWnd, auto a2, auto a3, auto a4) {
+	auto r = sub_5A5160.Original(hWnd, a2, a3, a4);
+
+	// Fix pre-calculated texture coordinates
+	for (int i = 0; i < 256; ++i)
+		((float*)0x7CA9E0)[i] = i / 256.0;
+
+	const auto& cfgMgr = ConfigManager::Get();
+
+	auto renderScale = cfgMgr.GetRenderScale();
+
+	*g_RenderScaleX = renderScale;
+	*g_RenderScaleY = renderScale;
+
+	return r;
+};
 
 
 Func<0x5A5130, void, uint32_t /* x */, uint32_t /* y */> SetDisplayRect;
 FuncHook<decltype(SetDisplayRect)> SetDisplayRectHook = [](auto x, auto y) {
+	auto wndSize = ConfigManager::Get().GetWindowSize();
+
 	g_DisplayRect->left = x;
 	g_DisplayRect->top = y;
-	g_DisplayRect->right = x + RENDER_WIDTH;
-	g_DisplayRect->bottom = y + RENDER_HEIGHT;
+	g_DisplayRect->right = x + wndSize.x;
+	g_DisplayRect->bottom = y + wndSize.y;
 };
 
 
@@ -102,19 +119,31 @@ FuncHook<decltype(PlayMovieFile)> PlayMovieFileHook = [](auto filename, auto hWn
 export void EnableWindowHooks() {
 	EnableHook(SetDisplayRect, SetDisplayRectHook);
 	EnableHook(PlayMovieFile, PlayMovieFileHook);
+	EnableHook(sub_5A5160, sub_5A5160Hook);
 
 	WriteProtectedMemory(0x4FCCD2, WINDOW_TITLE);
 
-	// Set window/render width/height
-	WriteProtectedMemory(0x4FCB44, (uint16_t)RENDER_WIDTH);
-	WriteProtectedMemory(0x4FCB4C, (uint16_t)RENDER_HEIGHT);
+	auto wndSize = ConfigManager::Get().GetWindowSize();
 
-	*(uint32_t*)0x66B710 = RENDER_WIDTH;
-	*(uint32_t*)0x66B714 = RENDER_HEIGHT;
+	// Set window size
+	WriteProtectedMemory(0x4FCB44, (uint16_t)wndSize.x);
+	WriteProtectedMemory(0x4FCB4C, (uint16_t)wndSize.y);
 
 	// Skip code that resets render width and height
 	uint8_t nop[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
 
 	WriteProtectedMemory(0x5A548A, nop);
 	WriteProtectedMemory(0x5A54B0, nop);
+
+	// Force fullscreen resolution in 32bpp mode
+	uint8_t fs[] = { 0xB9, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90 };
+
+	*(uint16_t*)&fs[1] = (uint16_t)wndSize.x;
+	WriteProtectedMemory(0x5A5483, fs);
+
+	*(uint16_t*)&fs[1] = (uint16_t)wndSize.y;
+	WriteProtectedMemory(0x5A54A9, fs);
+
+	*(uint16_t*)&fs[1] = (uint16_t)32;
+	WriteProtectedMemory(0x5A54D5, fs);
 }

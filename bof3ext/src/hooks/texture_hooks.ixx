@@ -9,15 +9,18 @@ module;
 
 export module bof3ext.hooks:texture;
 
-import bof3ext.glyphManager;
 import bof3ext.helpers;
+import bof3ext.configManager;
+import bof3ext.glyphManager;
 
 import bof3.render;
+import bof3.texture;
 
 import std;
 
 
 #define IID_IDirect3DTexture2 GUID { 0x93281502, 0x8CF8, 0x11D0, { 0x89, 0xAB, 0x00, 0xA0, 0xC9, 0x05, 0x41, 0x29 } }
+#define IID_IDirectDrawSurface4 GUID { 0x0B2B8630, 0xAD35, 0x11D0, { 0x8E, 0xA6, 0x00, 0x60, 0x97, 0x97, 0xEA, 0x5B } }
 
 
 struct ReplacementTexture {
@@ -31,11 +34,44 @@ struct UnkStruct_7 {
 };
 
 
+void DumpTexture(const std::string& filename) {
+	if (!ConfigManager::Get().GetDumpTextures())
+		return;
+
+	IDirect3DTexture2* tex;
+	IDirectDrawSurface4* surf;
+
+	if (!std::filesystem::exists(filename)) {
+		FILE* file;
+		fopen_s(&file, filename.c_str(), "wb");
+		DWORD magic = 0x20534444;
+		fwrite(&magic, 4, 1, file);
+
+		g_IDirect3DDevice3->GetTexture(0, &tex);
+		tex->QueryInterface(IID_IDirectDrawSurface4, (LPVOID*)&surf);
+
+		DDSURFACEDESC2 desc{ 0 };
+		desc.dwSize = sizeof(DDSURFACEDESC2);
+		desc.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
+
+		surf->Lock(nullptr, &desc, 1, 0);
+
+		fwrite(&desc, sizeof(DDSURFACEDESC2), 1, file);
+		fwrite(desc.lpSurface, desc.lPitch * desc.dwHeight, 1, file);
+
+		surf->Unlock(nullptr);
+
+		fflush(file);
+		fclose(file);
+	}
+}
+
+
 ArrayAccessor<0x6C2A40, UnkStruct_7> stru_6C2A40;
 
 
 std::map<uint64_t, ReplacementTexture> replacementTextures;
-IDirectDrawSurface4* textSurface = nullptr;
+//IDirectDrawSurface4* textSurface = nullptr;
 
 
 Func<0x5A2CA0, void, int32_t /* surfId */, uint16_t /* charCode */, int32_t /* paletteIdx */> LoadGlyphTexture;
@@ -46,7 +82,10 @@ FuncHook<decltype(LoadGlyphTexture)> LoadGlyphTextureHook = [](auto surfId, auto
 	if (!GlyphManager::Get().HasGlyph(charCode))
 		charCode = '*';
 
-	if (textSurface == nullptr) {
+	auto renderScale = ConfigManager::Get().GetRenderScale();
+	auto surfSize = (int)(16 * renderScale);
+
+	/*if (textSurface == nullptr) {
 		DDSURFACEDESC2 sd{ 0 };
 		sd.dwSize = sizeof(DDSURFACEDESC2);
 		sd.dwWidth = 320;
@@ -71,7 +110,7 @@ FuncHook<decltype(LoadGlyphTexture)> LoadGlyphTextureHook = [](auto surfId, auto
 
 			return;
 		}
-	}
+	}*/
 
 	auto* fontGlyph = &g_FontGlyphs[surfId];
 	auto* glyphSurf = fontGlyph->surface;
@@ -79,13 +118,13 @@ FuncHook<decltype(LoadGlyphTexture)> LoadGlyphTextureHook = [](auto surfId, auto
 	if (glyphSurf == nullptr) {
 		DDSURFACEDESC2 sd{ 0 };
 		sd.dwSize = sizeof(DDSURFACEDESC2);
-		sd.dwWidth = 64;
-		sd.dwHeight = 64;
+		sd.dwWidth = surfSize;
+		sd.dwHeight = surfSize;
 		sd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT | DDSD_TEXTURESTAGE;
 		sd.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
 		sd.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
 		sd.dwTextureStage = 0;
-		sd.lPitch = 64 * 4;
+		sd.lPitch = surfSize * 4;
 
 		sd.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
 		sd.ddpfPixelFormat.dwFlags = DDPF_ALPHAPIXELS | DDPF_RGB;
@@ -112,11 +151,12 @@ FuncHook<decltype(LoadGlyphTexture)> LoadGlyphTextureHook = [](auto surfId, auto
 	sd.dwSize = sizeof(DDSURFACEDESC2);
 	sd.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
 
-	RECT rect{ 0, 0, 48, 48 };
+	//RECT rect{ 0, 0, 48, 48 };
 
 	UINT err;
 
-	if ((err = textSurface->Lock(nullptr, &sd, 1, 0)) != S_OK) {
+	//if ((err = textSurface->Lock(nullptr, &sd, 1, 0)) != S_OK) {
+	if ((err = glyphSurf->Lock(nullptr, &sd, 1, 0)) != S_OK) {
 		LogDebug("Failed to lock surface! Error code: %i\n", err);
 
 		return;
@@ -131,11 +171,13 @@ FuncHook<decltype(LoadGlyphTexture)> LoadGlyphTextureHook = [](auto surfId, auto
 	auto& bitmap = GlyphManager::Get().GetGlyph(charCode);
 
 	if (sd.lpSurface != NULL) {
-		std::memset(sd.lpSurface, 0, 320 * 256 * 4);
+		//std::memset(sd.lpSurface, 0, 320 * 256 * 4);
+		std::memset(sd.lpSurface, 0, surfSize * surfSize * 4);
 
 		for (auto i = 0U; i < bitmap.rows; ++i) {
 			auto* surf = (DWORD*)sd.lpSurface;
-			auto pos = (i + bitmap.top - 12) * 320 + bitmap.left;
+			//auto pos = (i + bitmap.top - 12) * 320 + bitmap.left;
+			auto pos = (i + bitmap.top - (int)(3 * renderScale)) * surfSize + bitmap.left;
 
 			std::memcpy(
 				&surf[pos],
@@ -146,11 +188,6 @@ FuncHook<decltype(LoadGlyphTexture)> LoadGlyphTextureHook = [](auto surfId, auto
 			auto* bSurf = (BYTE*)sd.lpSurface;
 
 			for (int j = 0; j < bitmap.pitch; j += 4) {
-				auto _b = bSurf[pos * 4 + j];
-				auto _g = bSurf[pos * 4 + j + 1];
-				auto _r = bSurf[pos * 4 + j + 2];
-				auto _a = bSurf[pos * 4 + j + 3];
-
 				auto pxPos = pos * 4 + j;
 
 				bSurf[pxPos + 0] = (BYTE)(bSurf[pxPos + 0] * b);
@@ -161,17 +198,16 @@ FuncHook<decltype(LoadGlyphTexture)> LoadGlyphTextureHook = [](auto surfId, auto
 		}
 	}
 
-	textSurface->Unlock(nullptr);
+	//textSurface->Unlock(nullptr);
+	glyphSurf->Unlock(nullptr);
 
-	glyphSurf->BltFast(0, 0, textSurface, (LPRECT)&rect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+	//glyphSurf->BltFast(0, 0, textSurface, (LPRECT)&rect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
 
 	fontGlyph->charCode = (charCode < 0x7F) ? charCode - '!' : charCode;
 	fontGlyph->paletteIndex = paletteIdx;
 	fontGlyph->dword4 = stru_6C2A40[paletteIdx >> 6].dword0;
 };
 
-
-Func<0x59FFE0, void, uint32_t /* a1 */, int32_t /* a2 */> SetTexture;
 FuncHook<decltype(SetTexture)> SetTextureHook = [](auto a1, auto a2) {
 	uint64_t key = ((uint64_t)a1 << 32) | a2;
 
@@ -254,14 +290,25 @@ FuncHook<decltype(SetTexture)> SetTextureHook = [](auto a1, auto a2) {
 			g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT);
 
 			SetTexture.Original(a1, a2);
+
+			DumpTexture(std::format("NewData\\Textures\\Dumped\\texture_{}_{}.dds", a1, a2));
 		}
 	}
+};
 
-	//LogDebug("SetTexture: %i, %i\n", a1, a2);
+FuncHook<decltype(sub_5A3160)> sub_5A3160Hook = [](auto a1, auto a2, auto a3, auto a4) {
+	auto r = sub_5A3160.Original(a1, a2, a3, a4);
+
+	DumpTexture(std::format("NewData\\Textures\\Dumped\\texture_{}_{}_{}_{}.dds", a1, a2, a3, a4));
+
+	return r;
 };
 
 
 export void EnableTextureHooks() {
 	EnableHook(LoadGlyphTexture, LoadGlyphTextureHook);
 	EnableHook(SetTexture, SetTextureHook);
+	EnableHook(sub_5A3160, sub_5A3160Hook);
+
+	WriteProtectedMemory(0x5C4638, 0);	// Fix UV coordinates for textures
 }

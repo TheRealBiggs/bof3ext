@@ -5,9 +5,10 @@ module;
 
 export module bof3ext.hooks:gui.menu;
 
+import bof3ext.helpers;
+import bof3ext.configManager;
 import bof3ext.glyphManager;
 import bof3ext.textManager;
-import bof3ext.helpers;
 import bof3.character;
 import bof3.item;
 import bof3.gui;
@@ -95,7 +96,7 @@ FuncHook<decltype(DrawEquipmentWindow)> DrawEquipmentWindowHook = [](auto charac
 	char buf[6];
 
 	auto advance = GlyphManager::Get().GetGlyphAdvance();
-	advance /= 2;
+	advance = std::ceil(advance / ConfigManager::Get().GetRenderScale());
 	auto statXPos = x + 120 - advance * 3 - 5;
 
 	if (a5 == 0)

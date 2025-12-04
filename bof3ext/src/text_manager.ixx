@@ -133,6 +133,7 @@ public:
 		ReadTextFileIntoVector("NewData\\Text\\text_weaponnames.txt", weaponNames);
 		ReadTextFileIntoVector("NewData\\Text\\text_armornames.txt", armorNames);
 		ReadTextFileIntoVector("NewData\\Text\\text_accessorynames.txt", accessoryNames);
+		ReadTextFileIntoVector("NewData\\Text\\text_skillnames.txt", skillNames);
 		ReadTextFileIntoVector("NewData\\Text\\text_menutabs.txt", menuTabTexts);
 		ReadTextFileIntoVector("NewData\\Text\\text_categories.txt", categoryTexts);
 
@@ -235,6 +236,15 @@ public:
 	}
 
 
+	bool HasSkillName(unsigned int index) const {
+		return !skillNames.empty() && skillNames.size() >= index;
+	}
+
+	const std::string& GetSkillName(unsigned int index) const {
+		return skillNames[index];
+	}
+
+
 	bool HasMenuTabText(unsigned int index) const {
 		return !menuTabTexts.empty() && menuTabTexts.size() >= index;
 	}
@@ -331,6 +341,7 @@ private:
 	std::vector<std::string> weaponNames;
 	std::vector<std::string> armorNames;
 	std::vector<std::string> accessoryNames;
+	std::vector<std::string> skillNames;
 	std::vector<std::string> menuTabTexts;
 	std::vector<std::string> categoryTexts;
 };

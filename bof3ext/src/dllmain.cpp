@@ -5,6 +5,7 @@
 #include <consoleapi.h>
 
 import bof3ext.hooks;
+import bof3ext.configManager;
 import bof3ext.glyphManager;
 import bof3ext.textManager;
 
@@ -17,15 +18,19 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		{
 			DisableThreadLibraryCalls(hModule);
 
-#ifdef ENABLE_LOGGING 
-			AllocConsole();
-			FILE* _;
+			ConfigManager::Get().Initialise();
 
-			if (freopen_s(&_, "CONOUT$", "w", stdout))
-				FreeConsole();
+#ifdef ENABLE_LOGGING
+			if (ConfigManager::Get().GetEnableConsole()) {
+				AllocConsole();
+				FILE* _;
 
-			if (freopen_s(&_, "CONOUT$", "w", stderr))
-				FreeConsole();
+				if (freopen_s(&_, "CONOUT$", "w", stdout))
+					FreeConsole();
+
+				if (freopen_s(&_, "CONOUT$", "w", stderr))
+					FreeConsole();
+			}
 #endif
 
 			GlyphManager::Get().Initialise();

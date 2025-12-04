@@ -5,8 +5,9 @@
 
 export module bof3ext.hooks:text;
 
-import bof3ext.glyphManager;
 import bof3ext.helpers;
+import bof3ext.configManager;
+import bof3ext.glyphManager;
 import bof3ext.textManager;
 
 import bof3.dat;
@@ -79,19 +80,21 @@ const char* eee = "Autorun";
 const char* fff = "Controller";
 
 const char* battleCommandText[] = { "Attack", "Ability", "Item", "Examine", "Defend", "Charge", "Escape" };
+const char* battleCommandText2[] = { "Attack", " \x81\x01", "Examine", "DDD", "EEE", "FFF", "GGG", "HHH", "III", "JJJ", "Escape", "LLL" };
 
 
 export void EnableTextHooks() {
 	EnableHook(GetText, GetTextHook);
 	EnableHook(LoadDialogue, LoadDialogueHook);
 
-	//WriteProtectedMemory(0x516CAD, 12);																	// Glyph display width
-	//WriteProtectedMemory(0x516CD3, 12);																	// Glyph display height
-	WriteProtectedMemory(0x516CE5, (uint8_t)(GlyphManager::Get().GetGlyphAdvance() / 3.75));				// Glyph spacing for UI text
-	WriteProtectedMemory(0x497A47, (uint8_t)(GlyphManager::Get().GetGlyphAdvance() / 3.75));				// Glyph spacing for dialogue
-	//WriteProtectedMemory(0x516F35, (uint8_t)(GlyphManager::Get().GetGlyphAdvance() / 2 * (2.0 / 3.0)));	// Glyph spacing for small text
-	WriteProtectedMemory(0x4979B7, (int16_t)(-(int)GlyphManager::Get().GetGlyphAdvance() / 3.75));			// X offset for '"' and '<' in dialogue
-	WriteProtectedMemory(0x4978DD, (uint8_t)12);															// Line height in dialogue
+	auto advance = (int)GlyphManager::Get().GetGlyphAdvance();
+	advance = (int)std::ceil(advance / ConfigManager::Get().GetRenderScale());
+
+	WriteProtectedMemory(0x516CE5, (uint8_t)advance);						// Glyph spacing for UI text
+	WriteProtectedMemory(0x497A47, (uint8_t)advance);						// Glyph spacing for dialogue
+	//WriteProtectedMemory(0x516F35, (uint8_t)(advance * (2.0 / 3.0))));	// Glyph spacing for small text
+	WriteProtectedMemory(0x4979B7, (int16_t)-advance);						// X offset for '"' and '<' in dialogue
+	WriteProtectedMemory(0x4978DD, (uint8_t)12);							// Line height in dialogue
 
 	uint16_t zenny = u'ƶ' | 0x8000;
 
@@ -125,4 +128,5 @@ export void EnableTextHooks() {
 	WriteProtectedMemory(0x46185A, fff);
 
 	WriteProtectedMemory(0x669D60, battleCommandText);
+	WriteProtectedMemory(0x669DE0, battleCommandText2);
 }

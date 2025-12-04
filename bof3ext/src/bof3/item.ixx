@@ -13,37 +13,34 @@ struct ItemBase {
 
 struct EquipmentBase : public ItemBase {
 	uint8_t equipFlags;
+	uint8_t flags;
+	uint8_t iconId;
 };
 
 struct ItemData : public ItemBase {
 	uint8_t flags;
+	uint8_t iconId;
 	uint16_t descriptionId;
-	uint16_t price;
+	uint16_t cost;
 };
 
 struct WeaponData : public EquipmentBase {
-	uint8_t gap0;
-	uint8_t gap1;
 	uint8_t element;
 	uint8_t weight;
 	uint8_t gap2;
 	uint8_t power;
 	uint16_t descriptionId;
-	uint16_t price;
+	uint16_t cost;
 };
 
 struct ArmorData : public EquipmentBase {
-	uint8_t gap0;
-	uint8_t gap1;
 	uint8_t weight;
 	uint8_t defense;
 	uint16_t descriptionId;
-	uint16_t price;
+	uint16_t cost;
 };
 
 struct AccessoryData : public EquipmentBase {
-	uint8_t gap1;
-	uint8_t gap2;
 	uint8_t weight;
 	uint16_t descriptionId;
 	uint16_t price;

@@ -80,7 +80,6 @@ FuncHook<decltype(DrawBattleEnemyPanel)> DrawBattleEnemyPanelHook = [](auto x, a
 	sub_444D50(x + 2, y + 18, x + 73, y + 18, v10, v9, v8);
 };
 
-
 Func<0x4439A0, void, uint8_t /* index */> DrawBattleCommandTextPanel;
 FuncHook<decltype(DrawBattleCommandTextPanel)> DrawBattleCommandTextPanelHook = [](auto index) {
 	auto v1 = sub_5A79A0(0, 0, 960, 0);
@@ -105,9 +104,9 @@ FuncHook<decltype(DrawBattleCommandTextPanel)> DrawBattleCommandTextPanelHook = 
 		(uint8_t)(8 * ((wndColour >> 10) & 0x1F))
 	};
 
-	DrawUntexturedPlane(left, top + 2, BG_WIDTH, BG_HEIGHT, bgColour, true);	// Background
+	DrawPlane(left, top + 2, BG_WIDTH, BG_HEIGHT, bgColour, true);	// Background
 
-	DrawUntexturedQuad(
+	DrawQuad(
 		{ left + 2,				top },
 		{ left + BG_WIDTH - 2,	top },
 		{ left,					top + 2 },
@@ -116,7 +115,7 @@ FuncHook<decltype(DrawBattleCommandTextPanel)> DrawBattleCommandTextPanelHook = 
 		true
 	);	// Background top
 
-	DrawUntexturedQuad(
+	DrawQuad(
 		{ left,					top + 2 + BG_HEIGHT },
 		{ left + BG_WIDTH,		top + 2 + BG_HEIGHT },
 		{ left + 2,				top + 2 + BG_HEIGHT + 2 },
@@ -126,20 +125,26 @@ FuncHook<decltype(DrawBattleCommandTextPanel)> DrawBattleCommandTextPanelHook = 
 	);	// Background bottom
 
 	SetBlendMode(0, 1, 960, 0);
-	DrawUntexturedPlane(left + 2, top + 2, BG_WIDTH - 4, 1, bgColour, true);
-	DrawUntexturedPlane(left + 2, top + 2, 1, BG_HEIGHT, bgColour, true);
+	DrawPlane(left + 2, top + 2, BG_WIDTH - 4, 1, bgColour, true);
+	DrawPlane(left + 2, top + 2, 1, BG_HEIGHT, bgColour, true);
 
 	SetBlendMode(0, 0, 960, 0);
-	DrawUntexturedPlane(left + 2, top + 2 + BG_HEIGHT - 1, BG_WIDTH - 4, 1, bgColour, true);
-	DrawUntexturedPlane(left + BG_WIDTH - 2 - 1, top + 2, 1, BG_HEIGHT, bgColour, true);
+	DrawPlane(left + 2, top + 2 + BG_HEIGHT - 1, BG_WIDTH - 4, 1, bgColour, true);
+	DrawPlane(left + BG_WIDTH - 2 - 1, top + 2, 1, BG_HEIGHT, bgColour, true);
 
 	DrawString(left + 8, top + 3, 0, 8u, ((char**)0x669D60)[index]);
 };
+
+//Func<0x597230, void> sub_597230;
+//FuncHook<decltype(sub_597230)> sub_597230Hook = []() {
+//
+//};
 
 
 export void EnableGuiBattleHooks() {
 	//EnableHook(DrawBattleEnemyPanel, DrawBattleEnemyPanelHook);
 	EnableHook(DrawBattleCommandTextPanel, DrawBattleCommandTextPanelHook);
+	//EnableHook(sub_597230, sub_597230Hook);
 
 	WriteProtectedMemory(0x443ECE, (uint8_t)(4 - 2));	// Move enemy name in battle left by 2 pixels
 }

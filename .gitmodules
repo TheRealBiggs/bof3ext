@@ -7,3 +7,6 @@
 [submodule "modules/stb"]
 	path = modules/stb
 	url = https://github.com/nothings/stb.git
+[submodule "modules/toml++"]
+	path = modules/toml++
+	url = https://github.com/marzer/tomlplusplus.git

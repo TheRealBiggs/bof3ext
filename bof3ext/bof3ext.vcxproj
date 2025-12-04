@@ -18,8 +18,11 @@
     <ClCompile Include="src\bof3\battle.ixx" />
     <ClCompile Include="src\bof3\gui.ixx" />
     <ClCompile Include="src\bof3\render.ixx" />
+    <ClCompile Include="src\bof3\skill.ixx" />
     <ClCompile Include="src\bof3\text.ixx" />
+    <ClCompile Include="src\bof3\texture.ixx" />
     <ClCompile Include="src\bof3\window.ixx" />
+    <ClCompile Include="src\config_manager.ixx" />
     <ClCompile Include="src\helpers.ixx" />
     <ClCompile Include="src\hooks\audio_hooks.cpp" />
     <ClCompile Include="src\hooks\dat_hooks.ixx" />
@@ -27,6 +30,8 @@
     <ClCompile Include="src\hooks\gui_battle_hooks.ixx" />
     <ClCompile Include="src\hooks\gui_hooks.ixx" />
     <ClCompile Include="src\hooks\gui_menu_hooks.ixx" />
+    <ClCompile Include="src\hooks\gui_skilllist_hooks.ixx" />
+    <ClCompile Include="src\hooks\gui_start_hooks.ixx" />
     <ClCompile Include="src\hooks\hooks.ixx" />
     <ClCompile Include="src\hooks\item_hooks.ixx" />
     <ClCompile Include="src\hooks\render_hooks.ixx" />
@@ -52,6 +57,7 @@
     <ClCompile Include="src\bof3\item.ixx">
       <FileType>Document</FileType>
     </ClCompile>
+    <ClCompile Include="src\math.ixx" />
     <ClCompile Include="src\singleton.ixx">
       <FileType>Document</FileType>
     </ClCompile>
