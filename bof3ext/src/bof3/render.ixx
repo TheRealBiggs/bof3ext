@@ -10,6 +10,38 @@ import bof3ext.helpers;
 import bof3ext.math;
 
 
+export enum class DrawCommandType {
+	Tri = 8,
+	TexturedTri,
+	Quad,
+	TexturedQuad,
+	GradatedTri,
+	GradatedTexturedTri,
+	GradatedQuad,
+	GradatedTexturedQuad,
+	Line,
+	_UNUSED_0,
+	DoubleLine,
+	TripleLine,
+	GradatedLine,
+	_UNUSED_1,
+	GradatedDoubleLine,
+	GradatedTripleLine,
+	Plane,
+	TexturedPlane,
+	Point,
+	TextGlyph,
+	_UNUSED_2,			// Plane8x8?
+	TexturedPlane8x8,
+	_UNUSED_3,			// Plane16x16?
+	TexturedPlane16x16,
+	_UNUSED_4,
+	CharacterSprite,
+
+	SetBlendMode = 58
+};
+
+
 export struct Colour {
 	uint8_t r, g, b;
 };
@@ -24,7 +56,13 @@ export struct Vertf {
 export struct DrawCommand {
 	uint8_t gap0[4];
 	Colour colour;
-	uint8_t type;
+	union {
+		uint8_t typeAndFlags;
+		struct {
+			uint8_t flags : 2;
+			uint8_t type : 6;
+		};
+	};
 };
 
 export struct DrawCommand_SetBlendMode : public DrawCommand {
@@ -82,7 +120,6 @@ export struct DrawCommand_CharacterSprite : DrawCommand {
 };
 
 
-
 export struct FontGlyph {
 	uint16_t charCode;
 	uint16_t paletteIndex;
@@ -93,20 +130,117 @@ export struct FontGlyph {
 };
 
 
-export Func<0x516B30, uint8_t*, int16_t /* x */, int16_t /* y */, uint32_t /* paletteIdx */, uint8_t /* len */, const char* /* text */>		DrawString;
-export Func<0x516E70, const char*, int16_t /* x */, int16_t /* y */, uint8_t /* paletteIdx */, uint8_t /* len */, const char* /* text */>	DrawStringSmall;
-export Func<0x444340, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint16_t /* a4 */>											DrawNumTiny;
-export Func<0x517090, void, int16_t /* x */, int16_t /* y */, uint32_t /* paletteIdx */, const char* /* text */>							DrawStringNumFont;
-export Func<0x5A04C0, uint16_t*, uint16_t /* id */>																							GetPalette;
-export Func<0x5A3160, int, uint16_t /* a1 */, uint16_t /* a2 */, uint16_t /* a3 */, uint16_t /* a4 */>										sub_5A3160; // Something to do with getting character sprites?
+export struct UnkStruct_C {
+	uint8_t gap0[12];
+	int16_t shortC;
+	int16_t shortE;
+	int16_t short10;
+	int16_t short12;
+	uint16_t word14;
+	uint8_t byte16;
+	uint8_t byte17;
+	uint8_t gap1[1];
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
+	uint8_t gap[64];
+};
 
-Func<0x461E50, void, uint8_t /* index */, uint8_t /* cmdSize */> PushDrawCommand;
+
+export Func<0x516B30, uint8_t*,
+	int16_t,	// x
+	int16_t,	// y
+	uint32_t,	// paletteIdx
+	uint8_t,	// len
+	const char*	// text
+> DrawString;
+
+export Func<0x516E70, const char*,
+	int16_t,	// x
+	int16_t,	// y
+	uint8_t,	// paletteIdx
+	uint8_t,	// len
+	const char* // text
+> DrawStringSmall;
+
+export Func<0x444340, void,
+	int16_t,	// x
+	int16_t,	// y
+	uint8_t,	// a3
+	uint16_t	// a4
+> DrawNumTiny;
+
+export Func<0x517090, void,
+	int16_t,	// x
+	int16_t,	// y
+	uint32_t,	// paletteIdx
+	const char* // text
+> DrawStringNumFont;
+
+export Func<0x5A04C0, uint16_t*,
+	uint16_t	// id
+> GetPalette;
+
+export Func<0x5A3160, int,
+	uint16_t,	// a1
+	uint16_t,	// a2
+	uint16_t,	// a3
+	uint16_t	// a4
+> sub_5A3160; // Something to do with getting character sprites?
+
+export Func<0x59FCA0, void,
+	uint8_t,	// typeAndFlags
+	uint16_t	// a2
+> SetD3DRenderState_AlphaBlend;
+
+export Func<0x59FD80, void,
+	D3DSHADEMODE	// mode
+> SetD3DShadeMode;
+
+export Func<0x461E50, void,
+	uint8_t,	// index
+	uint8_t		// cmdSize
+> PushDrawCommand;
+
+export Func<0x516D50, void,
+	int16_t,	// x
+	int16_t,	// y
+	int16_t,	// w
+	int16_t,	// h
+	int16_t,	// a5
+	int8_t,		// a6
+	uint16_t	// a7
+> sub_516D50;
+
+export Func<0x59FBA0, void,
+	uint32_t,	// r
+	uint32_t,	// g
+	uint32_t,	// b
+	uint8_t,	// typeAndFlags
+	uint32_t,	// a5
+	D3DCOLOR*,	// outColour
+	D3DCOLOR*	// outSpecular
+> GetD3DCOLOR;
+
+export Func<0x5A77C0, void,
+	DrawCommand_SetBlendMode*,	// drawCmd
+	BOOL,						// a2
+	BOOL,						// a3
+	uint16_t,					// flags
+	DrawCommand*				// a5
+> Init_DrawCommand_SetBlendMode;
+
+export Func<0x5A7710, void,
+	DrawCommand_TexturedPlane*	// drawCmd
+> Init_DrawCommand_TexturedPlane;
 
 
 export Accessor<		0x905B84, uint32_t>			dword_905B84;
 export Accessor<		0x7C9F4C, float>			g_RenderScaleX;
 export Accessor<		0x7C9F48, float>			g_RenderScaleY;
+export Accessor<		0x7DED00, UnkStruct_C>		stru_7DED00;
 export ArrayAccessor<	0x7C9F50, FontGlyph>		g_FontGlyphs;
+export ArrayAccessor<	0x7CAE42, uint16_t>			word_7CAE42;
 export PointerAccessor<	0x7E0670, DrawCommand>		g_DrawCommands;
 export PointerAccessor<	0x7CC334, IDirectDraw4>		g_IDirectDraw4;
 export PointerAccessor<	0x7CC350, IDirect3DDevice3> g_IDirect3DDevice3;
@@ -114,14 +248,14 @@ export PointerAccessor<	0x7CC350, IDirect3DDevice3> g_IDirect3DDevice3;
 
 void SetDrawCommandBlend(DrawCommand* drawCmd, bool value) {
 	if (value)
-		drawCmd->type |= 2;
+		drawCmd->flags |= 2;
 }
 
 
 export void DrawPlane(uint16_t x, uint16_t y, uint16_t width, uint16_t height, Colour colour, bool blend) {
 	auto drawCmd = (DrawCommand_Plane*)*g_DrawCommands;
 	drawCmd->colour = colour;
-	drawCmd->type = 96;
+	drawCmd->type = (int)DrawCommandType::Plane;
 
 	drawCmd->position = { (float)x, (float)y, 0.01f };
 	drawCmd->size = { (float)width, (float)height };
@@ -135,7 +269,7 @@ export void DrawPlane(uint16_t x, uint16_t y, uint16_t width, uint16_t height, C
 export void DrawQuad(Vec2i p1, Vec2i p2, Vec2i p3, Vec2i p4, Colour colour, bool blend) {
 	auto drawCmd = (DrawCommand_Quad*)*g_DrawCommands;
 	drawCmd->colour = colour;
-	drawCmd->type = 40;
+	drawCmd->type = (int)DrawCommandType::Quad;
 
 	drawCmd->vertices[0] = { (float)p1.x, (float)p1.y, 0.01f };
 	drawCmd->vertices[1] = { (float)p2.x, (float)p2.y, 0.01f };
@@ -151,7 +285,7 @@ export void DrawQuad(Vec2i p1, Vec2i p2, Vec2i p3, Vec2i p4, Colour colour, bool
 export void DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, Colour colour) {
 	auto drawCmd = (DrawCommand_Line*)*g_DrawCommands;
 	drawCmd->colour = colour;
-	drawCmd->type = 40;	// TODO: Fix this
+	drawCmd->type = (int)DrawCommandType::Line;
 
 	drawCmd->v1 = { (float)x1, (float)y1, 0.01f };
 	drawCmd->v2 = { (float)x2, (float)y2, 0.01f };
@@ -162,7 +296,7 @@ export void DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, Colour 
 
 export void SetBlendMode(int a1, int a2, int a3, int a4) {
 	auto drawCmd = (DrawCommand_SetBlendMode*)*g_DrawCommands;
-	drawCmd->type = 232;
+	drawCmd->type = (int)DrawCommandType::SetBlendMode;
 
 	// Looks like `colour` is reused for something else
 	uint16_t flags = (a4 >> 4) & 0x10 | (a3 >> 6) & 0xF | (4 * (a4 & 0x200 | (8 * (a2 & 3 | (4 * (a1 & 3))))));

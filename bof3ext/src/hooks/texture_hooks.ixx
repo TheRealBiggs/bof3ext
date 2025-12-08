@@ -261,20 +261,16 @@ FuncHook<decltype(SetTexture)> SetTextureHook = [](auto a1, auto a2) {
 
 			rep.surface->Lock(nullptr, &_sd, 1, 0);
 
-			for (int i = 0; i < width; ++i) {
-				for (int j = 0; j < height; ++j) {
-					auto pos = i * width + j;
+			for (int i = 0; i < height * width; ++i) {
+				auto c = ((uint32_t*)img)[i];
+				auto r = c & 0xFF;
+				auto g = (c >> 8) & 0xFF;
+				auto b = (c >> 16) & 0xFF;
+				auto a = (c >> 24);
 
-					auto c = ((uint32_t*)img)[pos];
-					auto r = c & 0xFF;
-					auto g = (c >> 8) & 0xFF;
-					auto b = (c >> 16) & 0xFF;
-					auto a = (c >> 24);
+				c = (a << 24) | (r << 16) | (g << 8) | b;
 
-					c = (a << 24) | (r << 16) | (g << 8) | b;
-
-					*((uint32_t*)_sd.lpSurface + pos) = c;
-				}
+				((uint32_t*)_sd.lpSurface)[i] = c;
 			}
 
 			rep.surface->Unlock(nullptr);
@@ -299,7 +295,85 @@ FuncHook<decltype(SetTexture)> SetTextureHook = [](auto a1, auto a2) {
 FuncHook<decltype(sub_5A3160)> sub_5A3160Hook = [](auto a1, auto a2, auto a3, auto a4) {
 	auto r = sub_5A3160.Original(a1, a2, a3, a4);
 
-	DumpTexture(std::format("NewData\\Textures\\Dumped\\texture_{}_{}_{}_{}.dds", a1, a2, a3, a4));
+	uint64_t key = ((uint64_t)a1 << 48) | ((uint64_t)a2 << 32) | ((uint64_t)a3 << 16) | a4;
+
+	if (replacementTextures.count(key) > 0) {
+		const auto& rep = replacementTextures.at(key);
+
+		/*g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
+		g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);*/
+
+		g_IDirect3DDevice3->SetTexture(0, rep.texture);
+	} else {
+		const auto& filename = std::format("NewData\\Textures\\texture_{}_{}_{}_{}.png", a1, a2, a3, a4);
+
+		if (std::filesystem::exists(filename)) {
+			ReplacementTexture rep{ 0 };
+
+			int width, height, channels;
+
+			uint8_t* img = stbi_load(filename.c_str(), &width, &height, &channels, 0);
+
+			DDSURFACEDESC2 sd{ 0 };
+			sd.dwSize = sizeof(DDSURFACEDESC2);
+			sd.dwWidth = width;
+			sd.dwHeight = height;
+			sd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT | DDSD_TEXTURESTAGE;
+			sd.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
+			sd.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
+			sd.dwTextureStage = 0;
+			sd.lPitch = width * channels;
+
+			sd.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
+			sd.ddpfPixelFormat.dwFlags = DDPF_ALPHAPIXELS | DDPF_RGB;
+			sd.ddpfPixelFormat.dwRGBBitCount = 32;
+			sd.ddpfPixelFormat.dwBBitMask = 0xFF;
+			sd.ddpfPixelFormat.dwGBitMask = 0xFF00;
+			sd.ddpfPixelFormat.dwRBitMask = 0xFF0000;
+			sd.ddpfPixelFormat.dwRGBAlphaBitMask = 0xFF000000;
+
+			UINT err;
+
+			if ((err = g_IDirectDraw4->CreateSurface(&sd, &rep.surface, NULL)) != S_OK) {
+				LogDebug("Error creating DirectDraw surface! Error code: %i\n", err);
+
+				return r;
+			}
+
+			rep.surface->QueryInterface(IID_IDirect3DTexture2, (void**)&rep.texture);
+
+			DDSURFACEDESC2 _sd{ 0 };
+			_sd.dwSize = sizeof(DDSURFACEDESC2);
+
+			rep.surface->Lock(nullptr, &_sd, 1, 0);
+
+			for (int i = 0; i < height * width; ++i) {
+				auto c = ((uint32_t*)img)[i];
+				auto r = c & 0xFF;
+				auto g = (c >> 8) & 0xFF;
+				auto b = (c >> 16) & 0xFF;
+				auto a = (c >> 24);
+
+				c = (a << 24) | (r << 16) | (g << 8) | b;
+
+				((uint32_t*)_sd.lpSurface)[i] = c;
+			}
+
+			rep.surface->Unlock(nullptr);
+
+			replacementTextures[key] = rep;
+
+			/*g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
+			g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);*/
+
+			g_IDirect3DDevice3->SetTexture(0, rep.texture);
+		} else {
+			/*g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_POINT);
+			g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT);*/
+
+			DumpTexture(std::format("NewData\\Textures\\Dumped\\texture_{}_{}_{}_{}.dds", a1, a2, a3, a4));
+		}
+	}
 
 	return r;
 };
@@ -308,7 +382,7 @@ FuncHook<decltype(sub_5A3160)> sub_5A3160Hook = [](auto a1, auto a2, auto a3, au
 export void EnableTextureHooks() {
 	EnableHook(LoadGlyphTexture, LoadGlyphTextureHook);
 	EnableHook(SetTexture, SetTextureHook);
-	EnableHook(sub_5A3160, sub_5A3160Hook);
+	//EnableHook(sub_5A3160, sub_5A3160Hook);
 
 	WriteProtectedMemory(0x5C4638, 0);	// Fix UV coordinates for textures
 }

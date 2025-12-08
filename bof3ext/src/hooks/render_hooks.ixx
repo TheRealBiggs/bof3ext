@@ -32,10 +32,6 @@ void Fix2DCoordinates(D3DTLVERTEX(&verts)[S]) {
 }
 
 
-Func<0x516D50, void, int16_t /* x */, int16_t /* y */, int16_t /* w */, int16_t /* h */, int16_t /* a5 */, int8_t /* a6 */, uint16_t /* a7 */> sub_516D50;
-Func<0x59FBA0, void, uint32_t /* r */, uint32_t /* g */, uint32_t /* b */, uint8_t /* typeAndFlags */, uint32_t /* a5 */, D3DCOLOR* /* outColour */, D3DCOLOR* /* outSpecular */> GetD3DCOLOR;
-
-
 FuncHook<decltype(DrawString)> DrawStringHook = [](auto x, auto y, auto paletteIdx, auto len, auto text) {
 	if (text[0] < 0) {
 		auto s = std::stacktrace::current();
@@ -77,7 +73,6 @@ FuncHook<decltype(DrawString)> DrawStringHook = [](auto x, auto y, auto paletteI
 
 	return DrawString.Original(x, y, paletteIdx, len, text);
 };
-
 
 FuncHook<decltype(DrawStringSmall)> DrawStringSmallHook = [](auto x, auto y, auto a3, auto len, auto text) {
 	if (*(uint32_t*)text == 0x600DBEEF)
@@ -124,7 +119,6 @@ FuncHook<decltype(DrawStringSmall)> DrawStringSmallHook = [](auto x, auto y, aut
 
 	return v5 + 1;
 };
-
 
 FuncHook<decltype(DrawNumTiny)> DrawNumTinyHook = [](auto x, auto y, auto a3, auto a4) {
 	char text[5];
@@ -176,11 +170,9 @@ FuncHook<decltype(DrawNumTiny)> DrawNumTinyHook = [](auto x, auto y, auto a3, au
 	}
 };
 
-
 FuncHook<decltype(DrawStringNumFont)> DrawStringNumFontHook = [](auto x, auto y, auto paletteIdx, auto text) {
 	DrawStringSmall(x, y + 2, paletteIdx, GetStringLength(text), text);
 };
-
 
 Func<0x5A2900, HRESULT, int /* a1 */> sub_5A2900;
 FuncHook<decltype(sub_5A2900)> sub_5A2900Hook = [](auto a1) {
@@ -190,57 +182,11 @@ FuncHook<decltype(sub_5A2900)> sub_5A2900Hook = [](auto a1) {
 	return sub_5A2900.Original(a1);
 };
 
-
-struct UnkStruct_C {
-	uint8_t gap0[12];
-	int16_t shortC;
-	int16_t shortE;
-	int16_t short10;
-	int16_t short12;
-	uint16_t word14;
-	uint8_t byte16;
-	uint8_t byte17;
-	uint8_t gap1[1];
-	uint8_t r;
-	uint8_t g;
-	uint8_t b;
-	uint8_t gap[64];
-};
-
-
-Vec2f RotatePoint(float cx, float cy, float angleInRads, Vec2f p) {
-	float s = sin(angleInRads);
-	float c = cos(angleInRads);
-
-	// translate point back to origin:
-	p.x -= cx;
-	p.y -= cy;
-
-	// rotate point
-	float xnew = p.x * c - p.y * s;
-	float ynew = p.x * s + p.y * c;
-
-	// translate point back:
-	p.x = xnew + cx;
-	p.y = ynew + cy;
-
-	return p;
-}
-
-
-Accessor<0x7DED00, UnkStruct_C> stru_7DED00;
-ArrayAccessor<0x7CAE42, uint16_t> word_7CAE42;
-
-
-Func<0x59FCA0, void, uint8_t /* typeAndFlags */, uint16_t /* a2 */> SetD3DRenderState_AlphaBlend;
-Func<0x59FD80, void, D3DSHADEMODE /* mode */> SetD3DShadeMode;
-
-
 Func<0x5A0C40, void, DrawCommand_TexturedQuad* /* drawCmd */> ProcessDrawCommand_TexturedQuad;
 FuncHook<decltype(ProcessDrawCommand_TexturedQuad)> ProcessDrawCommand_TexturedQuadHook = [](auto drawCmd) {
 	D3DCOLOR colour, specular;
 
-	GetD3DCOLOR(drawCmd->colour.r, drawCmd->colour.g, drawCmd->colour.b, drawCmd->type, drawCmd->vertices[1].metadata, &colour, &specular);
+	GetD3DCOLOR(drawCmd->colour.r, drawCmd->colour.g, drawCmd->colour.b, drawCmd->typeAndFlags, drawCmd->vertices[1].metadata, &colour, &specular);
 
 	D3DTLVERTEX v[4]{ 0 };
 
@@ -284,7 +230,7 @@ FuncHook<decltype(ProcessDrawCommand_TexturedQuad)> ProcessDrawCommand_TexturedQ
 
 	SetTexture(drawCmd->vertices[1].metadata, drawCmd->vertices[0].metadata);
 
-	SetD3DRenderState_AlphaBlend(drawCmd->type, drawCmd->vertices[1].metadata);
+	SetD3DRenderState_AlphaBlend(drawCmd->typeAndFlags, drawCmd->vertices[1].metadata);
 	SetD3DShadeMode(D3DSHADE_FLAT);
 
 	g_IDirect3DDevice3->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
@@ -294,7 +240,7 @@ Func<0x5A17A0, void, DrawCommand_Line* /* drawCmd */> ProcessDrawCommand_Line;
 FuncHook<decltype(ProcessDrawCommand_Line)> ProcessDrawCommand_LineHook = [](auto drawCmd) {
 	D3DCOLOR colour;
 
-	GetD3DCOLOR(drawCmd->colour.r, drawCmd->colour.g, drawCmd->colour.b, drawCmd->type, stru_7DED00->word14, &colour, 0);
+	GetD3DCOLOR(drawCmd->colour.r, drawCmd->colour.g, drawCmd->colour.b, drawCmd->typeAndFlags, stru_7DED00->word14, &colour, 0);
 
 	auto xDelta = drawCmd->v2.x - drawCmd->v1.x;
 	auto yDelta = drawCmd->v2.y - drawCmd->v1.y;
@@ -304,57 +250,37 @@ FuncHook<decltype(ProcessDrawCommand_Line)> ProcessDrawCommand_LineHook = [](aut
 
 	D3DTLVERTEX v[4]{ 0 };
 
-	v[0].sx = drawCmd->v1.x * *g_RenderScaleX;
-	v[0].sy = drawCmd->v1.y * *g_RenderScaleY;
-	v[0].sz = drawCmd->v1.z;
-	v[0].color = colour;
-	v[0].rhw = 0.1 / drawCmd->v1.z;
+	if (drawCmd->v1.y == drawCmd->v2.y) {			// Horizontal line
+		auto v1 = (drawCmd->v1.x < drawCmd->v2.x) ? drawCmd->v1 : drawCmd->v2;
 
-	v[1].sx = (drawCmd->v1.x + distance) * *g_RenderScaleX;
-	v[1].sy = drawCmd->v1.y * *g_RenderScaleY;
-	v[1].sz = drawCmd->v1.z;
-	v[1].color = colour;
-	v[1].rhw = 0.1 / drawCmd->v1.z;
+		v[0].sx = v[2].sx = v1.x * *g_RenderScaleX;
+		v[1].sx = v[3].sx = (v1.x + distance) * *g_RenderScaleX;
 
-	v[2].sx = drawCmd->v1.x * *g_RenderScaleX;
-	v[2].sy = (drawCmd->v1.y + 1) * *g_RenderScaleY;
-	v[2].sz = drawCmd->v1.z;
-	v[2].color = colour;
-	v[2].rhw = 0.1 / drawCmd->v1.z;
+		v[0].sy = v[1].sy = v1.y * *g_RenderScaleY;
+		v[2].sy = v[3].sy = (v1.y + 1) * *g_RenderScaleY;
+	} else if (drawCmd->v1.x == drawCmd->v2.x) {	// Vertical line
+		auto v1 = (drawCmd->v1.y < drawCmd->v2.y) ? drawCmd->v1 : drawCmd->v2;
 
-	v[3].sx = (drawCmd->v1.x + distance) * *g_RenderScaleX;
-	v[3].sy = (drawCmd->v1.y + 1) * *g_RenderScaleY;
-	v[3].sz = drawCmd->v1.z;
-	v[3].color = colour;
-	v[3].rhw = 0.1 / drawCmd->v1.z;
+		v[0].sx = v[2].sx = v1.x * *g_RenderScaleX;
+		v[1].sx = v[3].sx = (v1.x + 1) * *g_RenderScaleX;
 
-	auto p = RotatePoint(v[0].sx, v[0].sy, theta, { v[1].sx, v[1].sy });
-	v[1].sx = p.x;
-	v[1].sy = p.y;
-
-	p = RotatePoint(v[0].sx, v[0].sy, theta, { v[2].sx, v[2].sy });
-	v[2].sx = p.x;
-	v[2].sy = p.y;
-
-	p = RotatePoint(v[0].sx, v[0].sy, theta, { v[3].sx, v[3].sy });
-	v[3].sx = p.x;
-	v[3].sy = p.y;
-
-	if (drawCmd->v2.y > drawCmd->v1.y) {
-		for (int i = 0; i < 4; ++i)
-			v[i].sx += 1 * *g_RenderScaleX;
+		v[0].sy = v[1].sy = v1.y * *g_RenderScaleY;
+		v[2].sy = v[3].sy = (v1.y + distance) * *g_RenderScaleY;
+	} else {
+		ProcessDrawCommand_Line.Original(drawCmd);	// TODO: Handle angled lines
 	}
 
-	if (drawCmd->v2.x < drawCmd->v1.x) {
-		for (int i = 0; i < 4; ++i)
-			v[i].sy += 1 * *g_RenderScaleY;
+	for (int i = 0; i < 4; ++i) {
+		v[i].sz = drawCmd->v1.z;
+		v[i].color = colour;
+		v[i].rhw = 0.1 / drawCmd->v1.z;
 	}
 
-	Fix2DCoordinates(v);
+	//Fix2DCoordinates(v);
 
 	g_IDirect3DDevice3->SetTexture(0, nullptr);
 
-	SetD3DRenderState_AlphaBlend(drawCmd->type, stru_7DED00->word14);
+	SetD3DRenderState_AlphaBlend(drawCmd->typeAndFlags, stru_7DED00->word14);
 	SetD3DShadeMode(D3DSHADE_FLAT);
 
 	g_IDirect3DDevice3->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
@@ -364,7 +290,7 @@ Func<0x5A2300, void, DrawCommand_TexturedPlane* /* drawCmd */> ProcessDrawComman
 FuncHook<decltype(ProcessDrawCommand_TexturedPlane)> ProcessDrawCommand_TexturedPlaneHook = [](auto drawCmd) {
 	D3DCOLOR colour, specular;
 
-	GetD3DCOLOR(drawCmd->colour.r, drawCmd->colour.g, drawCmd->colour.b, drawCmd->type, stru_7DED00->word14, &colour, &specular);
+	GetD3DCOLOR(drawCmd->colour.r, drawCmd->colour.g, drawCmd->colour.b, drawCmd->typeAndFlags, stru_7DED00->word14, &colour, &specular);
 
 	D3DTLVERTEX v[4]{ 0 };
 
@@ -408,7 +334,7 @@ FuncHook<decltype(ProcessDrawCommand_TexturedPlane)> ProcessDrawCommand_Textured
 
 	SetTexture(stru_7DED00->word14, drawCmd->tlVert.metadata);
 
-	SetD3DRenderState_AlphaBlend(drawCmd->type, stru_7DED00->word14);
+	SetD3DRenderState_AlphaBlend(drawCmd->typeAndFlags, stru_7DED00->word14);
 	SetD3DShadeMode(D3DSHADE_FLAT);
 
 	g_IDirect3DDevice3->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
@@ -418,7 +344,7 @@ Func<0x5A2520, void, DrawCommand_TexturedPlane8x8* /* drawCmd */> ProcessDrawCom
 FuncHook<decltype(ProcessDrawCommand_TexturedPlane8x8)> ProcessDrawCommand_TexturedPlane8x8Hook = [](auto drawCmd) {
 	D3DCOLOR colour, specular;
 
-	GetD3DCOLOR(drawCmd->colour.r, drawCmd->colour.g, drawCmd->colour.b, drawCmd->type, stru_7DED00->word14, &colour, &specular);
+	GetD3DCOLOR(drawCmd->colour.r, drawCmd->colour.g, drawCmd->colour.b, drawCmd->typeAndFlags, stru_7DED00->word14, &colour, &specular);
 
 	D3DTLVERTEX v[4]{ 0 };
 
@@ -462,7 +388,7 @@ FuncHook<decltype(ProcessDrawCommand_TexturedPlane8x8)> ProcessDrawCommand_Textu
 
 	SetTexture(stru_7DED00->word14, drawCmd->tlVert.metadata);
 
-	SetD3DRenderState_AlphaBlend(drawCmd->type, stru_7DED00->word14);
+	SetD3DRenderState_AlphaBlend(drawCmd->typeAndFlags, stru_7DED00->word14);
 	SetD3DShadeMode(D3DSHADE_FLAT);
 
 	g_IDirect3DDevice3->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
@@ -472,7 +398,7 @@ Func<0x5A2710, void, DrawCommand_TexturedPlane16x16* /* drawCmd */> ProcessDrawC
 FuncHook<decltype(ProcessDrawCommand_TexturedPlane16x16)> ProcessDrawCommand_TexturedPlane16x16Hook = [](auto drawCmd) {
 	D3DCOLOR colour, specular;
 
-	GetD3DCOLOR(drawCmd->colour.r, drawCmd->colour.g, drawCmd->colour.b, drawCmd->type, stru_7DED00->word14, &colour, &specular);
+	GetD3DCOLOR(drawCmd->colour.r, drawCmd->colour.g, drawCmd->colour.b, drawCmd->typeAndFlags, stru_7DED00->word14, &colour, &specular);
 
 	D3DTLVERTEX v[4]{ 0 };
 
@@ -516,102 +442,94 @@ FuncHook<decltype(ProcessDrawCommand_TexturedPlane16x16)> ProcessDrawCommand_Tex
 
 	SetTexture(stru_7DED00->word14, drawCmd->tlVert.metadata);
 
-	SetD3DRenderState_AlphaBlend(drawCmd->type, stru_7DED00->word14);
+	SetD3DRenderState_AlphaBlend(drawCmd->typeAndFlags, stru_7DED00->word14);
 	SetD3DShadeMode(D3DSHADE_FLAT);
 
 	g_IDirect3DDevice3->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
 };
 
-//Func<0x5A2EB0, void, DrawCommand_CharacterSprite* /* drawCmd */> ProcessDrawCommand_CharacterSprite;
-//FuncHook<decltype(ProcessDrawCommand_CharacterSprite)> ProcessDrawCommand_CharacterSpriteHook = [](auto drawCmd) {
-//	D3DCOLOR colour, specular;
-//
-//	GetD3DCOLOR(
-//		drawCmd->colour.r,
-//		drawCmd->colour.g,
-//		drawCmd->colour.b,
-//		drawCmd->type,
-//		drawCmd->word1E,
-//		&colour,
-//		&specular);
-//
-//	auto v2 = 20 * sub_5A3160(drawCmd->word18, drawCmd->word1A, drawCmd->paletteIdx, drawCmd->word1E);
-//
-//	if ((drawCmd->word1E & 0x400) != 0) {
-//		a1a = (DrawCommand_CharacterSprite*)word_7CAE42[v2];
-//		g_DCVerts[2].sx = (drawCmd->position.x - (double)word_7CAE40[v2] * drawCmd->scale.x) * g_renderScaleX;
-//		g_DCVerts[0].sx = g_DCVerts[2].sx;
-//		v3 = drawCmd->position.x - (double)(int)a1a * drawCmd->scale.x;
-//	} else {
-//		a1b = (DrawCommand_CharacterSprite*)word_7CAE42[v2];
-//		g_DCVerts[2].sx = ((double)word_7CAE40[v2] * drawCmd->scale.x + drawCmd->position.x) * g_renderScaleX;
-//		g_DCVerts[0].sx = g_DCVerts[2].sx;
-//		v3 = (double)(int)a1b * drawCmd->scale.x + drawCmd->position.x;
-//	}
-//
-//	a1c = (DrawCommand_CharacterSprite*)word_7CAE44[v2];
-//	v4 = word_7CAE46[v2];
-//	g_DCVerts[3].sx = v3 * g_renderScaleX;
-//	g_DCVerts[1].sx = g_DCVerts[3].sx;
-//	v5 = word_7CAE3C[v2];
-//	g_DCVerts[1].sy = ((double)(int)a1c * drawCmd->scale.y + drawCmd->position.y) * g_renderScaleY;
-//	g_DCVerts[0].sy = g_DCVerts[1].sy;
-//	a1d = (DrawCommand_CharacterSprite*)v5;
-//	v6 = word_7CAE38[v2];
-//	v7 = (double)v4 * drawCmd->scale.y;
-//	v13 = v6;
-//	v8 = v7 + drawCmd->position.y;
-//
-//	g_DCVerts[3].color = colour;
-//	g_DCVerts[2].color = colour;
-//	g_DCVerts[1].color = colour;
-//	g_DCVerts[0].color = colour;
-//
-//	g_DCVerts[3].sz = 0.99000001;
-//
-//	g_DCVerts[3].specular = specular;
-//	g_DCVerts[2].specular = specular;
-//	g_DCVerts[1].specular = specular;
-//	g_DCVerts[0].specular = specular;
-//
-//	g_DCVerts[3].sy = v8 * g_renderScaleY;
-//	g_DCVerts[2].sy = g_DCVerts[3].sy;
-//	v9 = (double)(int)a1d;
-//
-//	g_DCVerts[2].sz = 0.99000001;
-//
-//	LOWORD(v4) = word_7CAE3E[v2];
-//
-//	g_DCVerts[1].sz = 0.99000001;
-//
-//	a1e = (DrawCommand_CharacterSprite*)(unsigned __int16)v4;
-//	v10 = (unsigned __int16)word_7CAE3A[v2];
-//
-//	g_DCVerts[0].sz = 0.99000001;
-//
-//	g_DCVerts[3].rhw = 0.1;
-//	g_DCVerts[2].rhw = 0.1;
-//	g_DCVerts[1].rhw = 0.1;
-//	g_DCVerts[0].rhw = 0.1;
-//
-//	g_DCVerts[2].tu = 0.5 / v9;
-//	g_DCVerts[0].tu = g_DCVerts[2].tu;
-//	a1f = (float)(int)a1e;
-//	g_DCVerts[1].tv = 0.5 / a1f;
-//	g_DCVerts[0].tv = g_DCVerts[1].tv;
-//	v13 = v10;
-//	g_DCVerts[3].tu = ((double)v6 - 0.5) / v9;
-//	g_DCVerts[1].tu = g_DCVerts[3].tu;
-//	g_DCVerts[3].tv = ((double)v10 - 0.5) / a1f;
-//	g_DCVerts[2].tv = g_DCVerts[3].tv;
-//
-//	nullsub_1();
-//
-//	SetD3DRenderState_AlphaBlend(drawCmd->type, drawCmd->word1E);
-//	SetD3DShadeMode(D3DSHADE_FLAT);
-//
-//	g_IDirect3DDevice3->DrawPrimitive(g_IDirect3DDevice3, D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, g_DCVerts, 4, 0);
-//};
+Func<0x5A2EB0, void, DrawCommand_CharacterSprite* /* drawCmd */> ProcessDrawCommand_CharacterSprite;
+FuncHook<decltype(ProcessDrawCommand_CharacterSprite)> ProcessDrawCommand_CharacterSpriteHook = [](auto drawCmd) {
+	drawCmd->word18 = 1;
+	drawCmd->word1A = 1;
+	drawCmd->word1E = 1;
+
+	ProcessDrawCommand_CharacterSprite.Original(drawCmd);
+};
+
+Func<0x5A7AE0, void, int /* x */, int /* y */> SetGeomOffset;
+FuncHook<decltype(SetGeomOffset)> SetGeomOffsetHook = [](auto x, auto y) {
+	LogDebug("SetGeomOffset: %i, %i\n", x, y);
+
+	auto renderScale = ConfigManager::Get().GetRenderScale();
+	auto wndSize = ConfigManager::Get().GetWindowSize();
+
+	auto width = (wndSize.x / 320.0) / renderScale * 320;
+	auto diff = width - 320;
+
+	SetGeomOffset.Original(x + diff / 2, y);
+};
+
+
+struct PSX_RECT {
+	short x, y;
+	short w, h;
+};
+
+struct DR_ENV {
+	unsigned int* tag;
+	unsigned int code[15];
+};
+
+struct DRAWENV {
+	PSX_RECT clip;
+	short ofs[2];
+	PSX_RECT tw;
+	short tpage;
+	byte dtd;
+	byte dfe;
+	byte isbg;
+	byte r0;
+	byte g0;
+	byte b0;
+	DR_ENV dr_env;
+};
+
+struct DISPENV {
+	PSX_RECT disp;
+	PSX_RECT screen;
+	byte isinter;
+	byte isrgb24;
+	byte pad0;
+	byte pad1;
+};
+
+
+Func<0x5A7910, void, DRAWENV* /* env */, short /* x */, short /* y */, short /* w */, short /* h */> SetDefDrawEnv;
+FuncHook<decltype(SetDefDrawEnv)> SetDefDrawEnvHook = [](auto env, auto x, auto y, auto w, auto h) {
+	LogDebug("SetDefDrawEnv: %i, %i, %i, %i\n", x, y, w, h);
+
+	auto renderScale = ConfigManager::Get().GetRenderScale();
+	auto wndSize = ConfigManager::Get().GetWindowSize();
+
+	auto width = (wndSize.x / 320.0) / renderScale * 320;
+	auto diff = width - w;
+
+	SetDefDrawEnv.Original(env, x + diff, y, width, h);
+};
+
+Func<0x5A78E0, void, DISPENV* /* disp */, short /* x */, short /* y */, short /* w */, short /* h */> SetDefDispEnv;
+FuncHook<decltype(SetDefDispEnv)> SetDefDispEnvHook = [](auto disp, auto x, auto y, auto w, auto h) {
+	LogDebug("SetDefDispEnv: %i, %i, %i, %i\n", x, y, w, h);
+
+	auto renderScale = ConfigManager::Get().GetRenderScale();
+	auto wndSize = ConfigManager::Get().GetWindowSize();
+
+	auto width = (wndSize.x / 320.0) / renderScale * 320;
+	auto diff = width - w;
+
+	SetDefDispEnv.Original(disp, x + diff, y, width, h);
+};
 
 
 export void EnableRenderHooks() {
@@ -626,11 +544,16 @@ export void EnableRenderHooks() {
 	EnableHook(ProcessDrawCommand_TexturedPlane8x8, ProcessDrawCommand_TexturedPlane8x8Hook);
 	EnableHook(ProcessDrawCommand_TexturedPlane16x16, ProcessDrawCommand_TexturedPlane16x16Hook);
 	//EnableHook(ProcessDrawCommand_CharacterSprite, ProcessDrawCommand_CharacterSpriteHook);
+	EnableHook(SetGeomOffset, SetGeomOffsetHook);
+	EnableHook(SetDefDrawEnv, SetDefDrawEnvHook);
+	EnableHook(SetDefDispEnv, SetDefDispEnvHook);
 
 	// Set render size
 	auto renderScale = ConfigManager::Get().GetRenderScale();
+	auto wndSize = ConfigManager::Get().GetWindowSize();
+	auto renderWidth = (wndSize.x / 320.0) / renderScale * 320;
 
-	*(uint32_t*)0x66B710 = 320 * renderScale;
+	*(uint32_t*)0x66B710 = renderWidth * renderScale;
 	*(uint32_t*)0x66B714 = 240 * renderScale;
 
 	//WriteProtectedMemory(0x5A2B71, (uint8_t)3);	// Enable alpha blending for text

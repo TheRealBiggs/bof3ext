@@ -7,4 +7,5 @@ export import :gui;
 export import :render;
 export import :text;
 export import :texture;
+export import :widescreen;
 export import :window;

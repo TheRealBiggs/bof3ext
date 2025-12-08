@@ -31,12 +31,12 @@
     <ClCompile Include="src\hooks\gui_hooks.ixx" />
     <ClCompile Include="src\hooks\gui_menu_hooks.ixx" />
     <ClCompile Include="src\hooks\gui_skilllist_hooks.ixx" />
-    <ClCompile Include="src\hooks\gui_start_hooks.ixx" />
     <ClCompile Include="src\hooks\hooks.ixx" />
     <ClCompile Include="src\hooks\item_hooks.ixx" />
     <ClCompile Include="src\hooks\render_hooks.ixx" />
     <ClCompile Include="src\hooks\texture_hooks.ixx" />
     <ClCompile Include="src\hooks\text_hooks.ixx" />
+    <ClCompile Include="src\hooks\widescreen_patches.ixx" />
     <ClCompile Include="src\hooks\window_hooks.ixx" />
   </ItemGroup>
   <ItemGroup>

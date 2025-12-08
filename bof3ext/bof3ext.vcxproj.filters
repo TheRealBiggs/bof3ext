@@ -120,7 +120,7 @@
     <ClCompile Include="src\math.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\hooks\gui_start_hooks.ixx">
+    <ClCompile Include="src\hooks\widescreen_patches.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
