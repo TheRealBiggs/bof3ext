@@ -275,6 +275,8 @@ FuncHook<decltype(SetTexture)> SetTextureHook = [](auto a1, auto a2) {
 
 			rep.surface->Unlock(nullptr);
 
+			stbi_image_free(img);
+
 			replacementTextures[key] = rep;
 
 			g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
@@ -360,6 +362,8 @@ FuncHook<decltype(sub_5A3160)> sub_5A3160Hook = [](auto a1, auto a2, auto a3, au
 			}
 
 			rep.surface->Unlock(nullptr);
+
+			stbi_image_free(img);
 
 			replacementTextures[key] = rep;
 

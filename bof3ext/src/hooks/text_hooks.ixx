@@ -80,7 +80,8 @@ const char* eee = "Autorun";
 const char* fff = "Controller";
 
 const char* battleCommandText[] = { "Attack", "Ability", "Item", "Examine", "Defend", "Charge", "Escape" };
-const char* battleCommandText2[] = { "Attack", " \x81\x01", "Examine", "DDD", "EEE", "FFF", "GGG", "HHH", "III", "JJJ", "Escape", "LLL" };
+const char* battleCommandText2[] = { "Attack", " \x81\x01", "Examine", "DDD", "EEE", "FFF", "Reprisal", "Critical", "III", "JJJ", "Escape", "LLL" };
+const char* skillCategoryText[] = { "Heal", "Assist", "Attack", "Skill" };
 
 
 export void EnableTextHooks() {
@@ -129,4 +130,9 @@ export void EnableTextHooks() {
 
 	WriteProtectedMemory(0x669D60, battleCommandText);
 	WriteProtectedMemory(0x669DE0, battleCommandText2);
+	WriteProtectedMemory(0x66B5A0, skillCategoryText);
+	WriteProtectedMemory(0x663984, skillCategoryText);
+
+	const char inkText[] = "Ink";
+	WriteProtectedMemory(0x66A118, inkText);
 }

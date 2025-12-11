@@ -35,6 +35,9 @@ public:
 	bool GetEnableConsole() const { return enableConsole; }
 	bool GetDumpTextures() const { return dumpTextures; }
 
+	void SetWindowSize(int width, int height) { windowWidth = width; windowHeight = height; }
+	void SetRenderScale(float scale) { renderScale = scale; }
+
 
 private:
 	int windowWidth, windowHeight;

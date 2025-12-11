@@ -3,7 +3,6 @@ module;
 #include <cstdint>
 #include <cstdio>
 #include <d3d.h>
-#include <intrin.h>
 
 export module bof3ext.hooks:render;
 
@@ -16,6 +15,7 @@ import bof3ext.textManager;
 import bof3.render;
 import bof3.text;
 import bof3.texture;
+import bof3.window;
 
 import std;
 
@@ -106,7 +106,7 @@ FuncHook<decltype(DrawStringSmall)> DrawStringSmallHook = [](auto x, auto y, aut
 					else
 						v13 = *(unsigned __int8*)++v5 + (((unsigned __int8)v10 + 128) << 8);
 
-					(*(DrawCommand_UnkIcon0**)0x7E0670)->paletteId = v13;
+					((DrawCommand_TextGlyph*)*g_DrawCommands)->charCode = v13;
 					sub_516D50(_x, y - 2, 10, 10 - v16, v15, v16, i);
 				}
 
@@ -118,6 +118,35 @@ FuncHook<decltype(DrawStringSmall)> DrawStringSmallHook = [](auto x, auto y, aut
 	}
 
 	return v5 + 1;
+};
+
+FuncHook<decltype(DrawStringLarge)> DrawStringLargeHook = [](auto x, auto y, auto paletteId, auto text) {
+	auto _x = x;
+	auto _y = y + 1;
+
+	char v8;
+
+	auto advance = (int)GlyphManager::Get().GetGlyphAdvance();
+	advance = (int)std::ceil(advance / ConfigManager::Get().GetRenderScale() * (16.0 / 12.0));
+
+	do {
+		auto c = *text;
+
+		if (*text == '\n') {
+			_x = x;
+			_y += 12;
+		}
+		else if (c != ' ') {
+			if (c) {
+				((DrawCommand_TextGlyph*)*g_DrawCommands)->charCode = c - '!';
+				sub_516D50(_x, y - 1, 16, 16, 0, 0, ((16 * paletteId) >> 4) & 0x3F | 0x7800);
+			}
+		}
+
+		v8 = text[1];
+		_x += advance;
+		++text;
+	} while (v8);
 };
 
 FuncHook<decltype(DrawNumTiny)> DrawNumTinyHook = [](auto x, auto y, auto a3, auto a4) {
@@ -158,7 +187,7 @@ FuncHook<decltype(DrawNumTiny)> DrawNumTinyHook = [](auto x, auto y, auto a3, au
 					else
 						v13 = *(unsigned __int8*)++v5 + (((unsigned __int8)v10 + 128) << 8);
 
-					(*(DrawCommand_UnkIcon0**)0x7E0670)->paletteId = v13;
+					((DrawCommand_TextGlyph*)*g_DrawCommands)->charCode = v13;
 					sub_516D50(_x, y - 2, 8, 8 - v16, v15, v16, i);
 				}
 
@@ -448,7 +477,7 @@ FuncHook<decltype(ProcessDrawCommand_TexturedPlane16x16)> ProcessDrawCommand_Tex
 	g_IDirect3DDevice3->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
 };
 
-Func<0x5A2EB0, void, DrawCommand_CharacterSprite* /* drawCmd */> ProcessDrawCommand_CharacterSprite;
+Func<0x5A2EB0, void, DrawCommand_Sprite* /* drawCmd */> ProcessDrawCommand_CharacterSprite;
 FuncHook<decltype(ProcessDrawCommand_CharacterSprite)> ProcessDrawCommand_CharacterSpriteHook = [](auto drawCmd) {
 	drawCmd->word18 = 1;
 	drawCmd->word1A = 1;
@@ -536,6 +565,7 @@ export void EnableRenderHooks() {
 	EnableHook(DrawString, DrawStringHook);
 	EnableHook(DrawStringNumFont, DrawStringNumFontHook);
 	EnableHook(DrawStringSmall, DrawStringSmallHook);
+	EnableHook(DrawStringLarge, DrawStringLargeHook);
 	EnableHook(DrawNumTiny, DrawNumTinyHook);
 	EnableHook(sub_5A2900, sub_5A2900Hook);
 	EnableHook(ProcessDrawCommand_TexturedQuad, ProcessDrawCommand_TexturedQuadHook);
@@ -547,6 +577,7 @@ export void EnableRenderHooks() {
 	EnableHook(SetGeomOffset, SetGeomOffsetHook);
 	EnableHook(SetDefDrawEnv, SetDefDrawEnvHook);
 	EnableHook(SetDefDispEnv, SetDefDispEnvHook);
+	//EnableHook(WndProc_Game, WndProc_GameHook);
 
 	// Set render size
 	auto renderScale = ConfigManager::Get().GetRenderScale();

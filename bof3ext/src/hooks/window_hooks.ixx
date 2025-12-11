@@ -21,7 +21,6 @@ import std;
 const char* WINDOW_TITLE = "Breath of Fire 3";
 
 
-Func<0x5A5160, int, HWND /* hWnd */, BOOL* /* a2 */, BOOL* /* a3 */, int* /* a4 */> sub_5A5160;
 FuncHook<decltype(sub_5A5160)> sub_5A5160Hook = [](auto hWnd, auto a2, auto a3, auto a4) {
 	auto r = sub_5A5160.Original(hWnd, a2, a3, a4);
 
@@ -29,9 +28,7 @@ FuncHook<decltype(sub_5A5160)> sub_5A5160Hook = [](auto hWnd, auto a2, auto a3, 
 	for (int i = 0; i < 256; ++i)
 		((float*)0x7CA9E0)[i] = i / 256.0;
 
-	const auto& cfgMgr = ConfigManager::Get();
-
-	auto renderScale = cfgMgr.GetRenderScale();
+	auto renderScale = ConfigManager::Get().GetRenderScale();
 
 	*g_RenderScaleX = renderScale;
 	*g_RenderScaleY = renderScale;
@@ -40,7 +37,6 @@ FuncHook<decltype(sub_5A5160)> sub_5A5160Hook = [](auto hWnd, auto a2, auto a3, 
 };
 
 
-Func<0x5A5130, void, uint32_t /* x */, uint32_t /* y */> SetDisplayRect;
 FuncHook<decltype(SetDisplayRect)> SetDisplayRectHook = [](auto x, auto y) {
 	auto wndSize = ConfigManager::Get().GetWindowSize();
 
@@ -146,4 +142,7 @@ export void EnableWindowHooks() {
 
 	*(uint16_t*)&fs[1] = (uint16_t)32;
 	WriteProtectedMemory(0x5A54D5, fs);
+
+	// Make window resizable
+	//WriteProtectedMemory(0x4FCCCD, (uint32_t)(0xCA0000 | WS_SIZEBOX));
 }

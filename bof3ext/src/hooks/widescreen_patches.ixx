@@ -180,4 +180,10 @@ export void ApplyWidescreenPatches() {
 	// Widescreen fix for menu background
 	WriteProtectedMemory(0x575732, (uint32_t)std::ceil(renderWidth / 32 / 2));	// Repeat background pattern to fit extended screen width.
 																				// Each column is 32px wide and alternates between 2 patterns, meaning 64px per repeat.
+
+	// Widescreen fix for overworld popups ("!", location name, etc.)
+	WriteProtectedMemory(0x4112A9, (uint16_t)(160 + offset));
+
+	// Widescreen fix for sky
+	WriteProtectedMemory(0x571C85, (float)renderWidth);
 }
