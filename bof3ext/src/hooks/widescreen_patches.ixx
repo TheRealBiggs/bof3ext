@@ -79,7 +79,7 @@ Func<0x462560, DrawCommand_TexturedPlane*,
 	uint8_t,	// a4
 	uint8_t		// a5
 > sub_462560;
-FuncHook<decltype(sub_462560)> sub_462560Hook = [](auto x, auto y, auto a3, auto a4, auto a5) {
+auto sub_462560Hook(auto x, auto y, auto a3, auto a4, auto a5) {
 	auto renderScale = ConfigManager::Get().GetRenderScale();
 	auto wndSize = ConfigManager::Get().GetWindowSize();
 
@@ -88,8 +88,7 @@ FuncHook<decltype(sub_462560)> sub_462560Hook = [](auto x, auto y, auto a3, auto
 	auto offset = diff / 2;
 
 	return sub_462560.Original(x + offset, y, a3, a4, a5);
-};
-
+}
 
 Func<0x576960, void,
 	uint8_t,	// a1
@@ -97,7 +96,7 @@ Func<0x576960, void,
 	int16_t,	// y
 	void*		// a4
 > DrawSaveEntry;
-FuncHook<decltype(DrawSaveEntry)> DrawSaveEntryHook = [](auto a1, auto x, auto y, auto a4) {
+auto DrawSaveEntryHook(auto a1, auto x, auto y, auto a4) {
 	auto renderScale = ConfigManager::Get().GetRenderScale();
 	auto wndSize = ConfigManager::Get().GetWindowSize();
 
@@ -106,8 +105,7 @@ FuncHook<decltype(DrawSaveEntry)> DrawSaveEntryHook = [](auto a1, auto x, auto y
 	auto offset = diff / 2;
 
 	return DrawSaveEntry.Original(a1, x + offset, y, a4);
-};
-
+}
 
 Func<0x573CE0, void,
 	int16_t,	// x
@@ -117,7 +115,7 @@ Func<0x573CE0, void,
 	int,		// a5
 	int			// a6
 > DrawSelectedFrameOutline;
-FuncHook<decltype(DrawSelectedFrameOutline)> DrawSelectedFrameOutlineHook = [](auto x, auto y, auto w, auto h, auto a5, auto a6) {
+auto DrawSelectedFrameOutlineHook(auto x, auto y, auto w, auto h, auto a5, auto a6) {
 	auto renderScale = ConfigManager::Get().GetRenderScale();
 	auto wndSize = ConfigManager::Get().GetWindowSize();
 
@@ -126,7 +124,7 @@ FuncHook<decltype(DrawSelectedFrameOutline)> DrawSelectedFrameOutlineHook = [](a
 	auto offset = diff / 2;
 
 	DrawSelectedFrameOutline.Original(x + offset, y, w, h, a5, a6);
-};
+}
 
 
 export void ApplyWidescreenPatches() {

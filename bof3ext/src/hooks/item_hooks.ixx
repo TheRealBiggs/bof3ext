@@ -11,7 +11,7 @@ import bof3.item;
 import std;
 
 
-FuncHook<decltype(GetItemName)> GetItemNameHook = [](auto type, auto index) {
+auto GetItemNameHook(auto type, auto index) {
 	auto& txtMgr = TextManager::Get();
 
 	switch (type) {
@@ -43,11 +43,10 @@ FuncHook<decltype(GetItemName)> GetItemNameHook = [](auto type, auto index) {
 	// TODO: Add key item names
 
 	return GetItemName.Original(type, index);
-};
-
+}
 
 Func<0x4B58F0, void, uint8_t /* id */, uint8_t /* type */> LoadItemName;
-FuncHook<decltype(LoadItemName)> LoadItemNameHook = [](auto index, auto type) {
+auto LoadItemNameHook(auto index, auto type) {
 	auto& txtMgr = TextManager::Get();
 	auto dst = (char*)0x904CE0;
 
@@ -88,7 +87,7 @@ FuncHook<decltype(LoadItemName)> LoadItemNameHook = [](auto index, auto type) {
 
 			break;
 	}
-};
+}
 
 
 export void EnableItemHooks() {

@@ -75,7 +75,7 @@ std::map<uint64_t, ReplacementTexture> replacementTextures;
 
 
 Func<0x5A2CA0, void, int32_t /* surfId */, uint16_t /* charCode */, int32_t /* paletteIdx */> LoadGlyphTexture;
-FuncHook<decltype(LoadGlyphTexture)> LoadGlyphTextureHook = [](auto surfId, auto charCode, auto paletteIdx) {
+auto LoadGlyphTextureHook(auto surfId, auto charCode, auto paletteIdx) {
 	if (charCode + '!' < 0x7F)
 		charCode += '!';
 
@@ -206,9 +206,9 @@ FuncHook<decltype(LoadGlyphTexture)> LoadGlyphTextureHook = [](auto surfId, auto
 	fontGlyph->charCode = (charCode < 0x7F) ? charCode - '!' : charCode;
 	fontGlyph->paletteIndex = paletteIdx;
 	fontGlyph->dword4 = stru_6C2A40[paletteIdx >> 6].dword0;
-};
+}
 
-FuncHook<decltype(SetTexture)> SetTextureHook = [](auto a1, auto a2) {
+auto SetTextureHook(auto a1, auto a2) {
 	uint64_t key = ((uint64_t)a1 << 32) | a2;
 
 	if (replacementTextures.count(key) > 0) {
@@ -292,9 +292,9 @@ FuncHook<decltype(SetTexture)> SetTextureHook = [](auto a1, auto a2) {
 			DumpTexture(std::format("NewData\\Textures\\Dumped\\texture_{}_{}.dds", a1, a2));
 		}
 	}
-};
+}
 
-FuncHook<decltype(sub_5A3160)> sub_5A3160Hook = [](auto a1, auto a2, auto a3, auto a4) {
+auto sub_5A3160Hook(auto a1, auto a2, auto a3, auto a4) {
 	auto r = sub_5A3160.Original(a1, a2, a3, a4);
 
 	uint64_t key = ((uint64_t)a1 << 48) | ((uint64_t)a2 << 32) | ((uint64_t)a3 << 16) | a4;
@@ -380,7 +380,7 @@ FuncHook<decltype(sub_5A3160)> sub_5A3160Hook = [](auto a1, auto a2, auto a3, au
 	}
 
 	return r;
-};
+}
 
 
 export void EnableTextureHooks() {

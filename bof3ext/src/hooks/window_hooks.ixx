@@ -21,7 +21,7 @@ import std;
 const char* WINDOW_TITLE = "Breath of Fire 3";
 
 
-FuncHook<decltype(sub_5A5160)> sub_5A5160Hook = [](auto hWnd, auto a2, auto a3, auto a4) {
+auto sub_5A5160Hook(auto hWnd, auto a2, auto a3, auto a4) {
 	auto r = sub_5A5160.Original(hWnd, a2, a3, a4);
 
 	// Fix pre-calculated texture coordinates
@@ -34,21 +34,19 @@ FuncHook<decltype(sub_5A5160)> sub_5A5160Hook = [](auto hWnd, auto a2, auto a3, 
 	*g_RenderScaleY = renderScale;
 
 	return r;
-};
+}
 
-
-FuncHook<decltype(SetDisplayRect)> SetDisplayRectHook = [](auto x, auto y) {
+auto SetDisplayRectHook(auto x, auto y) {
 	auto wndSize = ConfigManager::Get().GetWindowSize();
 
 	g_DisplayRect->left = x;
 	g_DisplayRect->top = y;
 	g_DisplayRect->right = x + wndSize.x;
 	g_DisplayRect->bottom = y + wndSize.y;
-};
-
+}
 
 Func<0x59E360, void, const char* /* filename */, HWND /* hWnd */, BOOL /* a3 */> PlayMovieFile;
-FuncHook<decltype(PlayMovieFile)> PlayMovieFileHook = [](auto filename, auto hWnd, auto a3) {
+auto PlayMovieFileHook(auto filename, auto hWnd, auto a3) {
 	sub_5A5160(hWnd, &bool_65DA44, &bool_65DA48, nullptr);
 
 	auto cmd = std::format("open avivideo!{} alias vfw", filename);
@@ -109,7 +107,7 @@ FuncHook<decltype(PlayMovieFile)> PlayMovieFileHook = [](auto filename, auto hWn
 	mciSendStringA("close vfw wait", nullptr, 0, 0);
 
 	SetWindowLongA(hWnd, GWL_WNDPROC, prevWndProc);
-};
+}
 
 
 export void EnableWindowHooks() {

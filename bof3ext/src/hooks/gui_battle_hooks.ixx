@@ -48,7 +48,7 @@ Func<0x444D50, bool, int16_t /* x */, int16_t /* y */, int16_t /* a3 */, int16_t
 
 
 Func<0x443D90, void, int16_t /* x */, int16_t /* y */, uint8_t /* slot */> DrawBattleEnemyPanel;
-FuncHook<decltype(DrawBattleEnemyPanel)> DrawBattleEnemyPanelHook = [](auto x, auto y, auto slot) {
+auto DrawBattleEnemyPanelHook(auto x, auto y, auto slot) {
 	DrawBorderedPanel(x, y, 74, 22);
 	
 	auto _slot = slot - 3;
@@ -75,25 +75,20 @@ FuncHook<decltype(DrawBattleEnemyPanel)> DrawBattleEnemyPanelHook = [](auto x, a
 
 		DrawStringSmall(x + 4, y + 3, 0, len, name);
 	}
-};
+}
 
 Func<0x4439A0, void, uint8_t /* index */> DrawBattleCommandTextPanel;
-FuncHook<decltype(DrawBattleCommandTextPanel)> DrawBattleCommandTextPanelHook = [](auto index) {
+auto DrawBattleCommandTextPanelHook(auto index) {
 	auto x = ((RectS*)0x64E2C8)[index].Left;
 	auto y = ((RectS*)0x64E2C8)[index].Top;
 
 	DrawBorderedPanel(x, y, 54, 18);
 	DrawString(x + 8, y + 3, 0, 8u, ((char**)0x669D60)[index]);
-};
-
-//Func<0x597230, void> sub_597230;
-//FuncHook<decltype(sub_597230)> sub_597230Hook = []() {
-//
-//};
+}
 
 // Draws the panel at the top of the screen that displays current character or skill name
 Func<0x597230, void> DrawBattleActionTextPanel;
-FuncHook<decltype(DrawBattleActionTextPanel)> DrawBattleActionTextPanelHook = []() {
+auto DrawBattleActionTextPanelHook() {
 	auto& stru = stru_93B8E0[dword_905B84->byteA];
 
 	auto textLen = std::strlen(stru.text);
@@ -121,23 +116,22 @@ FuncHook<decltype(DrawBattleActionTextPanel)> DrawBattleActionTextPanelHook = []
 		auto _x = (x + 35) - (textLen * advance) / 2;
 		DrawString(_x, y + 3, stru.byteA, textLen, stru.text);
 	}
-};
+}
 
 Func<0x42F680, void> sub_42F680;
-FuncHook<decltype(sub_42F680)> sub_42F680Hook = []() {
+auto sub_42F680Hook() {
 	sub_42F680.Original();
 
 	if (*word_904B80 != 151) {
 		const auto& skillName = TextManager::Get().GetSkillName(*word_904B80);
 		strncpy_s((char*)0x904EA0, 32, skillName.c_str(), skillName.length());
 	}
-};
+}
 
 
 export void EnableGuiBattleHooks() {
 	//EnableHook(DrawBattleEnemyPanel, DrawBattleEnemyPanelHook);
 	EnableHook(DrawBattleCommandTextPanel, DrawBattleCommandTextPanelHook);
-	//EnableHook(sub_597230, sub_597230Hook);
 	EnableHook(DrawBattleActionTextPanel, DrawBattleActionTextPanelHook);
 	EnableHook(sub_42F680, sub_42F680Hook);
 

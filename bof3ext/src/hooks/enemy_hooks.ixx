@@ -12,7 +12,7 @@ import std;
 
 
 Func<0x4946C0, void, uint8_t /* slot */, uint8_t /* index */> LoadEnemyNameEtc;
-FuncHook<decltype(LoadEnemyNameEtc)> LoadEnemyNameEtcHook = [](auto slot, auto index) {
+auto LoadEnemyNameEtcHook(auto slot, auto index) {
 	LoadEnemyNameEtc.Original(slot, index);
 
 	auto battleSlot = (char*)0x93B9E0 + 296 * slot;	// Array of structs of size 296
@@ -30,7 +30,7 @@ FuncHook<decltype(LoadEnemyNameEtc)> LoadEnemyNameEtcHook = [](auto slot, auto i
 		*(uint32_t*)battleSlot = 0x600DBEEF;
 		*(const char**)&battleSlot[4] = name.c_str();
 	}
-};
+}
 
 
 export void EnableEnemyHooks() {

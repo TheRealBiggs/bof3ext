@@ -20,7 +20,7 @@ Func<0x497770, void> sub_497770;
 
 
 Func<0x497740, const char*, uint16_t /* index */> GetText;
-FuncHook<decltype(GetText)> GetTextHook = [](auto index) -> const char* {
+auto GetTextHook(auto index) {
 	//LogDebug("GetText: %i, %i\n", index, LastLoadedDatFileId);
 
 	auto fileNum = index >> 14;
@@ -38,11 +38,10 @@ FuncHook<decltype(GetText)> GetTextHook = [](auto index) -> const char* {
 	_itoa_s(index, buf, 32, 10);
 
 	return (const char*)buf;
-};
-
+}
 
 Func<0x4976D0, void, uint16_t /* index */> LoadDialogue;
-FuncHook<decltype(LoadDialogue)> LoadDialogueHook = [](auto index) {
+auto LoadDialogueHook(auto index) {
 	LogDebug("LoadDialogue: %i\n", index);
 
 	auto areaId = *(uint8_t*)0x904EFC;
@@ -61,7 +60,7 @@ FuncHook<decltype(LoadDialogue)> LoadDialogueHook = [](auto index) {
 		*(uint16_t*)0x7DEE48 = index;
 	} else
 		LoadDialogue.Original(index);
-};
+}
 
 
 const char charNameRyu[] = "Ryu";

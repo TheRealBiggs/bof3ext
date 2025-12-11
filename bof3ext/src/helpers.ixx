@@ -75,31 +75,15 @@ struct Func {
 	}
 };
 
-export template<typename T>
-struct FuncHook;
 
-export template<template<uintptr_t, typename, typename...> typename TFunc, uintptr_t Address, typename ReturnType, typename... ArgTypes>
-struct FuncHook<TFunc<Address, ReturnType, ArgTypes...>> {
-	template <typename FuncType, typename x = std::enable_if_t<std::is_invocable_r_v<ReturnType, FuncType, ArgTypes...>>>
-	FuncHook(FuncType&& lambda) {
-		Function = std::move(lambda);
-	}
+export template<typename FuncType>
+void __forceinline EnableHook(FuncType& func, typename FuncType::FuncType hook) {
+	static_assert(std::is_same_v<decltype(func.FuncPointer), decltype(hook)>, "Function and hook type do not match!");
 
-	static ReturnType Call(ArgTypes... args) {
-		return Function(args...);
-	}
-
-	static inline std::function<ReturnType(ArgTypes...)> Function = [](ArgTypes...) { return ReturnType{}; };
-};
-
-export template<typename FuncType, typename HookType>
-void __forceinline EnableHook(FuncType& func, HookType& hook) {
-	static_assert(std::is_same_v<decltype(func.FuncPointer), decltype(&hook.Call)>, "Function and hook type do not match!");
-
-	auto res = MH_CreateHook(func.FuncPointer, hook.Call, (LPVOID*)&func.Original);
+	auto res = MH_CreateHook(func.FuncPointer, hook, (LPVOID*)&func.Original);
 	res = MH_EnableHook(func.FuncPointer);
 
-	func.FuncPointer = hook.Call;
+	func.FuncPointer = hook;
 }
 
 

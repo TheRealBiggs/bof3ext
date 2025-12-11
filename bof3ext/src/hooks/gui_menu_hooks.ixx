@@ -46,7 +46,7 @@ Func<0x57DBF0, void, int16_t /* x */, int16_t /* y */, uint32_t /* paletteIdx */
 
 
 Func<0x574890, void, int16_t /* x */, int16_t /* y */, uint8_t /* index */, uint8_t /* selectedTabIdx */> DrawMenuTabs;
-FuncHook<decltype(DrawMenuTabs)> DrawMenuTabsHook = [](auto x, auto y, auto index, auto selectedTabIdx) {
+auto DrawMenuTabsHook(auto x, auto y, auto index, auto selectedTabIdx) {
 	auto count = byte_66383C[index * 5];
 	auto startIndex = index * 5 + 1;
 
@@ -78,10 +78,10 @@ FuncHook<decltype(DrawMenuTabs)> DrawMenuTabsHook = [](auto x, auto y, auto inde
 
 		DrawUIGroup(x + 48 * i, y, a3, 0);
 	}
-};
+}
 
 Func<0x574EC0, void, uint8_t /* characterId */, int16_t /* x */, int16_t /* y */, char* /* a4 */, int16_t /* a5 */, uint8_t* /* a6 */> DrawEquipmentWindow;
-FuncHook<decltype(DrawEquipmentWindow)> DrawEquipmentWindowHook = [](auto characterId, auto x, auto y, auto a4, auto a5, auto a6) {
+auto DrawEquipmentWindowHook(auto characterId, auto x, auto y, auto a4, auto a5, auto a6) {
 	DrawWindowBackground(x + 4, y + 4, 120, 163, 0, *(uint8_t*)0x903A5A);
 
 	auto* character = &g_Characters[characterId];
@@ -179,10 +179,10 @@ FuncHook<decltype(DrawEquipmentWindow)> DrawEquipmentWindowHook = [](auto charac
 	sub_57D860(x + 120, y + 80, 15, 1);
 	sub_57D860(x, y + 160, 16, 1);
 	sub_57D860(x + 120, y + 160, 18, 1);
-};
+}
 
 Func<0x5759C0, void, UnkStruct_D* /* a1 */> DrawInventoryWindow;
-FuncHook<decltype(DrawInventoryWindow)> DrawInventoryWindowHook = [](auto a1) {
+auto DrawInventoryWindowHook(auto a1) {
 	DrawWindowBackground(a1->x + 3, a1->y + 3, 153, 154, a1->flags, *(uint8_t*)0x903A5A);
 
 	uint8_t v37;
@@ -279,9 +279,9 @@ FuncHook<decltype(DrawInventoryWindow)> DrawInventoryWindowHook = [](auto a1) {
 	}
 
 	sub_57DD10(*((uint32_t*)0x656B00 + a1->category), a1->gap3, a1->x + 144, a1->y + 24, 9, a1->category == 4 ? 32 : 128, 116);	// Scrollbar
-};
+}
 
-FuncHook<decltype(DrawItemInventoryInfo)> DrawItemInventoryInfoHook = [](auto x, auto y, auto paletteIdx, auto itemType, auto itemIdx, auto itemCount, auto iconGreyed) {
+auto DrawItemInventoryInfoHook(auto x, auto y, auto paletteIdx, auto itemType, auto itemIdx, auto itemCount, auto iconGreyed) {
 	auto iconId = GetItemIconId(itemType, itemIdx);
 	DrawItemIcon(x, y + 2, ((uint8_t*)0x663D60)[iconId], iconGreyed);
 
@@ -295,12 +295,12 @@ FuncHook<decltype(DrawItemInventoryInfo)> DrawItemInventoryInfoHook = [](auto x,
 		sprintf_s(buf, "x%2d", itemCount);
 		DrawString(x + 109, y, paletteIdx, 3, buf);
 	}
-};
+}
 
 Func<0x574610, void, int16_t /* x */, int16_t /* y */, int /* a3 */, int /* a4 */> DrawZennyPanel;
-FuncHook<decltype(DrawZennyPanel)> DrawZennyPanelHook = [](auto x, auto y, auto a3, auto a4) {
+auto DrawZennyPanelHook(auto x, auto y, auto a3, auto a4) {
 
-};
+}
 
 
 export void EnableGuiMenuHooks() {
