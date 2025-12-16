@@ -47,7 +47,7 @@ auto SetDisplayRectHook(auto x, auto y) {
 
 Func<0x59E360, void, const char* /* filename */, HWND /* hWnd */, BOOL /* a3 */> PlayMovieFile;
 auto PlayMovieFileHook(auto filename, auto hWnd, auto a3) {
-	sub_5A5160(hWnd, &bool_65DA44, &bool_65DA48, nullptr);
+	sub_5A5160(hWnd, &g_IsFullscreen, &g_UseHardwareRendering, nullptr);
 
 	auto cmd = std::format("open avivideo!{} alias vfw", filename);
 

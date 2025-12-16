@@ -2,6 +2,8 @@ module;
 
 #include <toml++/toml.hpp>
 
+#include <cstdint>
+
 export module bof3ext.configManager;
 
 import bof3ext.helpers;
@@ -37,6 +39,10 @@ public:
 
 	void SetWindowSize(int width, int height) { windowWidth = width; windowHeight = height; }
 	void SetRenderScale(float scale) { renderScale = scale; }
+
+	uint16_t GetRenderWidth() const { return windowWidth; }
+	uint16_t GetRenderHeight() const { return windowHeight; }
+	uint16_t GetScaledRenderWidth() const { return windowWidth / renderScale; }
 
 
 private:

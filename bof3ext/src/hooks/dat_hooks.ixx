@@ -1,7 +1,5 @@
 module;
 
-#include <cstdio>
-
 export module bof3ext.hooks:dat;
 
 import bof3ext.helpers;

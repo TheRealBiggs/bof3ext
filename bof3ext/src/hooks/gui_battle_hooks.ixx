@@ -1,5 +1,6 @@
 module;
 
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 
@@ -38,13 +39,13 @@ ArrayAccessor<0x93B8E0, UnkStruct_G> stru_93B8E0;
 ArrayAccessor<0x656A34, Vec2s> g_EnemyBattlePanelPositions;
 
 
-Func<0x444900, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint8_t /* a4 */>															sub_444900;
-Func<0x4449E0, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint32_t /* a4 */, uint8_t /* a5 */>										sub_4449E0;
-Func<0x4447B0, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint8_t /* a4 */>															sub_4447B0;
-Func<0x444A90, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint8_t /* a4 */, bool /* a5 */>											sub_444A90;
-Func<0x444EB0, bool, uint8_t /* a1 */>																												sub_444EB0;
-Func<0x444E00, bool, int16_t /* x */, int16_t /* y */, int16_t /* a3 */, int16_t /* a4 */, uint8_t /* a5 */, uint8_t /* a6 */, uint8_t /* a7 */>	sub_444E00;
-Func<0x444D50, bool, int16_t /* x */, int16_t /* y */, int16_t /* a3 */, int16_t /* a4 */, uint8_t /* a5 */, uint8_t /* a6 */, uint8_t /* a7 */>	sub_444D50;
+Func<0x444900, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint8_t /* a4 */>														sub_444900;
+Func<0x4449E0, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint32_t /* a4 */, uint8_t /* a5 */>									sub_4449E0;
+Func<0x4447B0, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint8_t /* a4 */>														sub_4447B0;
+Func<0x444A90, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint8_t /* a4 */, bool /* a5 */>										sub_444A90;
+Func<0x444EB0, bool, uint8_t /* a1 */>																											sub_444EB0;
+Func<0x444E00, bool, int16_t /* x1 */, int16_t /* y1 */, int16_t /* x2 */, int16_t /* y2 */, uint8_t /* r */, uint8_t /* g */, uint8_t /* b */>	sub_444E00;
+Func<0x444D50, bool, int16_t /* x1 */, int16_t /* y1 */, int16_t /* x2 */, int16_t /* y2 */, uint8_t /* r */, uint8_t /* g */, uint8_t /* n */>	sub_444D50;
 
 
 Func<0x443D90, void, int16_t /* x */, int16_t /* y */, uint8_t /* slot */> DrawBattleEnemyPanel;
@@ -54,7 +55,7 @@ auto DrawBattleEnemyPanelHook(auto x, auto y, auto slot) {
 	auto _slot = slot - 3;
 
 	if (g_EnemyBattleDatas[_slot].gap0 == 1)
-		sub_444A90(x + 6, y + 10, *(uint8_t*)(*dword_905B84 + 11), *(uint8_t*)(*dword_905B84 + 13), true);	// Health bar
+		sub_444A90(x + 6, y + 10, dword_905B84->byteB, dword_905B84->byteD, true);	// Health bar
 	else
 		DrawNumTiny(x + 36, y + 12, 0, 0xFFFF);	// Unknown health bar ( Just draws question mark )
 
@@ -95,17 +96,15 @@ auto DrawBattleActionTextPanelHook() {
 	auto x = dword_905B84->x;
 	auto y = dword_905B84->y;
 
-	auto renderScale = ConfigManager::Get().GetRenderScale();
-	auto wndSize = ConfigManager::Get().GetWindowSize();
+	const auto& cfgMgr = ConfigManager::Get();
+	auto renderWidth = cfgMgr.GetScaledRenderWidth();
 
-	auto renderWidth = (wndSize.x / 320.0) / renderScale * 320;
 	auto diff = (float)(renderWidth - 320.f);
 	auto offset = diff / 2;
 
 	x += offset;
 
-	auto advance = GlyphManager::Get().GetGlyphAdvance();
-	advance = std::ceil(advance / ConfigManager::Get().GetRenderScale());
+	auto advance = std::ceil(GlyphManager::Get().GetScaledGlyphAdvance());
 
 	if (stru.isCharacterName) {
 		DrawBorderedPanel(x - 16, y, 102, 18);
@@ -137,11 +136,7 @@ export void EnableGuiBattleHooks() {
 
 	WriteProtectedMemory(0x443ECE, (uint8_t)(4 - 2));	// Move enemy name in battle left by 2 pixels
 
-	auto renderScale = ConfigManager::Get().GetRenderScale();
-	auto wndSize = ConfigManager::Get().GetWindowSize();
-
-	auto width = (wndSize.x / 320.0) / renderScale * 320;
-	auto diff = width - 320;
+	auto diff = ConfigManager::Get().GetScaledRenderWidth() - 320;
 
 	g_EnemyBattlePanelPositions[0].x += diff;
 	g_EnemyBattlePanelPositions[3].x += diff;

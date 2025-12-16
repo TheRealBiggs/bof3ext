@@ -2,9 +2,9 @@ module;
 
 #include <MinHook.h>
 
-#include <concepts>
 #include <cstdarg>
 #include <cstdio>
+#include <cstdint>
 
 #include <windows.h>
 
@@ -21,7 +21,6 @@ export struct Rect {
 };
 
 export typedef int BOOL;
-
 
 
 // Helper templates for accessing a variable by its address
@@ -58,7 +57,6 @@ struct PointerAccessor {
 		return *(T**)Address;
 	}
 };
-
 
 
 // Helper templates for accessing and hooking a function by its address
@@ -128,3 +126,10 @@ export void __forceinline LogDebug(const char*, ...) { __noop; }
 export void __forceinline LogError(const char*, ...) { __noop; }
 
 #endif
+
+
+// Text-encoding functions
+
+export uint16_t __forceinline EncodeUnicodeCharacter(char16_t c) {
+	return ((c | 0x8000) >> 8) | ((c & 0xFF) << 8);
+}

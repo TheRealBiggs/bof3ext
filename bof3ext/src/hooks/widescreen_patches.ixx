@@ -72,7 +72,7 @@ void PatchDrawRangesForWidescreen(float diff) {
 }
 
 
-Func<0x462560, DrawCommand_TexturedPlane*,
+Func<0x462560, GpuCommand_TexturedRectWH*,
 	int16_t,	// x
 	int16_t,	// y
 	uint8_t,	// a3
@@ -80,11 +80,7 @@ Func<0x462560, DrawCommand_TexturedPlane*,
 	uint8_t		// a5
 > sub_462560;
 auto sub_462560Hook(auto x, auto y, auto a3, auto a4, auto a5) {
-	auto renderScale = ConfigManager::Get().GetRenderScale();
-	auto wndSize = ConfigManager::Get().GetWindowSize();
-
-	auto renderWidth = (wndSize.x / 320.0) / renderScale * 320;
-	auto diff = (float)(renderWidth - 320.f);
+	auto diff = ConfigManager::Get().GetScaledRenderWidth() - 320.f;
 	auto offset = diff / 2;
 
 	return sub_462560.Original(x + offset, y, a3, a4, a5);
@@ -97,11 +93,7 @@ Func<0x576960, void,
 	void*		// a4
 > DrawSaveEntry;
 auto DrawSaveEntryHook(auto a1, auto x, auto y, auto a4) {
-	auto renderScale = ConfigManager::Get().GetRenderScale();
-	auto wndSize = ConfigManager::Get().GetWindowSize();
-
-	auto renderWidth = (wndSize.x / 320.0) / renderScale * 320;
-	auto diff = (float)(renderWidth - 320.f);
+	auto diff = ConfigManager::Get().GetScaledRenderWidth() - 320.f;
 	auto offset = diff / 2;
 
 	return DrawSaveEntry.Original(a1, x + offset, y, a4);
@@ -116,11 +108,7 @@ Func<0x573CE0, void,
 	int			// a6
 > DrawSelectedFrameOutline;
 auto DrawSelectedFrameOutlineHook(auto x, auto y, auto w, auto h, auto a5, auto a6) {
-	auto renderScale = ConfigManager::Get().GetRenderScale();
-	auto wndSize = ConfigManager::Get().GetWindowSize();
-
-	auto renderWidth = (wndSize.x / 320.0) / renderScale * 320;
-	auto diff = (float)(renderWidth - 320.f);
+	auto diff = ConfigManager::Get().GetScaledRenderWidth() - 320.f;
 	auto offset = diff / 2;
 
 	DrawSelectedFrameOutline.Original(x + offset, y, w, h, a5, a6);
@@ -132,11 +120,11 @@ export void ApplyWidescreenPatches() {
 	EnableHook(DrawSaveEntry, DrawSaveEntryHook);
 	EnableHook(DrawSelectedFrameOutline, DrawSelectedFrameOutlineHook);
 
-	auto renderScale = ConfigManager::Get().GetRenderScale();
-	auto wndSize = ConfigManager::Get().GetWindowSize();
+	const auto& cfgMgr = ConfigManager::Get();
 
-	auto renderWidth = (wndSize.x / 320.0) / renderScale * 320;
-	auto diff = (float)(renderWidth - 320.f);
+	auto renderScale = cfgMgr.GetRenderScale();
+	auto renderWidth = (float)cfgMgr.GetScaledRenderWidth();
+	auto diff = renderWidth - 320.f;
 
 	PatchDrawRangesForWidescreen(diff);
 
@@ -184,4 +172,8 @@ export void ApplyWidescreenPatches() {
 
 	// Widescreen fix for sky
 	WriteProtectedMemory(0x571C85, (float)renderWidth);
+
+	// Widescreen fix for pause menu
+	WriteProtectedMemory(0x589F9C, (int16_t)(116 + offset));	// Top text panel X
+	WriteProtectedMemory(0x589EB7, (int16_t)(98 + offset));		// Character panels X
 }

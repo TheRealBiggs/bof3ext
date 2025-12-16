@@ -1,7 +1,9 @@
-module;
+﻿module;
 
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 
 export module bof3ext.hooks:gui.menu;
 
@@ -39,10 +41,6 @@ Func<0x5919B0, uint16_t, uint8_t /* a1 */, uint8_t /* a2 */, uint8_t /* a3 */> s
 Func<0x590AB0, void, uint8_t /* characterId */, char* /* newEquip */, uint8_t* /* outColours */, uint16_t* /* outStats */> GetNewStats;
 Func<0x57D360, void, int16_t /* x */, int16_t /* y */, uint8_t /* id */, bool /* greyed */> DrawItemIcon;
 Func<0x57D860, void, int16_t /* x */, int16_t /* y */, int /* a3 */, char /* a4 */> sub_57D860;
-Func<0x57DF00, char, char* /* a1 */, uint8_t* /* a2 */, uint8_t* /* a3 */, uint8_t* /* a4 */> sub_57DF00;
-Func<0x57D9A0, bool, char /* a1 */, char /* a2 */, uint8_t /* itemType */, uint8_t /* itemIdx */> sub_57D9A0;
-Func<0x57DD10, void, int /* a1 */, uint8_t /* a2 */, int16_t /* x */, int16_t /* y */, uint8_t /* a5 */, uint8_t /* a6 */, uint8_t /* a7 */> sub_57DD10;
-Func<0x57DBF0, void, int16_t /* x */, int16_t /* y */, uint32_t /* paletteIdx */, uint8_t /* itemType */, uint8_t /* itemIdx */, uint8_t /* itemCount */, bool /* iconGreyed */> DrawItemInventoryInfo;
 
 
 Func<0x574890, void, int16_t /* x */, int16_t /* y */, uint8_t /* index */, uint8_t /* selectedTabIdx */> DrawMenuTabs;
@@ -57,10 +55,11 @@ auto DrawMenuTabsHook(auto x, auto y, auto index, auto selectedTabIdx) {
 
 		auto& text = TextManager::Get().GetMenuTabText(id);
 		auto len = text.length();
-		auto advance = GlyphManager::Get().GetGlyphAdvance();
-		advance = std::ceil(advance / ConfigManager::Get().GetRenderScale());
 
-		auto _x = (int16_t)(x + 22 - (len * advance / 2) + i * 48);
+		auto advance = GlyphManager::Get().GetScaledGlyphAdvance();
+		auto offset = std::floor(advance / 2 * len);
+
+		auto _x = (int16_t)(x + 22 - offset + i * 48);
 
 		auto paletteIdx = 0;
 
@@ -94,8 +93,7 @@ auto DrawEquipmentWindowHook(auto characterId, auto x, auto y, auto a4, auto a5,
 
 	char buf[6];
 
-	auto advance = GlyphManager::Get().GetGlyphAdvance();
-	advance = std::ceil(advance / ConfigManager::Get().GetRenderScale());
+	auto advance = std::ceil(GlyphManager::Get().GetScaledGlyphAdvance());
 	auto statXPos = x + 120 - advance * 3 - 5;
 
 	if (a5 == 0)
@@ -117,8 +115,7 @@ auto DrawEquipmentWindowHook(auto characterId, auto x, auto y, auto a4, auto a5,
 		uint8_t colours[4];
 		uint16_t newStats[4];
 
-		uint16_t arrow = u'�' | 0x8000;
-		arrow = (arrow >> 8) | ((arrow & 0xFF) << 8);
+		uint16_t arrow = EncodeUnicodeCharacter(u'»');
 		GetNewStats(characterId, a4, colours, newStats);
 
 		for (int i = 0; i < 4; ++i) {
@@ -181,132 +178,76 @@ auto DrawEquipmentWindowHook(auto characterId, auto x, auto y, auto a4, auto a5,
 	sub_57D860(x + 120, y + 160, 18, 1);
 }
 
-Func<0x5759C0, void, UnkStruct_D* /* a1 */> DrawInventoryWindow;
-auto DrawInventoryWindowHook(auto a1) {
-	DrawWindowBackground(a1->x + 3, a1->y + 3, 153, 154, a1->flags, *(uint8_t*)0x903A5A);
-
-	uint8_t v37;
-	uint8_t v33;
-
-	auto v31 = sub_57DF00((char*)&a1->gap3, &v37, &v33, (uint8_t*)&a1->gap);
-
-	if (v33 + 9 > 0) {
-		auto v5 = *((uint32_t*)0x656B00 + a1->category);
-		auto itemIds = (uint8_t*)(v5 + v31);
-
-		auto v6 = (uint8_t**)0x656B14;
-		auto itemCounts = &v6[a1->category][v31];
-
-		// TODO: Grey out key items, add scrolling support, and double-draw selected item
-		for (int i = 0; i < v33 + 9; ++i) {
-			if (itemIds[i] == 0)
-				continue;
-
-			auto v7 = ((uint8_t*)0x66972C)[((uint8_t*)0x904060)[*(uint8_t*)0x929F06 + 2]];
-			auto notUsable = a1->flags || !sub_57D9A0(a1->gap1, v7, a1->category, itemIds[i]);
-
-			DrawItemInventoryInfo(a1->x + 7, a1->y + 26 + i * 13, notUsable ? 7 : 0, a1->category, itemIds[i], itemCounts[i], notUsable);
-		}
-	}
-
-	//DrawWindowBackground(a1->x + 3, a1->y + 3, 153, 20, a1->flags, *(uint8_t*)0x903A5A);
-	//DrawWindowBackground(a1->x + 3, a1->y + 146, 153, 8, a1->flags, *(uint8_t*)0x903A5A);
-
-	const auto& categoryText = TextManager::Get().GetCategoryText(a1->category);
-	auto len = categoryText.length();
-	auto advance = GlyphManager::Get().GetGlyphAdvance();
-	advance /= 2;
-
-	auto _x = (int16_t)(a1->x + 78 - (len * advance / 2));
-
-	auto paletteIdx = a1->flags != 0 ? 7 : 0;
-
-	DrawString(_x, a1->y + 7, paletteIdx, (uint8_t)len, categoryText.c_str());
-
-	char buf[8];
-
-	auto itemCount = GetUniqueItemCount(a1->category);
-	sprintf_s(buf, "%3d/%3d", itemCount, a1->category == 4 ? 32 : 128);
-	DrawString(a1->x + 113 - (7 * advance / 2), a1->y + 144, paletteIdx, 7, buf);
-
-	auto v19 = (char*)0x66349C;
-
-	if ((a1->gap7 & 2) == 0)
-		v19 = (char*)0x663484;
-
-	DrawUIGroup(a1->x, a1->y, v19, 1);	// Left side of category section
-
-	v19 = (char*)0x6634A8;
-
-	if ((a1->gap7 & 1) == 0)
-		v19 = (char*)0x663490;
-
-	DrawUIGroup(a1->x, a1->y, v19, 1);	// Right side of category section
-
-	if ((a1->gap7 & 0xF0) != 0)
-		a1->gap7 -= 16;
-	else
-		a1->gap7 = 0;
-
-	for (int i = 0; i < 10; ++i)	// Center of category section
-		sub_57D860(a1->x + 40 + 8 * i, a1->y, 1, 1);
-
-	for (int i = 0; i < 15; ++i)	// Left side of frame
-		sub_57D860(a1->x, a1->y + 24 + 8 * i, 4, 1);
-
-	sub_57D860(a1->x, a1->y + 144, 25, 1);	// Bottom-left corner
-
-	sub_57D860(a1->x + 144, a1->y + 24, 22, 1);	// Top section of scrollbar
-
-	for (int i = 0; i < 12; ++i)	// Middle section of scrollbar
-		sub_57D860(a1->x + 144, a1->y + 40 + 8 * i, 23, 1);
-
-	sub_57D860(a1->x + 144, a1->y + 136, 24, 1);	// Bottom section of scrollbar
-
-	for (int i = 0; i < 9; ++i)	// Left side of bottom section
-		sub_57D860(a1->x + 8 + 8 * i, a1->y + 144, 26, 1);
-
-	sub_57D860(a1->x + 80, a1->y + 144, 27, 1);	// Left side of item count section
-
-	for (int i = 0; i < 6; ++i)	// Center of item count section
-		sub_57D860(a1->x + 88 + 8 * i, a1->y + 144, 28, 1);
-
-	sub_57D860(a1->x + 136, a1->y + 144, 29, 1);	// Right side of item count section
-
-	if (a1->category == 4) {
-		sub_57D860(a1->x + 8, a1->y, 50, 1);	// Cover left arrow in category section for key items
-		sub_57D860(a1->x + 144, a1->y, 51, 1);	// Cover right arrow in category section for key items
-	}
-
-	sub_57DD10(*((uint32_t*)0x656B00 + a1->category), a1->gap3, a1->x + 144, a1->y + 24, 9, a1->category == 4 ? 32 : 128, 116);	// Scrollbar
-}
-
-auto DrawItemInventoryInfoHook(auto x, auto y, auto paletteIdx, auto itemType, auto itemIdx, auto itemCount, auto iconGreyed) {
-	auto iconId = GetItemIconId(itemType, itemIdx);
-	DrawItemIcon(x, y + 2, ((uint8_t*)0x663D60)[iconId], iconGreyed);
-
-	auto name = GetItemName(itemType, itemIdx);
-	auto len = GetStringLength(name);
-	DrawString(x + 10, y, paletteIdx, len, name);
-
-	if (itemCount > 1) {
-		char buf[4];
-
-		sprintf_s(buf, "x%2d", itemCount);
-		DrawString(x + 109, y, paletteIdx, 3, buf);
-	}
-}
-
 Func<0x574610, void, int16_t /* x */, int16_t /* y */, int /* a3 */, int /* a4 */> DrawZennyPanel;
 auto DrawZennyPanelHook(auto x, auto y, auto a3, auto a4) {
+	auto diff = ConfigManager::Get().GetScaledRenderWidth() - 320;
 
+	const auto& glyphMgr = GlyphManager::Get();
+	auto advance = (int)std::ceil(GlyphManager::Get().GetScaledGlyphAdvance());
+	auto largeAdvance = (int)std::ceil(GlyphManager::Get().GetScaledGlyphAdvance() * (16.0 / 12.0));
+
+	DrawWindowBackground(x + 3 + diff, y + 3, 101, 16, 0, ((uint8_t*)0x9039E0)[122]);
+
+	char buf[8];
+	sprintf_s(buf, "%7d", a4);
+	DrawStringLarge(x + 101 - 5 - advance * 2 - 7 * largeAdvance + diff, y + 4, 0, buf);
+
+	*(uint16_t*)&buf[0] = EncodeUnicodeCharacter(u'ƶ');
+	DrawString(x + 101 - 5 - advance + diff, y + 4, 0, 1, buf);
+	DrawUIGroup(x + diff, y, (char*)0x6633A8, 0);
+
+	for (int i = 0; i < 11; ++i)
+		DrawUIGroup(x + 8 * i + diff, y, (char*)0x6633B4, 0);
+
+	DrawUIGroup(x + diff, y, (char*)0x6633C0, 0);
+}
+
+
+template<int X>
+static void __declspec(naked) FixTextCentering() {
+	static const float half = 0.5f;
+	static const int x = X;
+
+	__asm {
+		push ecx;				// Save ECX register (textLen)
+		call GlyphManager::Get;
+		mov ecx, eax;			// Move GlyphManager instance into ECX for __thiscall
+		call GlyphManager::GetScaledGlyphAdvance;
+		fmul[half];				// Divide ST0 (advance) by 2
+		fimul[esp];				// Multiply ST0 by textLen
+		fistp[esp];				// Move and truncate ST0 into space on stack (reserved by previous `push ecx`)
+		mov edx, x;				// 77 is X offset of center of textbox
+		pop ecx;				// Pop converted float (half textLen * advance) into ECX
+		sub edx, ecx;			// Subtract converted float from 77 to get final X offset
+		ret;
+	}
 }
 
 
 export void EnableGuiMenuHooks() {
 	EnableHook(DrawMenuTabs, DrawMenuTabsHook);
 	EnableHook(DrawEquipmentWindow, DrawEquipmentWindowHook);
-	EnableHook(DrawInventoryWindow, DrawInventoryWindowHook);
-	EnableHook(DrawItemInventoryInfo, DrawItemInventoryInfoHook);
 	EnableHook(DrawZennyPanel, DrawZennyPanelHook);
+
+	// Fix text centering for category in inventory window
+	uint8_t code[12];
+	code[0] = 0xE8;	// Call relative
+	*(uint32_t*)&code[1] = (uint32_t)(&FixTextCentering<77>) - (0x575C7A + 5 /* 5 = size of CALL instruction */);
+	std::memset(&code[5], 0x90, 7);
+
+	WriteProtectedMemory(0x575C7A, code);
+
+	// Fix text centering for category in equip window
+	*(uint32_t*)&code[1] = (uint32_t)(&FixTextCentering<77>) - (0x5766EA + 5);
+	
+	WriteProtectedMemory(0x5766EA, code);
+
+	// Fix text centering for unique item count in inventory window
+	auto advance = GlyphManager::Get().GetScaledGlyphAdvance();
+	auto offset = advance * SMALL_TEXT_SCALE / 2 * 7;	// 7 = strlen("xxx/yyy")
+	offset = std::floor(113 - offset);
+
+	WriteProtectedMemory(0x575CE4, (uint8_t)offset);
+	
+	// TODO: Fix text alignment for item count in item info
 }

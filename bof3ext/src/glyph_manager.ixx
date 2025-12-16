@@ -118,6 +118,10 @@ public:
 		return glyphAdvance / 64;
 	}
 
+	float GetScaledGlyphAdvance() const {
+		return GetGlyphAdvance() / ConfigManager::Get().GetRenderScale();
+	}
+
 
 private:
 	void LoadGlyph(FT_Library ft, FT_Face face, unsigned short charCode) {

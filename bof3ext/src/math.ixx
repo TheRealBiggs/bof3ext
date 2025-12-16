@@ -24,3 +24,10 @@ export struct Vec2b {
 export struct Vec3f {
 	float x, y, z;
 };
+
+export struct PSX_RECT {
+	int16_t x;
+	int16_t y;
+	int16_t w;
+	int16_t h;
+};

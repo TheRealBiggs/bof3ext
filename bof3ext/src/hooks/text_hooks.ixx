@@ -1,5 +1,6 @@
 ﻿module;
 
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
 
@@ -71,8 +72,8 @@ const char charNameRei[] = "Rei";
 const char charNameMomo[] = "Momo";
 const char* defaultCharNames[] = { charNameRyu, charNameNina, charNameGarr, charNameTeepo, charNameRei, charNameMomo, "" };
 
-const char* aaa = "Msg Speed";
-const char* bbb = "Window Clr";
+const char* aaa = "Text Speed";
+const char* bbb = "Window Color";
 const char* ccc = "Background";
 const char* ddd = "Sound";
 const char* eee = "Autorun";
@@ -80,7 +81,6 @@ const char* fff = "Controller";
 
 const char* battleCommandText[] = { "Attack", "Ability", "Item", "Examine", "Defend", "Charge", "Escape" };
 const char* battleCommandText2[] = { "Attack", " \x81\x01", "Examine", "DDD", "EEE", "FFF", "Reprisal", "Critical", "III", "JJJ", "Escape", "LLL" };
-const char* skillCategoryText[] = { "Heal", "Assist", "Attack", "Skill" };
 
 
 export void EnableTextHooks() {
@@ -96,13 +96,12 @@ export void EnableTextHooks() {
 	WriteProtectedMemory(0x4979B7, (int16_t)-advance);						// X offset for '"' and '<' in dialogue
 	WriteProtectedMemory(0x4978DD, (uint8_t)12);							// Line height in dialogue
 
-	uint16_t zenny = u'ƶ' | 0x8000;
+	uint16_t zenny = EncodeUnicodeCharacter(u'ƶ');
 
-	*(uint8_t*)0x66A31C = zenny >> 8;
-	*(uint8_t*)0x66A31D = zenny & 0xFF;
+	*(uint16_t*)0x66A31C = zenny;
 
 	WriteProtectedMemory(0x516C99, (uint8_t)0xEB);	// Change JBE to JMP to skip checking of unicode characters above 0x0A00
-	WriteProtectedMemory(0x516C90, (uint8_t)'!');	// Allow characters '!', '"', '#', '$', and '%' in text
+	WriteProtectedMemory(0x516C90, (uint8_t)0);		// Allow all ASCII characters
 	//WriteProtectedMemory(0x516F05, (uint8_t)'!');	// Allow characters '!', '"', '#', '$', and '%' in small text
 	WriteProtectedMemory(0x4979A3, (uint8_t)'"');	// Move double-quotes back a space in dialogue
 
@@ -129,8 +128,35 @@ export void EnableTextHooks() {
 
 	WriteProtectedMemory(0x669D60, battleCommandText);
 	WriteProtectedMemory(0x669DE0, battleCommandText2);
-	WriteProtectedMemory(0x66B5A0, skillCategoryText);
-	WriteProtectedMemory(0x663984, skillCategoryText);
+
+	// Item count format string fix (*%2d -> x%2d)
+	WriteProtectedMemory(0x653EC0, 'x');
+
+	// Item categories
+	for (int i = 0; i < 5; ++i) {
+		const auto& txtMgr = TextManager::Get();
+
+		if (!txtMgr.HasCategoryText(i))
+			break;
+
+		const auto& text = txtMgr.GetCategoryText(i);
+
+		WriteProtectedMemory(0x663970 + i * sizeof(char*), text.c_str());	// Inventory window
+		WriteProtectedMemory(0x663994 + i * sizeof(char*), text.c_str());	// Equipment window
+	}
+
+	// Skill categories
+	for (int i = 0; i < 4; ++i) {
+		const auto& txtMgr = TextManager::Get();
+
+		if (!txtMgr.HasCategoryText(5 + i))
+			break;
+
+		const auto& text = txtMgr.GetCategoryText(5 + i);
+
+		WriteProtectedMemory(0x66B5A0 + i * sizeof(char*), text.c_str());
+		WriteProtectedMemory(0x663984 + i * sizeof(char*), text.c_str());
+	}
 
 	const char inkText[] = "Ink";
 	WriteProtectedMemory(0x66A118, inkText);

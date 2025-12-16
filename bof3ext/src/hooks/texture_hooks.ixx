@@ -67,50 +67,19 @@ void DumpTexture(const std::string& filename) {
 }
 
 
-ArrayAccessor<0x6C2A40, UnkStruct_7> stru_6C2A40;
+ArrayAccessor<0x6C2A40, UnkStruct_7> g_CLUT;
 
 
 std::map<uint64_t, ReplacementTexture> replacementTextures;
-//IDirectDrawSurface4* textSurface = nullptr;
 
 
 Func<0x5A2CA0, void, int32_t /* surfId */, uint16_t /* charCode */, int32_t /* paletteIdx */> LoadGlyphTexture;
 auto LoadGlyphTextureHook(auto surfId, auto charCode, auto paletteIdx) {
-	if (charCode + '!' < 0x7F)
-		charCode += '!';
-
 	if (!GlyphManager::Get().HasGlyph(charCode))
 		charCode = '*';
 
 	auto renderScale = ConfigManager::Get().GetRenderScale();
 	auto surfSize = (int)(16 * renderScale);
-
-	/*if (textSurface == nullptr) {
-		DDSURFACEDESC2 sd{ 0 };
-		sd.dwSize = sizeof(DDSURFACEDESC2);
-		sd.dwWidth = 320;
-		sd.dwHeight = 256;
-		sd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
-		sd.ddsCaps.dwCaps = DDSCAPS_SYSTEMMEMORY | DDSCAPS_TEXTURE;
-		sd.ddsCaps.dwCaps2 = 0;
-		sd.lPitch = 320 * 4;
-
-		sd.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-		sd.ddpfPixelFormat.dwFlags = DDPF_ALPHAPIXELS | DDPF_RGB;
-		sd.ddpfPixelFormat.dwRGBBitCount = 32;
-		sd.ddpfPixelFormat.dwBBitMask = 0xFF;
-		sd.ddpfPixelFormat.dwGBitMask = 0xFF00;
-		sd.ddpfPixelFormat.dwRBitMask = 0xFF0000;
-		sd.ddpfPixelFormat.dwRGBAlphaBitMask = 0xFF000000;
-
-		HRESULT err;
-
-		if ((err = g_IDirectDraw4->CreateSurface(&sd, &textSurface, nullptr)) != S_OK) {
-			LogDebug("Failed to create text surface! Error code: %i\n", err);
-
-			return;
-		}
-	}*/
 
 	auto* fontGlyph = &g_FontGlyphs[surfId];
 	auto* glyphSurf = fontGlyph->surface;
@@ -151,18 +120,15 @@ auto LoadGlyphTextureHook(auto surfId, auto charCode, auto paletteIdx) {
 	sd.dwSize = sizeof(DDSURFACEDESC2);
 	sd.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
 
-	//RECT rect{ 0, 0, 48, 48 };
-
 	UINT err;
 
-	//if ((err = textSurface->Lock(nullptr, &sd, 1, 0)) != S_OK) {
 	if ((err = glyphSurf->Lock(nullptr, &sd, 1, 0)) != S_OK) {
 		LogDebug("Failed to lock surface! Error code: %i\n", err);
 
 		return;
 	}
 
-	auto colour = GetPalette(paletteIdx)[1];
+	auto colour = GetCLUT(paletteIdx)[1];
 	auto b = (colour & 0b11111) / 31.0;
 	auto g = ((colour >> 5) & 0b11111) / 31.0;
 	auto r = ((colour >> 10) & 0b11111) / 31.0;
@@ -171,12 +137,10 @@ auto LoadGlyphTextureHook(auto surfId, auto charCode, auto paletteIdx) {
 	auto& bitmap = GlyphManager::Get().GetGlyph(charCode);
 
 	if (sd.lpSurface != NULL) {
-		//std::memset(sd.lpSurface, 0, 320 * 256 * 4);
 		std::memset(sd.lpSurface, 0, surfSize * surfSize * 4);
 
 		for (auto i = 0U; i < bitmap.rows; ++i) {
 			auto* surf = (DWORD*)sd.lpSurface;
-			//auto pos = (i + bitmap.top - 12) * 320 + bitmap.left;
 			auto pos = (i + bitmap.top - (int)(3 * renderScale)) * surfSize + bitmap.left;
 
 			std::memcpy(
@@ -198,14 +162,11 @@ auto LoadGlyphTextureHook(auto surfId, auto charCode, auto paletteIdx) {
 		}
 	}
 
-	//textSurface->Unlock(nullptr);
 	glyphSurf->Unlock(nullptr);
 
-	//glyphSurf->BltFast(0, 0, textSurface, (LPRECT)&rect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-
-	fontGlyph->charCode = (charCode < 0x7F) ? charCode - '!' : charCode;
+	fontGlyph->charCode = charCode;
 	fontGlyph->paletteIndex = paletteIdx;
-	fontGlyph->dword4 = stru_6C2A40[paletteIdx >> 6].dword0;
+	fontGlyph->dword4 = g_CLUT[paletteIdx >> 6].dword0;
 }
 
 auto SetTextureHook(auto a1, auto a2) {
