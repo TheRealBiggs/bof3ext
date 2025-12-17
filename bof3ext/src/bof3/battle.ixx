@@ -1,10 +1,10 @@
 module;
 
+#include <cstdint>
+
 export module bof3.battle;
 
 import bof3ext.helpers;
-
-import <cstdint>;
 
 
 export struct EnemyBattleData {

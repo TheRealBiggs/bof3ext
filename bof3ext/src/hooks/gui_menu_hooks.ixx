@@ -17,8 +17,6 @@ import bof3.gui;
 import bof3.render;
 import bof3.text;
 
-import std;
-
 
 struct UnkStruct_D {
 	uint8_t gap0[4];
@@ -203,9 +201,11 @@ auto DrawZennyPanelHook(auto x, auto y, auto a3, auto a4) {
 }
 
 
+static const float HALF = 0.5f;
+
+
 template<int X>
 static void __declspec(naked) FixTextCentering() {
-	static const float half = 0.5f;
 	static const int x = X;
 
 	__asm {
@@ -213,12 +213,29 @@ static void __declspec(naked) FixTextCentering() {
 		call GlyphManager::Get;
 		mov ecx, eax;			// Move GlyphManager instance into ECX for __thiscall
 		call GlyphManager::GetScaledGlyphAdvance;
-		fmul[half];				// Divide ST0 (advance) by 2
+		fmul[HALF];				// Divide ST0 (advance) by 2
 		fimul[esp];				// Multiply ST0 by textLen
 		fistp[esp];				// Move and truncate ST0 into space on stack (reserved by previous `push ecx`)
 		mov edx, x;				// 77 is X offset of center of textbox
 		pop ecx;				// Pop converted float (half textLen * advance) into ECX
 		sub edx, ecx;			// Subtract converted float from 77 to get final X offset
+		ret;
+	}
+}
+
+static void __declspec(naked) FixTextCenteringMainMenu() {
+	__asm {
+		push edx;				// Save EDX register (&dword_905B84)
+		push eax;				// Save EAX register (textLen)
+		call GlyphManager::Get;
+		mov ecx, eax;			// Move GlyphManager instance into ECX for __thiscall
+		call GlyphManager::GetScaledGlyphAdvance;
+		fmul[HALF];				// Divide ST0 (advance) by 2
+		fimul[esp];				// Multiply ST0 by textLen
+		fistp[esp];				// Move and truncate ST0 into space on stack (reserved by previous `push EAX`)
+		pop ecx;				// Pop converted float (half textLen * advance) into ECX
+		pop edx;				// Restore EDX
+		mov ax, [edx + 4];		// Move dword_905B84->x into EAX
 		ret;
 	}
 }
@@ -231,15 +248,16 @@ export void EnableGuiMenuHooks() {
 
 	// Fix text centering for category in inventory window
 	uint8_t code[12];
-	code[0] = 0xE8;	// Call relative
+	code[0] = 0xE8;					// Call relative
+	std::memset(&code[5], 0x90, 7);	// NOPs
+
 	*(uint32_t*)&code[1] = (uint32_t)(&FixTextCentering<77>) - (0x575C7A + 5 /* 5 = size of CALL instruction */);
-	std::memset(&code[5], 0x90, 7);
 
 	WriteProtectedMemory(0x575C7A, code);
 
 	// Fix text centering for category in equip window
 	*(uint32_t*)&code[1] = (uint32_t)(&FixTextCentering<77>) - (0x5766EA + 5);
-	
+
 	WriteProtectedMemory(0x5766EA, code);
 
 	// Fix text centering for unique item count in inventory window
@@ -248,6 +266,15 @@ export void EnableGuiMenuHooks() {
 	offset = std::floor(113 - offset);
 
 	WriteProtectedMemory(0x575CE4, (uint8_t)offset);
-	
+
 	// TODO: Fix text alignment for item count in item info
+
+	// Fix text centering for submenu text in pause menu
+	uint8_t code2[9];
+	code2[0] = 0xE8;
+	std::memset(&code2[5], 0x90, 4);
+	*(uint32_t*)&code2[1] = (uint32_t)&FixTextCenteringMainMenu - (0x59A015 + 5);
+
+	WriteProtectedMemory(0x59A015, code2);
+	WriteProtectedMemory(0x59A023, (uint8_t)36);
 }
