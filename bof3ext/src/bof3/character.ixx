@@ -20,7 +20,9 @@ export struct Character {
 	uint8_t accessoryId1;
 	uint8_t accessoryId2;
 	uint16_t curHP;
-	uint8_t gap2[10];
+	uint8_t gap22[5];
+	uint8_t byte1F;
+	uint8_t gap2[4];
 	uint16_t power;
 	uint16_t defence;
 	uint16_t agility;

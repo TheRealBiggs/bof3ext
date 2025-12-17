@@ -39,12 +39,15 @@ Func<0x5919B0, uint16_t, uint8_t /* a1 */, uint8_t /* a2 */, uint8_t /* a3 */> s
 Func<0x590AB0, void, uint8_t /* characterId */, char* /* newEquip */, uint8_t* /* outColours */, uint16_t* /* outStats */> GetNewStats;
 Func<0x57D360, void, int16_t /* x */, int16_t /* y */, uint8_t /* id */, bool /* greyed */> DrawItemIcon;
 Func<0x57D860, void, int16_t /* x */, int16_t /* y */, int /* a3 */, char /* a4 */> sub_57D860;
+Func<0x591940, void, uint8_t /* a1 */, uint8_t /* a2 */, char* /* a3 */> sub_591940;
 
 
 Func<0x574890, void, int16_t /* x */, int16_t /* y */, uint8_t /* index */, uint8_t /* selectedTabIdx */> DrawMenuTabs;
 auto DrawMenuTabsHook(auto x, auto y, auto index, auto selectedTabIdx) {
 	auto count = byte_66383C[index * 5];
 	auto startIndex = index * 5 + 1;
+
+	auto advance = GlyphManager::Get().GetScaledGlyphAdvance();
 
 	for (int i = 0; i < count; ++i) {
 		DrawWindowBackground(x + 48 * i, y, 45, 20, 0, *(uint8_t*)0x903A5A);
@@ -54,8 +57,7 @@ auto DrawMenuTabsHook(auto x, auto y, auto index, auto selectedTabIdx) {
 		auto& text = TextManager::Get().GetMenuTabText(id);
 		auto len = text.length();
 
-		auto advance = GlyphManager::Get().GetScaledGlyphAdvance();
-		auto offset = std::floor(advance / 2 * len);
+		auto offset = std::round(advance / 2 * len);
 
 		auto _x = (int16_t)(x + 22 - offset + i * 48);
 
@@ -200,6 +202,44 @@ auto DrawZennyPanelHook(auto x, auto y, auto a3, auto a4) {
 	DrawUIGroup(x + diff, y, (char*)0x6633C0, 0);
 }
 
+Func<0x5738A0, void, int16_t /* x */, int16_t /* y */, uint8_t /* charId */> DrawStatusWindow;
+auto DrawStatusWindowHook(auto x, auto y, auto charId) {
+	DrawWindowBackground(x + 5, y + 3, 164, 45, 0, ((uint8_t*)0x9039E0)[122]);
+
+	char buf[4];
+
+	DrawStringNumFont(x + 11, y + 10, 0, "Power");
+	sprintf_s(buf, "%3d", g_Characters[charId].power);
+	DrawStringNumFont(x + 56, y + 10, 0, buf);
+
+	DrawStringNumFont(x + 11, y + 23, 0, "Defense");
+	sprintf_s(buf, "%3d", g_Characters[charId].defence);
+	DrawStringNumFont(x + 56, y + 23, 0, buf);
+
+	DrawStringNumFont(x + 83 + 6, y + 10, 0, "Intellect");
+	sprintf_s(buf, "%3d", g_Characters[charId].intelligence);
+	DrawStringNumFont(x + 146, y + 10, 0, buf);
+
+	DrawStringNumFont(x + 83 + 6, y + 23, 0, "Agility");
+	sprintf_s(buf, "%3d", g_Characters[charId].agility);
+	DrawStringNumFont(x + 146, y + 23, 0, buf);
+
+	// Status effect maybe?
+	if (g_Characters[charId].byte1F != 255) {
+		auto v3 = (char*)GetText(g_Characters[charId].byte1F + 273);
+		sub_591940(0, 8u, v3);
+		auto v4 = (char*)GetText(0x34u);
+		DrawString(x + 11, y + 34, 0, 255, v4);
+	}
+
+	DrawUIGroup(x, y, (char*)0x663358, 0);
+
+	for (int i = 0; i < 18; ++i)
+		DrawUIGroup(x + 8 * i, y, (char*)0x663384, 0);
+
+	DrawUIGroup(x + 16, y, (char*)0x663390, 0);
+}
+
 
 static const float HALF = 0.5f;
 
@@ -245,6 +285,10 @@ export void EnableGuiMenuHooks() {
 	EnableHook(DrawMenuTabs, DrawMenuTabsHook);
 	EnableHook(DrawEquipmentWindow, DrawEquipmentWindowHook);
 	EnableHook(DrawZennyPanel, DrawZennyPanelHook);
+	EnableHook(DrawStatusWindow, DrawStatusWindowHook);
+
+	// Increase width of status window selection outline
+	WriteProtectedMemory(0x66B090, (uint16_t)288);
 
 	// Fix text centering for category in inventory window
 	uint8_t code[12];

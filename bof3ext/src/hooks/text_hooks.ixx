@@ -20,7 +20,6 @@ import std;
 Func<0x497770, void> sub_497770;
 
 
-Func<0x497740, const char*, uint16_t /* index */> GetText;
 auto GetTextHook(auto index) {
 	//LogDebug("GetText: %i, %i\n", index, LastLoadedDatFileId);
 
@@ -157,6 +156,18 @@ export void EnableTextHooks() {
 		WriteProtectedMemory(0x66B5A0 + i * sizeof(char*), text.c_str());
 		WriteProtectedMemory(0x663984 + i * sizeof(char*), text.c_str());
 	}
+
+	// Menu tab text
+	//for (int i = 0; i < 22; ++i) {
+	//	const auto& txtMgr = TextManager::Get();
+
+	//	if (!txtMgr.HasMenuTabText(i))
+	//		break;
+
+	//	const auto& text = txtMgr.GetMenuTabText(i);
+
+	//	WriteProtectedMemory(0x6637E4 + i * sizeof(char*), text.c_str());
+	//}
 
 	const char inkText[] = "Ink";
 	WriteProtectedMemory(0x66A118, inkText);
