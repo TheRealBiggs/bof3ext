@@ -99,7 +99,7 @@ auto DrawStringSmallHook(auto x, auto y, auto a3, auto len, auto text) {
 					else
 						v13 = *(unsigned __int8*)++v5 + (((unsigned __int8)v10) << 8);
 
-					((GpuCommand_TextGlyph*)*g_GpuCommands)->charCode = v13;
+					((GpuPrim_TextGlyph*)*g_GpuPrims)->charCode = v13;
 					sub_516D50(_x, y - 2, 10, 10 - v16, v15, v16, i);
 				}
 
@@ -129,7 +129,7 @@ auto DrawStringLargeHook(auto x, auto y, auto paletteId, auto text) {
 			_y += 12;
 		} else if (c != ' ') {
 			if (c) {
-				((GpuCommand_TextGlyph*)*g_GpuCommands)->charCode = c;
+				((GpuPrim_TextGlyph*)*g_GpuPrims)->charCode = c;
 				sub_516D50(_x, y - 1, 16, 16, 0, 0, ((16 * paletteId) >> 4) & 0x3F | 0x7800);
 			}
 		}
@@ -177,7 +177,7 @@ auto DrawNumTinyHook(auto x, auto y, auto a3, auto a4) {
 					else
 						v13 = *(unsigned __int8*)++v5 + (((unsigned __int8)v10) << 8);
 
-					((GpuCommand_TextGlyph*)*g_GpuCommands)->charCode = v13;
+					((GpuPrim_TextGlyph*)*g_GpuPrims)->charCode = v13;
 					sub_516D50(_x, y - 2, 8, 8 - v16, v15, v16, i);
 				}
 
@@ -193,92 +193,92 @@ auto DrawStringNumFontHook(auto x, auto y, auto paletteIdx, auto text) {
 	DrawStringSmall(x, y + 2, paletteIdx, GetStringLength(text), text);
 }
 
-Func<0x5A2900, void, GpuCommand_TextGlyph* /* gpuCmd */> ProcessGpuCommand_TextGlyph;
-auto ProcessGpuCommand_TextGlyphHook(auto gpuCmd) {
+Func<0x5A2900, void, GpuPrim_TextGlyph* /* prim */> ProcessGpuPrim_TextGlyph;
+auto ProcessGpuPrim_TextGlyphHook(auto prim) {
 	g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
 	g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
 
-	return ProcessGpuCommand_TextGlyph.Original(gpuCmd);
+	return ProcessGpuPrim_TextGlyph.Original(prim);
 }
 
-Func<0x5A0C40, void, GpuCommand_TexturedQuad* /* gpuCmd */> ProcessGpuCommand_TexturedQuad;
-auto ProcessGpuCommand_TexturedQuadHook(auto gpuCmd) {
+Func<0x5A0C40, void, GpuPrim_TexturedQuad* /* prim */> ProcessGpuPrim_TexturedQuad;
+auto ProcessGpuPrim_TexturedQuadHook(auto prim) {
 	D3DCOLOR colour, specular;
 
-	GetD3DCOLOR(gpuCmd->colour.r, gpuCmd->colour.g, gpuCmd->colour.b, gpuCmd->value, gpuCmd->texturePage, &colour, &specular);
+	GetD3DCOLOR(prim->colour.r, prim->colour.g, prim->colour.b, prim->value, prim->texturePage, &colour, &specular);
 
 	D3DTLVERTEX v[4]{ 0 };
 
-	v[0].sx = gpuCmd->v1.x * *g_RenderScaleX;
-	v[0].sy = gpuCmd->v1.y * *g_RenderScaleY;
-	v[0].sz = gpuCmd->v1.z;
-	v[0].tu = gpuCmd->t1.x / 256.0;
-	v[0].tv = gpuCmd->t1.y / 256.0;
+	v[0].sx = prim->v1.x * *g_RenderScaleX;
+	v[0].sy = prim->v1.y * *g_RenderScaleY;
+	v[0].sz = prim->v1.z;
+	v[0].tu = prim->t1.x / 256.0;
+	v[0].tv = prim->t1.y / 256.0;
 	v[0].color = colour;
 	v[0].specular = specular;
-	v[0].rhw = 0.1 / gpuCmd->v1.z;
+	v[0].rhw = 0.1 / prim->v1.z;
 
-	v[1].sx = gpuCmd->v2.x * *g_RenderScaleX;
-	v[1].sy = gpuCmd->v2.y * *g_RenderScaleY;
-	v[1].sz = gpuCmd->v2.z;
-	v[1].tu = (gpuCmd->t2.x + 1) / 256.0;
-	v[1].tv = gpuCmd->t2.y / 256.0;
+	v[1].sx = prim->v2.x * *g_RenderScaleX;
+	v[1].sy = prim->v2.y * *g_RenderScaleY;
+	v[1].sz = prim->v2.z;
+	v[1].tu = (prim->t2.x + 1) / 256.0;
+	v[1].tv = prim->t2.y / 256.0;
 	v[1].color = colour;
 	v[1].specular = specular;
-	v[1].rhw = 0.1 / gpuCmd->v2.z;
+	v[1].rhw = 0.1 / prim->v2.z;
 
-	v[2].sx = gpuCmd->v3.x * *g_RenderScaleX;
-	v[2].sy = gpuCmd->v3.y * *g_RenderScaleY;
-	v[2].sz = gpuCmd->v3.z;
-	v[2].tu = gpuCmd->t3.x / 256.0;
-	v[2].tv = (gpuCmd->t3.y + 1) / 256.0;
+	v[2].sx = prim->v3.x * *g_RenderScaleX;
+	v[2].sy = prim->v3.y * *g_RenderScaleY;
+	v[2].sz = prim->v3.z;
+	v[2].tu = prim->t3.x / 256.0;
+	v[2].tv = (prim->t3.y + 1) / 256.0;
 	v[2].color = colour;
 	v[2].specular = specular;
-	v[2].rhw = 0.1 / gpuCmd->v3.z;
+	v[2].rhw = 0.1 / prim->v3.z;
 
-	v[3].sx = gpuCmd->v4.x * *g_RenderScaleX;
-	v[3].sy = gpuCmd->v4.y * *g_RenderScaleY;
-	v[3].sz = gpuCmd->v4.z;
-	v[3].tu = (gpuCmd->t4.x + 1) / 256.0;
-	v[3].tv = (gpuCmd->t4.y + 1) / 256.0;
+	v[3].sx = prim->v4.x * *g_RenderScaleX;
+	v[3].sy = prim->v4.y * *g_RenderScaleY;
+	v[3].sz = prim->v4.z;
+	v[3].tu = (prim->t4.x + 1) / 256.0;
+	v[3].tv = (prim->t4.y + 1) / 256.0;
 	v[3].color = colour;
 	v[3].specular = specular;
-	v[3].rhw = 0.1 / gpuCmd->v4.z;
+	v[3].rhw = 0.1 / prim->v4.z;
 
 	Fix2DCoordinates(v);
 
-	SetTexture(gpuCmd->texturePage, gpuCmd->palette);
+	SetTexture(prim->texturePage, prim->palette);
 
-	SetD3DRenderState_AlphaBlend(gpuCmd->value, gpuCmd->texturePage);
+	SetD3DRenderState_AlphaBlend(prim->value, prim->texturePage);
 	SetD3DShadeMode(D3DSHADE_FLAT);
 
 	g_IDirect3DDevice3->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
 }
 
-Func<0x5A17A0, void, GpuCommand_Line* /* gpuCmd */> ProcessGpuCommand_Line;
-auto ProcessGpuCommand_LineHook(auto gpuCmd) {
+Func<0x5A17A0, void, GpuPrim_Line* /* prim */> ProcessGpuPrim_Line;
+auto ProcessGpuPrim_LineHook(auto prim) {
 	D3DCOLOR colour;
 
-	GetD3DCOLOR(gpuCmd->colour.r, gpuCmd->colour.g, gpuCmd->colour.b, gpuCmd->value, g_DrawEnv->tpage, &colour, 0);
+	GetD3DCOLOR(prim->colour.r, prim->colour.g, prim->colour.b, prim->value, g_DrawEnv->tpage, &colour, 0);
 
-	auto xDelta = gpuCmd->v2.x - gpuCmd->v1.x;
-	auto yDelta = gpuCmd->v2.y - gpuCmd->v1.y;
+	auto xDelta = prim->v2.x - prim->v1.x;
+	auto yDelta = prim->v2.y - prim->v1.y;
 
 	auto theta = std::atan2(yDelta, xDelta)/* * 180 / std::numbers::pi*/;
 	auto distance = std::sqrt(xDelta * xDelta + yDelta * yDelta);
 
 	D3DTLVERTEX v[4]{ 0 };
 
-	if (gpuCmd->v1.y == gpuCmd->v2.y) {			// Horizontal line
-		auto v1 = (gpuCmd->v1.x < gpuCmd->v2.x) ? gpuCmd->v1 : gpuCmd->v2;
+	if (prim->v1.y == prim->v2.y) {			// Horizontal line
+		auto v1 = (prim->v1.x < prim->v2.x) ? prim->v1 : prim->v2;
 
 		v[0].sx = v[2].sx = v1.x * *g_RenderScaleX;
 		v[1].sx = v[3].sx = (v1.x + distance) * *g_RenderScaleX;
 
 		v[0].sy = v[1].sy = v1.y * *g_RenderScaleY;
 		v[2].sy = v[3].sy = (v1.y + 1) * *g_RenderScaleY;
-	} else if (gpuCmd->v1.x == gpuCmd->v2.x) {	// Vertical line
-		auto v1 = (gpuCmd->v1.y < gpuCmd->v2.y) ? gpuCmd->v1 : gpuCmd->v2;
+	} else if (prim->v1.x == prim->v2.x) {	// Vertical line
+		auto v1 = (prim->v1.y < prim->v2.y) ? prim->v1 : prim->v2;
 
 		v[0].sx = v[2].sx = v1.x * *g_RenderScaleX;
 		v[1].sx = v[3].sx = (v1.x + 1) * *g_RenderScaleX;
@@ -286,194 +286,194 @@ auto ProcessGpuCommand_LineHook(auto gpuCmd) {
 		v[0].sy = v[1].sy = v1.y * *g_RenderScaleY;
 		v[2].sy = v[3].sy = (v1.y + distance) * *g_RenderScaleY;
 	} else {
-		ProcessGpuCommand_Line.Original(gpuCmd);	// TODO: Handle angled lines
+		ProcessGpuPrim_Line.Original(prim);	// TODO: Handle angled lines
 	}
 
 	for (int i = 0; i < 4; ++i) {
-		v[i].sz = gpuCmd->v1.z;
+		v[i].sz = prim->v1.z;
 		v[i].color = colour;
-		v[i].rhw = 0.1 / gpuCmd->v1.z;
+		v[i].rhw = 0.1 / prim->v1.z;
 	}
 
 	//Fix2DCoordinates(v);
 
 	g_IDirect3DDevice3->SetTexture(0, nullptr);
 
-	SetD3DRenderState_AlphaBlend(gpuCmd->value, g_DrawEnv->tpage);
+	SetD3DRenderState_AlphaBlend(prim->value, g_DrawEnv->tpage);
 	SetD3DShadeMode(D3DSHADE_FLAT);
 
 	g_IDirect3DDevice3->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
 }
 
-Func<0x5A2300, void, GpuCommand_TexturedRectWH* /* gpuCmd */> ProcessGpuCommand_TexturedRectWH;
-auto ProcessGpuCommand_TexturedRectWHHook(auto gpuCmd) {
+Func<0x5A2300, void, GpuPrim_TexturedRectWH* /* prim */> ProcessGpuPrim_TexturedRectWH;
+auto ProcessGpuPrim_TexturedRectWHHook(auto prim) {
 	D3DCOLOR colour, specular;
 
-	GetD3DCOLOR(gpuCmd->colour.r, gpuCmd->colour.g, gpuCmd->colour.b, gpuCmd->value, g_DrawEnv->tpage, &colour, &specular);
+	GetD3DCOLOR(prim->colour.r, prim->colour.g, prim->colour.b, prim->value, g_DrawEnv->tpage, &colour, &specular);
 
 	D3DTLVERTEX v[4]{ 0 };
 
-	v[0].sx = gpuCmd->v1.x * *g_RenderScaleX;
-	v[0].sy = gpuCmd->v1.y * *g_RenderScaleY;
-	v[0].sz = gpuCmd->v1.z;
-	v[0].tu = gpuCmd->t1.x / 256.0;
-	v[0].tv = gpuCmd->t1.y / 256.0;
+	v[0].sx = prim->v1.x * *g_RenderScaleX;
+	v[0].sy = prim->v1.y * *g_RenderScaleY;
+	v[0].sz = prim->v1.z;
+	v[0].tu = prim->t1.x / 256.0;
+	v[0].tv = prim->t1.y / 256.0;
 	v[0].color = colour;
 	v[0].specular = specular;
-	v[0].rhw = 0.1 / gpuCmd->v1.z;
+	v[0].rhw = 0.1 / prim->v1.z;
 
-	v[1].sx = (gpuCmd->v1.x + gpuCmd->size.x) * *g_RenderScaleX;
-	v[1].sy = gpuCmd->v1.y * *g_RenderScaleY;
-	v[1].sz = gpuCmd->v1.z;
-	v[1].tu = (gpuCmd->t1.x + gpuCmd->size.x) / 256.0;
-	v[1].tv = gpuCmd->t1.y / 256.0;
+	v[1].sx = (prim->v1.x + prim->size.x) * *g_RenderScaleX;
+	v[1].sy = prim->v1.y * *g_RenderScaleY;
+	v[1].sz = prim->v1.z;
+	v[1].tu = (prim->t1.x + prim->size.x) / 256.0;
+	v[1].tv = prim->t1.y / 256.0;
 	v[1].color = colour;
 	v[1].specular = specular;
-	v[1].rhw = 0.1 / gpuCmd->v1.z;
+	v[1].rhw = 0.1 / prim->v1.z;
 
-	v[2].sx = gpuCmd->v1.x * *g_RenderScaleX;
-	v[2].sy = (gpuCmd->v1.y + gpuCmd->size.y) * *g_RenderScaleY;
-	v[2].sz = gpuCmd->v1.z;
-	v[2].tu = gpuCmd->t1.x / 256.0;
-	v[2].tv = (gpuCmd->t1.y + gpuCmd->size.y) / 256.0;
+	v[2].sx = prim->v1.x * *g_RenderScaleX;
+	v[2].sy = (prim->v1.y + prim->size.y) * *g_RenderScaleY;
+	v[2].sz = prim->v1.z;
+	v[2].tu = prim->t1.x / 256.0;
+	v[2].tv = (prim->t1.y + prim->size.y) / 256.0;
 	v[2].color = colour;
 	v[2].specular = specular;
-	v[2].rhw = 0.1 / gpuCmd->v1.z;
+	v[2].rhw = 0.1 / prim->v1.z;
 
-	v[3].sx = (gpuCmd->v1.x + gpuCmd->size.x) * *g_RenderScaleX;
-	v[3].sy = (gpuCmd->v1.y + gpuCmd->size.y) * *g_RenderScaleY;
-	v[3].sz = gpuCmd->v1.z;
-	v[3].tu = (gpuCmd->t1.x + gpuCmd->size.x) / 256.0;
-	v[3].tv = (gpuCmd->t1.y + gpuCmd->size.y) / 256.0;
+	v[3].sx = (prim->v1.x + prim->size.x) * *g_RenderScaleX;
+	v[3].sy = (prim->v1.y + prim->size.y) * *g_RenderScaleY;
+	v[3].sz = prim->v1.z;
+	v[3].tu = (prim->t1.x + prim->size.x) / 256.0;
+	v[3].tv = (prim->t1.y + prim->size.y) / 256.0;
 	v[3].color = colour;
 	v[3].specular = specular;
-	v[3].rhw = 0.1 / gpuCmd->v1.z;
+	v[3].rhw = 0.1 / prim->v1.z;
 
 	Fix2DCoordinates(v);
 
-	SetTexture(g_DrawEnv->tpage, gpuCmd->palette);
+	SetTexture(g_DrawEnv->tpage, prim->palette);
 
-	SetD3DRenderState_AlphaBlend(gpuCmd->value, g_DrawEnv->tpage);
+	SetD3DRenderState_AlphaBlend(prim->value, g_DrawEnv->tpage);
 	SetD3DShadeMode(D3DSHADE_FLAT);
 
 	g_IDirect3DDevice3->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
 }
 
-Func<0x5A2520, void, GpuCommand_TexturedRect8* /* gpuCmd */> ProcessGpuCommand_TexturedRect8;
-auto ProcessGpuCommand_TexturedRect8Hook(auto gpuCmd) {
+Func<0x5A2520, void, GpuPrim_TexturedRect8* /* prim */> ProcessGpuPrim_TexturedRect8;
+auto ProcessGpuPrim_TexturedRect8Hook(auto prim) {
 	D3DCOLOR colour, specular;
 
-	GetD3DCOLOR(gpuCmd->colour.r, gpuCmd->colour.g, gpuCmd->colour.b, gpuCmd->value, g_DrawEnv->tpage, &colour, &specular);
+	GetD3DCOLOR(prim->colour.r, prim->colour.g, prim->colour.b, prim->value, g_DrawEnv->tpage, &colour, &specular);
 
 	D3DTLVERTEX v[4]{ 0 };
 
-	v[0].sx = gpuCmd->v1.x * *g_RenderScaleX;
-	v[0].sy = gpuCmd->v1.y * *g_RenderScaleY;
-	v[0].sz = gpuCmd->v1.z;
-	v[0].tu = gpuCmd->t1.x / 256.0;
-	v[0].tv = gpuCmd->t1.y / 256.0;
+	v[0].sx = prim->v1.x * *g_RenderScaleX;
+	v[0].sy = prim->v1.y * *g_RenderScaleY;
+	v[0].sz = prim->v1.z;
+	v[0].tu = prim->t1.x / 256.0;
+	v[0].tv = prim->t1.y / 256.0;
 	v[0].color = colour;
 	v[0].specular = specular;
-	v[0].rhw = 0.1 / gpuCmd->v1.z;
+	v[0].rhw = 0.1 / prim->v1.z;
 
-	v[1].sx = (gpuCmd->v1.x + 8) * *g_RenderScaleX;
-	v[1].sy = gpuCmd->v1.y * *g_RenderScaleY;
-	v[1].sz = gpuCmd->v1.z;
-	v[1].tu = (gpuCmd->t1.x + 8) / 256.0;
-	v[1].tv = gpuCmd->t1.y / 256.0;
+	v[1].sx = (prim->v1.x + 8) * *g_RenderScaleX;
+	v[1].sy = prim->v1.y * *g_RenderScaleY;
+	v[1].sz = prim->v1.z;
+	v[1].tu = (prim->t1.x + 8) / 256.0;
+	v[1].tv = prim->t1.y / 256.0;
 	v[1].color = colour;
 	v[1].specular = specular;
-	v[1].rhw = 0.1 / gpuCmd->v1.z;
+	v[1].rhw = 0.1 / prim->v1.z;
 
-	v[2].sx = gpuCmd->v1.x * *g_RenderScaleX;
-	v[2].sy = (gpuCmd->v1.y + 8) * *g_RenderScaleY;
-	v[2].sz = gpuCmd->v1.z;
-	v[2].tu = gpuCmd->t1.x / 256.0;
-	v[2].tv = (gpuCmd->t1.y + 8) / 256.0;
+	v[2].sx = prim->v1.x * *g_RenderScaleX;
+	v[2].sy = (prim->v1.y + 8) * *g_RenderScaleY;
+	v[2].sz = prim->v1.z;
+	v[2].tu = prim->t1.x / 256.0;
+	v[2].tv = (prim->t1.y + 8) / 256.0;
 	v[2].color = colour;
 	v[2].specular = specular;
-	v[2].rhw = 0.1 / gpuCmd->v1.z;
+	v[2].rhw = 0.1 / prim->v1.z;
 
-	v[3].sx = (gpuCmd->v1.x + 8) * *g_RenderScaleX;
-	v[3].sy = (gpuCmd->v1.y + 8) * *g_RenderScaleY;
-	v[3].sz = gpuCmd->v1.z;
-	v[3].tu = (gpuCmd->t1.x + 8) / 256.0;
-	v[3].tv = (gpuCmd->t1.y + 8) / 256.0;
+	v[3].sx = (prim->v1.x + 8) * *g_RenderScaleX;
+	v[3].sy = (prim->v1.y + 8) * *g_RenderScaleY;
+	v[3].sz = prim->v1.z;
+	v[3].tu = (prim->t1.x + 8) / 256.0;
+	v[3].tv = (prim->t1.y + 8) / 256.0;
 	v[3].color = colour;
 	v[3].specular = specular;
-	v[3].rhw = 0.1 / gpuCmd->v1.z;
+	v[3].rhw = 0.1 / prim->v1.z;
 
 	Fix2DCoordinates(v);
 
-	SetTexture(g_DrawEnv->tpage, gpuCmd->palette);
+	SetTexture(g_DrawEnv->tpage, prim->palette);
 
-	SetD3DRenderState_AlphaBlend(gpuCmd->value, g_DrawEnv->tpage);
+	SetD3DRenderState_AlphaBlend(prim->value, g_DrawEnv->tpage);
 	SetD3DShadeMode(D3DSHADE_FLAT);
 
 	g_IDirect3DDevice3->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
 }
 
-Func<0x5A2710, void, GpuCommand_TexturedRect16* /* gpuCmd */> ProcessGpuCommand_TexturedRect16;
-auto ProcessGpuCommand_TexturedRect16Hook(auto gpuCmd) {
+Func<0x5A2710, void, GpuPrim_TexturedRect16* /* prim */> ProcessGpuPrim_TexturedRect16;
+auto ProcessGpuPrim_TexturedRect16Hook(auto prim) {
 	D3DCOLOR colour, specular;
 
-	GetD3DCOLOR(gpuCmd->colour.r, gpuCmd->colour.g, gpuCmd->colour.b, gpuCmd->value, g_DrawEnv->tpage, &colour, &specular);
+	GetD3DCOLOR(prim->colour.r, prim->colour.g, prim->colour.b, prim->value, g_DrawEnv->tpage, &colour, &specular);
 
 	D3DTLVERTEX v[4]{ 0 };
 
-	v[0].sx = gpuCmd->v1.x * *g_RenderScaleX;
-	v[0].sy = gpuCmd->v1.y * *g_RenderScaleY;
-	v[0].sz = gpuCmd->v1.z;
-	v[0].tu = gpuCmd->t1.x / 256.0;
-	v[0].tv = gpuCmd->t1.y / 256.0;
+	v[0].sx = prim->v1.x * *g_RenderScaleX;
+	v[0].sy = prim->v1.y * *g_RenderScaleY;
+	v[0].sz = prim->v1.z;
+	v[0].tu = prim->t1.x / 256.0;
+	v[0].tv = prim->t1.y / 256.0;
 	v[0].color = colour;
 	v[0].specular = specular;
-	v[0].rhw = 0.1 / gpuCmd->v1.z;
+	v[0].rhw = 0.1 / prim->v1.z;
 
-	v[1].sx = (gpuCmd->v1.x + 16) * *g_RenderScaleX;
-	v[1].sy = gpuCmd->v1.y * *g_RenderScaleY;
-	v[1].sz = gpuCmd->v1.z;
-	v[1].tu = (gpuCmd->t1.x + 16) / 256.0;
-	v[1].tv = gpuCmd->t1.y / 256.0;
+	v[1].sx = (prim->v1.x + 16) * *g_RenderScaleX;
+	v[1].sy = prim->v1.y * *g_RenderScaleY;
+	v[1].sz = prim->v1.z;
+	v[1].tu = (prim->t1.x + 16) / 256.0;
+	v[1].tv = prim->t1.y / 256.0;
 	v[1].color = colour;
 	v[1].specular = specular;
-	v[1].rhw = 0.1 / gpuCmd->v1.z;
+	v[1].rhw = 0.1 / prim->v1.z;
 
-	v[2].sx = gpuCmd->v1.x * *g_RenderScaleX;
-	v[2].sy = (gpuCmd->v1.y + 16) * *g_RenderScaleY;
-	v[2].sz = gpuCmd->v1.z;
-	v[2].tu = gpuCmd->t1.x / 256.0;
-	v[2].tv = (gpuCmd->t1.y + 16) / 256.0;
+	v[2].sx = prim->v1.x * *g_RenderScaleX;
+	v[2].sy = (prim->v1.y + 16) * *g_RenderScaleY;
+	v[2].sz = prim->v1.z;
+	v[2].tu = prim->t1.x / 256.0;
+	v[2].tv = (prim->t1.y + 16) / 256.0;
 	v[2].color = colour;
 	v[2].specular = specular;
-	v[2].rhw = 0.1 / gpuCmd->v1.z;
+	v[2].rhw = 0.1 / prim->v1.z;
 
-	v[3].sx = (gpuCmd->v1.x + 16) * *g_RenderScaleX;
-	v[3].sy = (gpuCmd->v1.y + 16) * *g_RenderScaleY;
-	v[3].sz = gpuCmd->v1.z;
-	v[3].tu = (gpuCmd->t1.x + 16) / 256.0;
-	v[3].tv = (gpuCmd->t1.y + 16) / 256.0;
+	v[3].sx = (prim->v1.x + 16) * *g_RenderScaleX;
+	v[3].sy = (prim->v1.y + 16) * *g_RenderScaleY;
+	v[3].sz = prim->v1.z;
+	v[3].tu = (prim->t1.x + 16) / 256.0;
+	v[3].tv = (prim->t1.y + 16) / 256.0;
 	v[3].color = colour;
 	v[3].specular = specular;
-	v[3].rhw = 0.1 / gpuCmd->v1.z;
+	v[3].rhw = 0.1 / prim->v1.z;
 
 	Fix2DCoordinates(v);
 
-	SetTexture(g_DrawEnv->tpage, gpuCmd->palette);
+	SetTexture(g_DrawEnv->tpage, prim->palette);
 
-	SetD3DRenderState_AlphaBlend(gpuCmd->value, g_DrawEnv->tpage);
+	SetD3DRenderState_AlphaBlend(prim->value, g_DrawEnv->tpage);
 	SetD3DShadeMode(D3DSHADE_FLAT);
 
 	g_IDirect3DDevice3->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
 }
 
-Func<0x5A2EB0, void, GpuCommand_Sprite* /* gpuCmd */> ProcessGpuCommand_Sprite;
-auto ProcessGpuCommand_SpriteHook(auto gpuCmd) {
-	gpuCmd->word18 = 1;
-	gpuCmd->word1A = 1;
-	gpuCmd->word1E = 1;
+Func<0x5A2EB0, void, GpuPrim_Sprite* /* prim */> ProcessGpuPrim_Sprite;
+auto ProcessGpuPrim_SpriteHook(auto prim) {
+	prim->word18 = 1;
+	prim->word1A = 1;
+	prim->word1E = 1;
 
-	ProcessGpuCommand_Sprite.Original(gpuCmd);
+	ProcessGpuPrim_Sprite.Original(prim);
 }
 
 Func<0x5A7AE0, void, int /* x */, int /* y */> SetGeomOffset;
@@ -506,6 +506,11 @@ auto SetDefDispEnvHook(auto disp, auto x, auto y, auto w, auto h) {
 	SetDefDispEnv.Original(disp, x + diff, y, width, h);
 }
 
+//Func<0x461F00, void> sub_461F00;
+//auto sub_461F00Hook() {
+//
+//}
+
 
 export void EnableRenderHooks() {
 	EnableHook(DrawString, DrawStringHook);
@@ -513,23 +518,25 @@ export void EnableRenderHooks() {
 	EnableHook(DrawStringSmall, DrawStringSmallHook);
 	EnableHook(DrawStringLarge, DrawStringLargeHook);
 	EnableHook(DrawNumTiny, DrawNumTinyHook);
-	EnableHook(ProcessGpuCommand_TextGlyph, ProcessGpuCommand_TextGlyphHook);
-	EnableHook(ProcessGpuCommand_TexturedQuad, ProcessGpuCommand_TexturedQuadHook);
-	EnableHook(ProcessGpuCommand_Line, ProcessGpuCommand_LineHook);
-	EnableHook(ProcessGpuCommand_TexturedRectWH, ProcessGpuCommand_TexturedRectWHHook);
-	EnableHook(ProcessGpuCommand_TexturedRect8, ProcessGpuCommand_TexturedRect8Hook);
-	EnableHook(ProcessGpuCommand_TexturedRect16, ProcessGpuCommand_TexturedRect16Hook);
-	//EnableHook(ProcessGpuCommand_Sprite, ProcessGpuCommand_SpriteHook);
+	EnableHook(ProcessGpuPrim_TextGlyph, ProcessGpuPrim_TextGlyphHook);
+	EnableHook(ProcessGpuPrim_TexturedQuad, ProcessGpuPrim_TexturedQuadHook);
+	EnableHook(ProcessGpuPrim_Line, ProcessGpuPrim_LineHook);
+	EnableHook(ProcessGpuPrim_TexturedRectWH, ProcessGpuPrim_TexturedRectWHHook);
+	EnableHook(ProcessGpuPrim_TexturedRect8, ProcessGpuPrim_TexturedRect8Hook);
+	EnableHook(ProcessGpuPrim_TexturedRect16, ProcessGpuPrim_TexturedRect16Hook);
+	//EnableHook(ProcessGpuPrim_Sprite, ProcessGpuPrim_SpriteHook);
 	EnableHook(SetGeomOffset, SetGeomOffsetHook);
 	EnableHook(SetDefDrawEnv, SetDefDrawEnvHook);
 	EnableHook(SetDefDispEnv, SetDefDispEnvHook);
 	//EnableHook(WndProc_Game, WndProc_GameHook);
+	//EnableHook(sub_461F00, sub_461F00Hook);
 
 	// Set render size
 	const auto& cfgMgr = ConfigManager::Get();
 	*(uint32_t*)0x66B710 = cfgMgr.GetRenderWidth();
 	*(uint32_t*)0x66B714 = cfgMgr.GetRenderHeight();
 
-	//WriteProtectedMemory(0x5A2B71, (uint8_t)3);	// Enable alpha blending for text
-	//WriteProtectedMemory(0x5A2B8D, (uint8_t)1);	// Enable alpha blending for text
+	WriteProtectedMemory(0x516E54, (uint8_t)0);	// Disable translucency for text
+	WriteProtectedMemory(0x5A2B71, (uint8_t)3);	// Enable alpha blending for text
+	WriteProtectedMemory(0x5A2B8D, (uint8_t)1);	// Enable alpha blending for text
 }

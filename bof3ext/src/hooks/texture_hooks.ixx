@@ -28,11 +28,6 @@ struct ReplacementTexture {
 	IDirect3DTexture2* texture;
 };
 
-struct UnkStruct_7 {
-	uint32_t dword0;
-	void* vp4;
-};
-
 
 void DumpTexture(const std::string& filename) {
 	if (!ConfigManager::Get().GetDumpTextures())
@@ -67,10 +62,20 @@ void DumpTexture(const std::string& filename) {
 }
 
 
-ArrayAccessor<0x6C2A40, UnkStruct_7> g_CLUT;
-
-
 std::map<uint64_t, ReplacementTexture> replacementTextures;
+
+
+uint32_t nextpow2(uint32_t v) {
+	v--;
+	v |= v >> 1;
+	v |= v >> 2;
+	v |= v >> 4;
+	v |= v >> 8;
+	v |= v >> 16;
+	v++;
+
+	return v;
+}
 
 
 Func<0x5A2CA0, void, int32_t /* surfId */, uint16_t /* charCode */, int32_t /* paletteIdx */> LoadGlyphTexture;
@@ -80,6 +85,12 @@ auto LoadGlyphTextureHook(auto surfId, auto charCode, auto paletteIdx) {
 
 	auto renderScale = ConfigManager::Get().GetRenderScale();
 	auto surfSize = (int)(16 * renderScale);
+
+	if (surfSize % 2) {
+		surfSize /= 2;
+		surfSize++;
+		surfSize *= 2;
+	}
 
 	auto* fontGlyph = &g_FontGlyphs[surfId];
 	auto* glyphSurf = fontGlyph->surface;
@@ -141,7 +152,12 @@ auto LoadGlyphTextureHook(auto surfId, auto charCode, auto paletteIdx) {
 
 		for (auto i = 0U; i < bitmap.rows; ++i) {
 			auto* surf = (DWORD*)sd.lpSurface;
-			auto pos = (i + bitmap.top - (int)(3 * renderScale)) * surfSize + bitmap.left;
+			auto pos = bitmap.left;
+
+			if (bitmap.top > 0)
+				pos += (i + bitmap.top - (int)(3 * renderScale)) * surfSize;
+			else
+				pos += i * surfSize;
 
 			std::memcpy(
 				&surf[pos],

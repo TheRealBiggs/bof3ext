@@ -71,15 +71,9 @@ const char charNameRei[] = "Rei";
 const char charNameMomo[] = "Momo";
 const char* defaultCharNames[] = { charNameRyu, charNameNina, charNameGarr, charNameTeepo, charNameRei, charNameMomo, "" };
 
-const char* aaa = "Text Speed";
-const char* bbb = "Window Color";
-const char* ccc = "Background";
-const char* ddd = "Sound";
-const char* eee = "Autorun";
-const char* fff = "Controller";
-
 const char* battleCommandText[] = { "Attack", "Ability", "Item", "Examine", "Defend", "Charge", "Escape" };
 const char* battleCommandText2[] = { "Attack", " \x81\x01", "Examine", "DDD", "EEE", "FFF", "Reprisal", "Critical", "III", "JJJ", "Escape", "LLL" };
+const char* configActionText[] = { "Speak", "Move", "Action", "Menu", "View", "Change" };
 
 
 export void EnableTextHooks() {
@@ -95,9 +89,7 @@ export void EnableTextHooks() {
 	WriteProtectedMemory(0x4979B7, (int16_t)-advance);						// X offset for '"' and '<' in dialogue
 	WriteProtectedMemory(0x4978DD, (uint8_t)12);							// Line height in dialogue
 
-	uint16_t zenny = EncodeUnicodeCharacter(u'ƶ');
-
-	*(uint16_t*)0x66A31C = zenny;
+	*(uint16_t*)0x66A31C = EncodeUnicodeCharacter(u'ƶ');
 
 	WriteProtectedMemory(0x516C99, (uint8_t)0xEB);	// Change JBE to JMP to skip checking of unicode characters above 0x0A00
 	WriteProtectedMemory(0x516C90, (uint8_t)0);		// Allow all ASCII characters
@@ -116,14 +108,6 @@ export void EnableTextHooks() {
 	WriteProtectedMemory((0x64B390 + 164 * 3), charNameTeepo);
 	WriteProtectedMemory((0x64B390 + 164 * 4), charNameRei);
 	WriteProtectedMemory((0x64B390 + 164 * 5), charNameMomo);
-
-	WriteProtectedMemory(0x4618CF, (uint8_t)3);	// Config menu small text Y+ position
-	WriteProtectedMemory(0x461832, aaa);
-	WriteProtectedMemory(0x46183A, bbb);
-	WriteProtectedMemory(0x461842, ccc);
-	WriteProtectedMemory(0x46184A, ddd);
-	WriteProtectedMemory(0x461852, eee);
-	WriteProtectedMemory(0x46185A, fff);
 
 	WriteProtectedMemory(0x669D60, battleCommandText);
 	WriteProtectedMemory(0x669DE0, battleCommandText2);
@@ -157,17 +141,16 @@ export void EnableTextHooks() {
 		WriteProtectedMemory(0x663984 + i * sizeof(char*), text.c_str());
 	}
 
-	// Menu tab text
-	//for (int i = 0; i < 22; ++i) {
-	//	const auto& txtMgr = TextManager::Get();
+	// Config controller action names
+	WriteProtectedMemory(0x66A368, configActionText);
 
-	//	if (!txtMgr.HasMenuTabText(i))
-	//		break;
-
-	//	const auto& text = txtMgr.GetMenuTabText(i);
-
-	//	WriteProtectedMemory(0x6637E4 + i * sizeof(char*), text.c_str());
-	//}
+	// Button glyphs
+	WriteProtectedMemory(0x66A2E4, EncodeUnicodeCharacter(u'△'));
+	WriteProtectedMemory(0x66A2DC, EncodeUnicodeCharacter(u'◯'));
+	WriteProtectedMemory(0x66A2E0, EncodeUnicodeCharacter(u'☓'));
+	WriteProtectedMemory(0x66A2E8, EncodeUnicodeCharacter(u'⬜'));
+	WriteProtectedMemory(0x66A2EC, EncodeUnicodeCharacter(u'⮪'));	// L1
+	WriteProtectedMemory(0x66A2F0, EncodeUnicodeCharacter(u'⮫'));	// R1
 
 	const char inkText[] = "Ink";
 	WriteProtectedMemory(0x66A118, inkText);

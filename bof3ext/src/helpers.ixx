@@ -45,11 +45,15 @@ struct ArrayAccessor {
 	__forceinline T& operator [](auto index) {
 		return ((T*)Address)[index];
 	}
+
+	__forceinline T* operator &() {
+		return (T*)Address;
+	}
 };
 
 export template <uintptr_t Address, typename T>
 struct PointerAccessor {
-	__forceinline T* operator *() {
+	__forceinline T*& operator *() {
 		return *(T**)Address;
 	}
 
@@ -64,6 +68,22 @@ struct PointerAccessor {
 export template<uintptr_t Address, typename ReturnType, typename... ArgTypes>
 struct Func {
 	typedef ReturnType(__cdecl* FuncType)(ArgTypes...);
+
+	FuncType FuncPointer = (FuncType)Address;
+	FuncType Original = (FuncType)Address;
+
+	ReturnType __forceinline operator()(ArgTypes... args) {
+		return FuncPointer(args...);
+	}
+
+	__forceinline FuncType operator &() {
+		return FuncPointer;
+	}
+};
+
+export template<uintptr_t Address, typename ReturnType, typename... ArgTypes>
+struct FuncSTD {
+	typedef ReturnType(__stdcall* FuncType)(ArgTypes...);
 
 	FuncType FuncPointer = (FuncType)Address;
 	FuncType Original = (FuncType)Address;

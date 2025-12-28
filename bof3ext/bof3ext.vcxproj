@@ -15,6 +15,7 @@
     <ClCompile Include="..\modules\minhook\src\hde\hde32.c" />
     <ClCompile Include="..\modules\minhook\src\hook.c" />
     <ClCompile Include="..\modules\minhook\src\trampoline.c" />
+    <ClCompile Include="include\GLAD\glad.c" />
     <ClCompile Include="src\bof3\battle.ixx" />
     <ClCompile Include="src\bof3\gui.ixx" />
     <ClCompile Include="src\bof3\render.ixx" />
@@ -26,6 +27,7 @@
     <ClCompile Include="src\helpers.ixx" />
     <ClCompile Include="src\hooks\audio_hooks.cpp" />
     <ClCompile Include="src\hooks\dat_hooks.ixx" />
+    <ClCompile Include="src\hooks\directx_hooks.ixx" />
     <ClCompile Include="src\hooks\enemy_hooks.ixx" />
     <ClCompile Include="src\hooks\gui_battle_hooks.ixx" />
     <ClCompile Include="src\hooks\gui_hooks.ixx" />
@@ -58,6 +60,8 @@
       <FileType>Document</FileType>
     </ClCompile>
     <ClCompile Include="src\math.ixx" />
+    <ClCompile Include="src\renderer.ixx" />
+    <ClCompile Include="src\shader_program.ixx" />
     <ClCompile Include="src\singleton.ixx">
       <FileType>Document</FileType>
     </ClCompile>
@@ -136,7 +140,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(ProjectDir)lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>freetype_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype_d.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y "$(TargetPath)" "D:\Games\Breath of Fire III"</Command>
@@ -163,7 +167,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>

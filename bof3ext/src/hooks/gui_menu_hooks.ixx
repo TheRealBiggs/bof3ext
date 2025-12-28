@@ -33,13 +33,24 @@ struct UnkStruct_D {
 	uint16_t gap;
 };
 
+struct UnkStruct_5 {
+	uint8_t textLen;
+	int8_t x;
+	char text[14];
+};
+
+
+ArrayAccessor<0x6536F8, UnkStruct_5> stru_6536F8;
+ArrayAccessor<0x653808, uint8_t> byte_653808;
+
 
 Func<0x5918E0, uint8_t, uint8_t /* a1 */> sub_5918E0;
 Func<0x5919B0, uint16_t, uint8_t /* a1 */, uint8_t /* a2 */, uint8_t /* a3 */> sub_5919B0;
 Func<0x590AB0, void, uint8_t /* characterId */, char* /* newEquip */, uint8_t* /* outColours */, uint16_t* /* outStats */> GetNewStats;
 Func<0x57D360, void, int16_t /* x */, int16_t /* y */, uint8_t /* id */, bool /* greyed */> DrawItemIcon;
-Func<0x57D860, void, int16_t /* x */, int16_t /* y */, int /* a3 */, char /* a4 */> sub_57D860;
+Func<0x57D860, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, char /* a4 */> sub_57D860;
 Func<0x591940, void, uint8_t /* a1 */, uint8_t /* a2 */, char* /* a3 */> sub_591940;
+Func<0x5905D0, void, int16_t /* x */, int16_t /* y */> DrawCursor;
 
 
 Func<0x574890, void, int16_t /* x */, int16_t /* y */, uint8_t /* index */, uint8_t /* selectedTabIdx */> DrawMenuTabs;
@@ -54,7 +65,7 @@ auto DrawMenuTabsHook(auto x, auto y, auto index, auto selectedTabIdx) {
 
 		auto id = byte_66383C[startIndex + i];
 
-		auto& text = TextManager::Get().GetMenuTabText(id);
+		const auto& text = TextManager::Get().GetMenuTabText(id);
 		auto len = text.length();
 
 		auto offset = std::round(advance / 2 * len);
@@ -240,6 +251,229 @@ auto DrawStatusWindowHook(auto x, auto y, auto charId) {
 	DrawUIGroup(x + 16, y, (char*)0x663390, 0);
 }
 
+Func<0x461800, void, int16_t /* x */, int16_t /* y */, uint8_t /* index */, uint8_t /* a4 */> DrawConfigCategory;
+auto DrawConfigCategoryHook(auto x, auto y, auto index, auto a4) {
+	DrawWindowBackground(x, y - a4, 249, 2 * a4 + 11, 0, ((uint8_t*)0x9039E0)[122]);
+
+	auto _x = x + 58;
+
+	const auto& text = TextManager::Get().GetConfigText(index);
+	auto advance = GlyphManager::Get().GetScaledGlyphAdvance();
+	advance /= 2;
+
+	if (a4 == 3) {
+		_x -= advance * text.length();
+		DrawString(_x, y - 1, 0, text.length(), text.c_str());
+
+		if (*(uint8_t*)0x929F02 != 1)
+			DrawCursor(x + 4, y);
+	} else {
+		_x -= advance * SMALL_TEXT_SCALE * text.length();
+		DrawStringSmall(_x, y + 3, 0, text.length(), text.c_str());
+	}
+
+	DrawLine(x + 116, y - a4 + 1, x + 116, a4 + y + 9, { 128, 128, 128 });
+}
+
+Func<0x461970, void, int16_t /* x */, int16_t /* y */, uint8_t /* index */, uint8_t /* selectedIndex */, int /* a5 */> DrawConfigValues;
+auto DrawConfigValuesHook(auto x, auto y, auto index, auto selectedIndex, auto a5) {
+	static int xOffsets[] = {
+		13, 65, 117,
+		15, 50, 81, 116,
+		15, 50, 81, 116,
+		13, 85,
+		13, 85
+	};
+
+	auto startIndex = byte_653808[index];
+	auto count = ((uint8_t*)0x653810)[index];
+
+	for (int i = 0; i < count; ++i) {
+		auto _x = x + 116 + xOffsets[startIndex + i];
+
+		auto colour = i == selectedIndex ? 2 : 0;
+
+		const auto& text = TextManager::Get().GetConfigText(6 + startIndex + i);
+		auto advance = GlyphManager::Get().GetScaledGlyphAdvance();
+
+		if (i == selectedIndex && a5 == 3) {
+			if (index < 3) {
+				if (i > 0 && i < count - 1)
+					_x -= advance / 2 * text.length();
+				else if (i == count - 1)
+					_x -= advance * text.length();
+			}
+
+			DrawString(_x, y - 1, colour, text.length(), text.c_str());
+		} else {
+			if (index < 3) {
+				if (i > 0 && i < count - 1)
+					_x -= advance / 2 * SMALL_TEXT_SCALE * text.length();
+				else if (i == count - 1)
+					_x -= advance * SMALL_TEXT_SCALE * text.length();
+			}
+
+			DrawStringSmall(_x, y + 3, colour, text.length(), text.c_str());
+		}
+	}
+}
+
+
+void DrawConfigBackgroundWindow(int16_t x, int16_t y, uint8_t a3, uint8_t a4) {
+	auto rect = (PSX_RECT*)*g_GpuPrims;
+	rect->x = 0;
+	rect->y = 0;
+	rect->w = 256;
+	rect->h = 256;
+
+	*g_GpuPrims += sizeof(PSX_RECT);
+
+	TexturePageAttribute tpage = {
+		.x = 832 / 64,
+		.y = 256 / 256,
+	};
+
+	Init_GpuPrim_SetDrawEnv((GpuPrim_SetDrawEnv*)*g_GpuPrims, 0, 0, tpage.value, rect);
+	PushGpuPrim_0(1, sizeof(GpuPrim_SetDrawEnv));
+
+	sub_57D860(x, y, 35, 1);								// Top-left corner
+	sub_57D860(x + 8 * a3 - 16, y, 38, 1);					// Top-right corner
+	sub_57D860(x, y + 8 * a4 - 16, 39, 1);					// Bottom-left corner
+	sub_57D860(x + 8 * a3 - 16, y + 8 * a4 - 16, 41, 1);	// Bottom-right corner
+
+	// Top edge
+	rect = (PSX_RECT*)*g_GpuPrims;
+	rect->x = 112;
+	rect->y = 152;
+	rect->w = 8;
+	rect->h = 8;
+
+	*g_GpuPrims += sizeof(PSX_RECT);
+
+	Init_GpuPrim_SetDrawEnv((GpuPrim_SetDrawEnv*)*g_GpuPrims, 0, 0, tpage.value, rect);
+	PushGpuPrim_0(1, sizeof(GpuPrim_SetDrawEnv));
+
+	Vec3b colour = { 128, 128, 128 };
+	uint16_t palette = CreatePaletteIdx(176, 481);
+
+	auto prim = (GpuPrim_TexturedRectWH*)*g_GpuPrims;
+	Init_GpuPrim_TexturedRectWH(prim);
+
+	prim->v1.x = x + 16;
+	prim->v1.y = y;
+	prim->t1.x = prim->t1.y = 0;
+	prim->size.x = 8 * a3 - 32;
+	prim->size.y = 8;
+	prim->colour = colour;
+	prim->palette = palette;
+
+	PushGpuPrim_0(1, sizeof(GpuPrim_TexturedRectWH));
+
+	// Bottom edge
+	rect = (PSX_RECT*)*g_GpuPrims;
+	rect->x = 152;
+	rect->y = 160;
+	rect->w = 8;
+	rect->h = 8;
+
+	*g_GpuPrims += sizeof(PSX_RECT);
+
+	Init_GpuPrim_SetDrawEnv((GpuPrim_SetDrawEnv*)*g_GpuPrims, 0, 0, tpage.value, rect);
+	PushGpuPrim_0(1, sizeof(GpuPrim_SetDrawEnv));
+
+	prim = (GpuPrim_TexturedRectWH*)*g_GpuPrims;
+	Init_GpuPrim_TexturedRectWH(prim);
+
+	prim->v1.x = x + 16;
+	prim->v1.y = y + 8 * a4 - 8;
+	prim->t1.x = prim->t1.y = 0;
+	prim->size.x = 8 * a3 - 32;
+	prim->size.y = 8;
+	prim->colour = colour;
+	prim->palette = palette;
+
+	PushGpuPrim_0(1, sizeof(GpuPrim_TexturedRectWH));
+
+	// Left edge
+	rect = (PSX_RECT*)*g_GpuPrims;
+	rect->x = 176;
+	rect->y = 152;
+	rect->w = 8;
+	rect->h = 8;
+
+	*g_GpuPrims += sizeof(PSX_RECT);
+
+	Init_GpuPrim_SetDrawEnv((GpuPrim_SetDrawEnv*)*g_GpuPrims, 0, 0, tpage.value, rect);
+	PushGpuPrim_0(1, sizeof(GpuPrim_SetDrawEnv));
+
+	prim = (GpuPrim_TexturedRectWH*)*g_GpuPrims;
+	Init_GpuPrim_TexturedRectWH(prim);
+
+	prim->v1.x = x;
+	prim->v1.y = y + 16;
+	prim->t1.x = prim->t1.y = 0;
+	prim->size.x = 8;
+	prim->size.y = 8 * a4 - 32;
+	prim->colour = colour;
+	prim->palette = palette;
+
+	PushGpuPrim_0(1, sizeof(GpuPrim_TexturedRectWH));
+
+	// Right edge
+	rect = (PSX_RECT*)*g_GpuPrims;
+	rect->x = 176;
+	rect->y = 160;
+	rect->w = 8;
+	rect->h = 8;
+
+	*g_GpuPrims += sizeof(PSX_RECT);
+
+	Init_GpuPrim_SetDrawEnv((GpuPrim_SetDrawEnv*)*g_GpuPrims, 0, 0, tpage.value, rect);
+	PushGpuPrim_0(1, sizeof(GpuPrim_SetDrawEnv));
+
+	prim = (GpuPrim_TexturedRectWH*)*g_GpuPrims;
+	Init_GpuPrim_TexturedRectWH(prim);
+
+	prim->v1.x = x + 8 * a3 - 8;
+	prim->v1.y = y + 16;
+	prim->t1.x = prim->t1.y = 0;
+	prim->size.x = 8;
+	prim->size.y = 8 * a4 - 32;
+	prim->colour = colour;
+	prim->palette = palette;
+
+	PushGpuPrim_0(1, sizeof(GpuPrim_TexturedRectWH));
+
+	// Center
+	rect = (PSX_RECT*)*g_GpuPrims;
+	rect->x = 112;
+	rect->y = 160;
+	rect->w = 8;
+	rect->h = 8;
+
+	*g_GpuPrims += sizeof(PSX_RECT);
+
+	Init_GpuPrim_SetDrawEnv((GpuPrim_SetDrawEnv*)*g_GpuPrims, 0, 0, tpage.value, rect);
+	PushGpuPrim_0(1, sizeof(GpuPrim_SetDrawEnv));
+
+	prim = (GpuPrim_TexturedRectWH*)*g_GpuPrims;
+	Init_GpuPrim_TexturedRectWH(prim);
+
+	prim->v1.x = x + 8;
+	prim->v1.y = y + 8;
+	prim->t1.x = prim->t1.y = 0;
+	prim->size.x = 8 * a3 - 16;
+	prim->size.y = 8 * a4 - 16;
+	prim->colour = colour;
+	prim->palette = palette;
+
+	PushGpuPrim_0(1, sizeof(GpuPrim_TexturedRectWH));
+}
+
+void DrawConfigControllerBackgroundWindow(int16_t x, int16_t y, uint8_t a3, uint8_t a4) {
+	DrawConfigBackgroundWindow(x, y, a3 + 3, a4);
+}
+
 
 static const float HALF = 0.5f;
 
@@ -280,12 +514,33 @@ static void __declspec(naked) FixTextCenteringMainMenu() {
 	}
 }
 
+static void __declspec(naked) FixTextCenteringConfigController() {
+	__asm {
+		push ebp;				// Save EBP register (x)
+		push ecx;				// Save ECX register (textLen)
+		call GlyphManager::Get;
+		mov ecx, eax;
+		call GlyphManager::GetScaledGlyphAdvance;
+		fmul[HALF];
+		fimul[esp];
+		fistp[esp];
+		pop ecx;				// Half textLen * advance
+		pop eax;				// X
+		add eax, 32;
+		sub eax, ecx;
+		mov cx, ax;
+		ret;
+	}
+}
+
 
 export void EnableGuiMenuHooks() {
 	EnableHook(DrawMenuTabs, DrawMenuTabsHook);
 	EnableHook(DrawEquipmentWindow, DrawEquipmentWindowHook);
 	EnableHook(DrawZennyPanel, DrawZennyPanelHook);
 	EnableHook(DrawStatusWindow, DrawStatusWindowHook);
+	EnableHook(DrawConfigValues, DrawConfigValuesHook);
+	EnableHook(DrawConfigCategory, DrawConfigCategoryHook);
 
 	// Increase width of status window selection outline
 	WriteProtectedMemory(0x66B090, (uint16_t)288);
@@ -321,4 +576,16 @@ export void EnableGuiMenuHooks() {
 
 	WriteProtectedMemory(0x59A015, code2);
 	WriteProtectedMemory(0x59A023, (uint8_t)36);
+
+	// Fix text centering for action names in controller config
+	code[0] = 0xE8;
+	std::memset(&code[5], 0x90, 7);
+
+	*(uint32_t*)&code[1] = (uint32_t)&FixTextCenteringConfigController - (0x461B36 + 5);
+
+	WriteProtectedMemory(0x461B36, code);
+
+	// Intercept call to nullsub_2 in order to draw config background window
+	WriteProtectedMemory(0x461779, (uint32_t)&DrawConfigBackgroundWindow - (0x461778 + 5));
+	WriteProtectedMemory(0x461A85, (uint32_t)&DrawConfigControllerBackgroundWindow - (0x461A84 + 5));
 }

@@ -5,7 +5,6 @@ module;
 #include <windows.h>
 
 #include <mciapi.h>
-#include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
 
 export module bof3ext.hooks:window;
@@ -143,4 +142,8 @@ export void EnableWindowHooks() {
 
 	// Make window resizable
 	//WriteProtectedMemory(0x4FCCCD, (uint32_t)(0xCA0000 | WS_SIZEBOX));
+
+	// Set framerate
+	//WriteProtectedMemory(0x5C4218, 33.334 / 2.0);
+	//WriteProtectedMemory(0x5C4220, 33.34 / 2.0);
 }

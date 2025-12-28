@@ -11,7 +11,7 @@ import bof3ext.math;
 import bof3.dat;
 
 
-export enum class GpuCommandType {
+export enum class GpuPrimType {
 	Tri = 8,
 	TexturedTri,
 	Quad,
@@ -42,7 +42,7 @@ export enum class GpuCommandType {
 	SetDrawEnv = 58
 };
 
-export enum class GpuCommandBlendType {
+export enum class GpuPrimBlendType {
 	RawTexture = 0x1,
 	Translucent = 0x2,
 };
@@ -53,10 +53,6 @@ export enum class SetDrawEnvFlags : uint8_t {
 	EnableDither = 0x2,
 };
 
-
-export struct Colour {
-	uint8_t r, g, b;
-};
 
 export struct DR_ENV {
 	uint32_t* tag;
@@ -86,10 +82,29 @@ export struct DISPENV {
 	uint8_t pad1;
 };
 
+export struct ENV {
+	DISPENV disp;
+	DRAWENV env;
+	void* ordering_table[8];
+};
 
-export struct GpuCommand {
-	uint8_t gap0[4];
-	Colour colour;
+export union TexturePageAttribute {
+	struct {
+		uint16_t x : 4;
+		uint16_t y : 1;
+		uint16_t blend : 2;
+		uint16_t format : 2;
+		uint16_t dither : 1;
+	};
+
+	uint16_t value;
+};
+
+
+
+export struct GpuPrim {
+	void* tag;
+	Vec3b colour;
 	union {
 		uint8_t value;
 		struct {
@@ -99,13 +114,13 @@ export struct GpuCommand {
 	};
 };
 
-export struct GpuCommand_Tri : GpuCommand {
+export struct GpuPrim_Tri : GpuPrim {
 	Vec3f v1;
 	Vec3f v2;
 	Vec3f v3;
 };
 
-export struct GpuCommand_TexturedTri : GpuCommand {
+export struct GpuPrim_TexturedTri : GpuPrim {
 	Vec3f v1;
 	Vec2b t1;
 	uint16_t palette;
@@ -117,106 +132,106 @@ export struct GpuCommand_TexturedTri : GpuCommand {
 	uint16_t _unused36;
 };
 
-export struct GpuCommand_Quad : GpuCommand_Tri {
+export struct GpuPrim_Quad : GpuPrim_Tri {
 	Vec3f v4;
 };
 
-export struct GpuCommand_TexturedQuad : GpuCommand_TexturedTri {
+export struct GpuPrim_TexturedQuad : GpuPrim_TexturedTri {
 	Vec3f v4;
 	Vec2b t4;
 	uint16_t _unused46;
 };
 
-export struct GpuCommand_ShadedTri : GpuCommand {
+export struct GpuPrim_ShadedTri : GpuPrim {
 	Vec3f v1;
-	Colour c2;
+	Vec3b c2;
 	Vec3f v2;
-	Colour c3;
+	Vec3b c3;
 	Vec3f v3;
 };
 
-export struct GpuCommand_ShadedTexturedTri : GpuCommand {
+export struct GpuPrim_ShadedTexturedTri : GpuPrim {
 	Vec3f v1;
 	Vec2b t1;
 	uint16_t palette;
-	Colour c2;
+	Vec3b c2;
 	Vec3f v2;
 	Vec2b t2;
 	uint16_t texturePage;
-	Colour c3;
+	Vec3b c3;
 	Vec3f v3;
 	Vec2b t3;
 	uint16_t _unused3E;
 };
 
-export struct GpuCommand_ShadedQuad : GpuCommand_ShadedTri {
-	Colour c4;
+export struct GpuPrim_ShadedQuad : GpuPrim_ShadedTri {
+	Vec3b c4;
 	Vec3f v4;
 };
 
-export struct GpuCommand_ShadedTexturedQuad : GpuCommand_ShadedTri {
-	Colour c4;
+export struct GpuPrim_ShadedTexturedQuad : GpuPrim_ShadedTri {
+	Vec3b c4;
 	Vec3f v4;
 	Vec2b t4;
 	uint16_t _unused46;
 };
 
-export struct GpuCommand_Line : GpuCommand {
+export struct GpuPrim_Line : GpuPrim {
 	Vec3f v1;
 	Vec3f v2;
 };
 
-export struct GpuCommand_Line2 : GpuCommand_Line {
+export struct GpuPrim_Line2 : GpuPrim_Line {
 	Vec3f v3;
 };
 
-export struct GpuCommand_Line3 : GpuCommand_Line2 {
+export struct GpuPrim_Line3 : GpuPrim_Line2 {
 	Vec3f v4;
 };
 
-export struct GpuCommand_ShadedLine : GpuCommand {
+export struct GpuPrim_ShadedLine : GpuPrim {
 	Vec3f v1;
-	Colour c2;
+	Vec3b c2;
 	Vec3f v2;
 };
 
-export struct GpuCommand_ShadedLine2 : GpuCommand_ShadedLine {
-	Colour c3;
+export struct GpuPrim_ShadedLine2 : GpuPrim_ShadedLine {
+	Vec3b c3;
 	Vec3f v3;
 };
 
-export struct GpuCommand_ShadedLine3 : GpuCommand_ShadedLine2 {
-	Colour c4;
+export struct GpuPrim_ShadedLine3 : GpuPrim_ShadedLine2 {
+	Vec3b c4;
 	Vec3f v4;
 };
 
-export struct GpuCommand_Point : GpuCommand {
+export struct GpuPrim_Point : GpuPrim {
 	Vec3f v1;
 };
 
-export struct GpuCommand_Rect8 : GpuCommand {
+export struct GpuPrim_Rect8 : GpuPrim {
 	Vec3f v1;
 };
 
-export struct GpuCommand_Rect16 : GpuCommand_Rect8 {};
+export struct GpuPrim_Rect16 : GpuPrim_Rect8 {};
 
-export struct GpuCommand_RectWH : GpuCommand_Rect8 {
+export struct GpuPrim_RectWH : GpuPrim_Rect8 {
 	Vec2f size;
 };
 
-export struct GpuCommand_TexturedRect8 : GpuCommand {
+export struct GpuPrim_TexturedRect8 : GpuPrim {
 	Vec3f v1;
 	Vec2b t1;
 	uint16_t palette;
 };
 
-export struct GpuCommand_TexturedRect16 : GpuCommand_TexturedRect8 {};
+export struct GpuPrim_TexturedRect16 : GpuPrim_TexturedRect8 {};
 
-export struct GpuCommand_TexturedRectWH : GpuCommand_TexturedRect8 {
+export struct GpuPrim_TexturedRectWH : GpuPrim_TexturedRect8 {
 	Vec2s size;
 };
 
-export struct GpuCommand_SetDrawEnv {
+export struct GpuPrim_SetDrawEnv {
 	uint8_t gap0[4];
 	uint16_t texturePage;
 	SetDrawEnvFlags flags;
@@ -224,7 +239,7 @@ export struct GpuCommand_SetDrawEnv {
 	PSX_RECT* rect;
 };
 
-export struct GpuCommand_TextGlyph : GpuCommand {
+export struct GpuPrim_TextGlyph : GpuPrim {
 	int16_t x1;
 	int16_t y1;
 	uint8_t tx1;
@@ -247,13 +262,13 @@ export struct GpuCommand_TextGlyph : GpuCommand {
 	uint8_t gap[2];
 };
 
-export struct GpuCommand_236 : GpuCommand {
+export struct GpuPrim_236 : GpuPrim {
 	PSX_RECT rect;
 	uint32_t x;
 	uint32_t y;
 };
 
-export struct GpuCommand_Sprite : GpuCommand {
+export struct GpuPrim_Sprite : GpuPrim {
 	Vec2f position;
 	Vec2f scale;
 	uint16_t word18;
@@ -297,6 +312,12 @@ export struct struct_dword_905B84 {
 };
 
 
+export struct UnkStruct_7 {
+	uint32_t dword0;
+	void* vp4;
+};
+
+
 export constexpr float SMALL_TEXT_SCALE = 10.f / 12.f;
 
 
@@ -310,7 +331,7 @@ export Func<0x444340, void,
 export Func<0x461E50, void,
 	uint8_t,	// index
 	uint8_t		// cmdSize
-> PushGpuCommand;
+> PushGpuPrim_0;
 
 export Func<0x516B30, uint8_t*,
 	int16_t,	// x
@@ -383,16 +404,20 @@ export Func<0x5A3160, int,
 > sub_5A3160; // Something to do with getting character sprites?
 
 export Func<0x5A7710, void,
-	GpuCommand_TexturedRectWH*	// gpuCmd
-> Init_GpuCommand_TexturedRectWH;
+	GpuPrim_TexturedRectWH*	// prim
+> Init_GpuPrim_TexturedRectWH;
 
 export Func<0x5A77C0, void,
-	GpuCommand_SetDrawEnv*,	// gpuCmd
+	GpuPrim_SetDrawEnv*,	// prim
 	BOOL,					// allowDraw
 	BOOL,					// enableDither
 	uint16_t,				// texturePage
 	PSX_RECT*				// rect
-> Init_GpuCommand_SetDrawEnv;
+> Init_GpuPrim_SetDrawEnv;
+
+export Func<0x5A7650, void,
+	GpuPrim_Line*	// prim
+> Init_GpuPrim_Line;
 
 export Func<0x5A79A0, uint16_t,
 	char,	// a1
@@ -401,70 +426,76 @@ export Func<0x5A79A0, uint16_t,
 	int		// a4
 > CreateTexturePageValue;
 
-
-export Accessor<		0x7C9F4C, float>				g_RenderScaleX;
-export Accessor<		0x7C9F48, float>				g_RenderScaleY;
-export Accessor<		0x7DED00, DRAWENV>				g_DrawEnv;
-export ArrayAccessor<	0x7C9F50, FontGlyph>			g_FontGlyphs;
-export PointerAccessor<	0x7E0670, GpuCommand>			g_GpuCommands;
-export PointerAccessor<	0x7CC334, IDirectDraw4>			g_IDirectDraw4;
-export PointerAccessor<	0x7CC350, IDirect3DDevice3>		g_IDirect3DDevice3;
-export PointerAccessor<	0x905B84, struct_dword_905B84>	dword_905B84;
+export Func<0x5A79E0, uint16_t,
+	uint16_t,	// x
+	uint16_t	// y
+> CreatePaletteIdx;
 
 
-void SetGpuCommandTranslucent(GpuCommand* gpuCmd, bool value) {
+export Accessor<        0x7C9F4C, float>                g_RenderScaleX;
+export Accessor<        0x7C9F48, float>                g_RenderScaleY;
+export Accessor<        0x7DED00, DRAWENV>              g_DrawEnv;
+export ArrayAccessor<   0x7C9F50, FontGlyph>            g_FontGlyphs;
+export ArrayAccessor<   0x6C2A40, UnkStruct_7>          g_CLUT;
+export PointerAccessor< 0x7E0670, GpuPrim>              g_GpuPrims;
+export PointerAccessor< 0x7CC334, IDirectDraw4>         g_IDirectDraw4;
+export PointerAccessor< 0x7CC350, IDirect3DDevice3>     g_IDirect3DDevice3;
+export PointerAccessor< 0x905B84, struct_dword_905B84>  dword_905B84;
+
+
+void SetGpuPrimTranslucent(GpuPrim* prim, bool value) {
 	if (value)
-		gpuCmd->flags |= (int)GpuCommandBlendType::Translucent;
+		prim->flags |= (int)GpuPrimBlendType::Translucent;
 }
 
 
-export void DrawRectWH(uint16_t x, uint16_t y, uint16_t width, uint16_t height, Colour colour, bool blend) {
-	auto gpuCmd = (GpuCommand_RectWH*)*g_GpuCommands;
-	gpuCmd->colour = colour;
-	gpuCmd->command = (int)GpuCommandType::RectWH;
+export void DrawRectWH(uint16_t x, uint16_t y, uint16_t width, uint16_t height, Vec3b colour, bool blend) {
+	auto prim = (GpuPrim_RectWH*)*g_GpuPrims;
+	prim->colour = colour;
+	prim->command = (int)GpuPrimType::RectWH;
 
-	gpuCmd->v1 = { (float)x, (float)y, 0.01f };
-	gpuCmd->size = { (float)width, (float)height };
+	prim->v1 = { (float)x, (float)y, 0.01f };
+	prim->size = { (float)width, (float)height };
 
-	SetGpuCommandTranslucent(gpuCmd, blend);
+	SetGpuPrimTranslucent(prim, blend);
 
-	PushGpuCommand(1, sizeof(GpuCommand_RectWH));
+	PushGpuPrim_0(1, sizeof(GpuPrim_RectWH));
 }
 
-export void DrawQuad(Vec2i p1, Vec2i p2, Vec2i p3, Vec2i p4, Colour colour, bool blend) {
-	auto gpuCmd = (GpuCommand_Quad*)*g_GpuCommands;
-	gpuCmd->colour = colour;
-	gpuCmd->command = (int)GpuCommandType::Quad;
+export void DrawQuad(Vec2i p1, Vec2i p2, Vec2i p3, Vec2i p4, Vec3b colour, bool blend) {
+	auto prim = (GpuPrim_Quad*)*g_GpuPrims;
+	prim->colour = colour;
+	prim->command = (int)GpuPrimType::Quad;
 
-	gpuCmd->v1 = { (float)p1.x, (float)p1.y, 0.01f };
-	gpuCmd->v2 = { (float)p2.x, (float)p2.y, 0.01f };
-	gpuCmd->v3 = { (float)p3.x, (float)p3.y, 0.01f };
-	gpuCmd->v4 = { (float)p4.x, (float)p4.y, 0.01f };
+	prim->v1 = { (float)p1.x, (float)p1.y, 0.01f };
+	prim->v2 = { (float)p2.x, (float)p2.y, 0.01f };
+	prim->v3 = { (float)p3.x, (float)p3.y, 0.01f };
+	prim->v4 = { (float)p4.x, (float)p4.y, 0.01f };
 
-	SetGpuCommandTranslucent(gpuCmd, blend);
+	SetGpuPrimTranslucent(prim, blend);
 
-	PushGpuCommand(1, sizeof(GpuCommand_Quad));
+	PushGpuPrim_0(1, sizeof(GpuPrim_Quad));
 }
 
-export void DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, Colour colour) {
-	auto gpuCmd = (GpuCommand_Line*)*g_GpuCommands;
-	gpuCmd->colour = colour;
-	gpuCmd->command = (int)GpuCommandType::Line;
+export void DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, Vec3b colour) {
+	auto prim = (GpuPrim_Line*)*g_GpuPrims;
+	prim->colour = colour;
+	prim->command = (int)GpuPrimType::Line;
 
-	gpuCmd->v1 = { (float)x1, (float)y1, 0.01f };
-	gpuCmd->v2 = { (float)x2, (float)y2, 0.01f };
+	prim->v1 = { (float)x1, (float)y1, 0.01f };
+	prim->v2 = { (float)x2, (float)y2, 0.01f };
 
-	PushGpuCommand(1, sizeof(GpuCommand_Line));
+	PushGpuPrim_0(1, sizeof(GpuPrim_Line));
 }
 
 export void SetBlendMode(int a1, int a2, int a3, int a4) {
-	auto gpuCmd = (GpuCommand_SetDrawEnv*)*g_GpuCommands;
-	gpuCmd->command = (int)GpuCommandType::SetDrawEnv;
+	auto prim = (GpuPrim_SetDrawEnv*)*g_GpuPrims;
+	prim->command = (int)GpuPrimType::SetDrawEnv;
 
 	auto flags = CreateTexturePageValue(a1, a2, a3, a4);
-	Init_GpuCommand_SetDrawEnv(gpuCmd, 0, 0, flags, 0);
+	Init_GpuPrim_SetDrawEnv(prim, 0, 0, flags, 0);
 
-	PushGpuCommand(1, sizeof(GpuCommand_SetDrawEnv));
+	PushGpuPrim_0(1, sizeof(GpuPrim_SetDrawEnv));
 }
 
 
@@ -473,7 +504,7 @@ export void DrawBorderedPanel(int16_t x, int16_t y, int16_t width, int16_t heigh
 
 	auto wndColourIdx = ((uint8_t*)0x9039E0)[122] * 64;
 	auto wndColour = *(uint16_t*)&g_DatChunk_0_8200[wndColourIdx + 40];
-	Colour colour = {
+	Vec3b colour = {
 		(uint8_t)(8 * (wndColour & 0x1F)),
 		(uint8_t)(8 * ((wndColour >> 5) & 0x1F)),
 		(uint8_t)(8 * ((wndColour >> 10) & 0x1F))

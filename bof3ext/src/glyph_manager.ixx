@@ -75,32 +75,13 @@ public:
 
 		FT_Done_FreeType(ft);
 
-		int width, height, channels;
-
-		uint8_t* img = stbi_load(".\\NewData\\Fonts\\EX.png", &width, &height, &channels, 0);
-		auto buf = new uint8_t[width * height * channels];
-
-		for (int i = 0; i < width * height; i++) {
-			auto c = ((uint32_t*)img)[i];
-			auto r = c & 0xFF;
-			auto g = (c >> 8) & 0xFF;
-			auto b = (c >> 16) & 0xFF;
-			auto a = (c >> 24);
-
-			c = (a << 24) | (r << 16) | (g << 8) | b;
-
-			*((uint32_t*)buf + i) = c;
-		}
-
-		stbi_image_free(img);
-
-		CachedGlyph ex{ 0 };
-		ex.buffer = buf;
-		ex.pitch = width * channels;
-		ex.rows = height;
-		ex.top = 48 - 24;
-
-		cachedGlyphs[0x101] = ex;
+		LoadImage(".\\NewData\\Fonts\\EX.png", 0x101);
+		LoadImage(".\\NewData\\Fonts\\button_1.png", u'△');
+		LoadImage(".\\NewData\\Fonts\\button_2.png", u'◯');
+		LoadImage(".\\NewData\\Fonts\\button_3.png", u'☓');
+		LoadImage(".\\NewData\\Fonts\\button_4.png", u'⬜');
+		LoadImage(".\\NewData\\Fonts\\button_LB.png", u'⮪');
+		LoadImage(".\\NewData\\Fonts\\button_RB.png", u'⮫');
 
 		return true;
 	}
@@ -166,6 +147,35 @@ private:
 		};
 
 		FT_Bitmap_Done(ft, &bitmap);
+	}
+
+	void LoadImage(const char* filepath, unsigned short charCode) {
+		int width, height, channels;
+
+		uint8_t* img = stbi_load(filepath, &width, &height, &channels, 0);
+		auto buf = new uint8_t[width * height * channels];
+
+		for (int i = 0; i < width * height; i++) {
+			auto c = ((uint32_t*)img)[i];
+			auto r = c & 0xFF;
+			auto g = (c >> 8) & 0xFF;
+			auto b = (c >> 16) & 0xFF;
+			auto a = (c >> 24);
+
+			c = (a << 24) | (r << 16) | (g << 8) | b;
+
+			*((uint32_t*)buf + i) = c;
+		}
+
+		stbi_image_free(img);
+
+		CachedGlyph ex{ 0 };
+		ex.buffer = buf;
+		ex.pitch = width * channels;
+		ex.rows = height;
+		ex.top = 48 - height;
+
+		cachedGlyphs[charCode] = ex;
 	}
 
 

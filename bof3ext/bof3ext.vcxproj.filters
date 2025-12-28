@@ -123,6 +123,18 @@
     <ClCompile Include="src\hooks\widescreen_patches.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\hooks\directx_hooks.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\GLAD\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\shader_program.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bof3\audio.hpp">

@@ -136,6 +136,7 @@ public:
 		ReadTextFileIntoVector("NewData\\Text\\text_skillnames.txt", skillNames);
 		ReadTextFileIntoVector("NewData\\Text\\text_menutabs.txt", menuTabTexts);
 		ReadTextFileIntoVector("NewData\\Text\\text_categories.txt", categoryTexts);
+		ReadTextFileIntoVector("NewData\\Text\\text_config.txt", configTexts);
 
 		if (std::filesystem::exists("NewData\\Text\\text_enemynames_map.txt")) {
 			std::ifstream file("NewData\\Text\\text_enemynames_map.txt");
@@ -263,6 +264,15 @@ public:
 	}
 
 
+	bool HasConfigText(unsigned int index) const {
+		return !configTexts.empty() && configTexts.size() >= index;
+	}
+
+	const std::string& GetConfigText(unsigned int index) const {
+		return configTexts[index];
+	}
+
+
 	bool EnemyNamesFileIsLoaded(unsigned int area) const {
 		return enemyNames.count(area) > 0;
 	}
@@ -344,4 +354,5 @@ private:
 	std::vector<std::string> skillNames;
 	std::vector<std::string> menuTabTexts;
 	std::vector<std::string> categoryTexts;
+	std::vector<std::string> configTexts;
 };

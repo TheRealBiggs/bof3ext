@@ -72,7 +72,7 @@ void PatchDrawRangesForWidescreen(float diff) {
 }
 
 
-Func<0x462560, GpuCommand_TexturedRectWH*,
+Func<0x462560, GpuPrim_TexturedRectWH*,
 	int16_t,	// x
 	int16_t,	// y
 	uint8_t,	// a3
