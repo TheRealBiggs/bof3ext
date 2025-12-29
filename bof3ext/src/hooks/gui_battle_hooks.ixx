@@ -83,8 +83,20 @@ auto DrawBattleCommandTextPanelHook(auto index) {
 	auto x = ((RectS*)0x64E2C8)[index].Left;
 	auto y = ((RectS*)0x64E2C8)[index].Top;
 
+	if (index == 0 || index == 3 || index == 5)
+		x -= 14;
+	else if (index == 1 || index == 2)
+		x -= 7;
+
 	DrawBorderedPanel(x, y, 54, 18);
-	DrawString(x + 8, y + 3, 0, 8u, ((char**)0x669D60)[index]);
+
+	auto text = ((char**)0x669D60)[index];
+	auto textLen = GetStringLength(text);
+
+	auto advance = GlyphManager::Get().GetScaledGlyphAdvance();
+	advance /= 2;
+
+	DrawString(x + 27 - advance * textLen, y + 3, 0, textLen, text);
 }
 
 // Draws the panel at the top of the screen that displays current character or skill name
