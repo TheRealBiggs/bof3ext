@@ -1,7 +1,7 @@
 export module bof3ext.hooks;
 
 export import :dat;
-export import :directx;
+//export import :directx;
 export import :enemy;
 export import :item;
 export import :gui;

@@ -87,23 +87,23 @@ auto sub_462560Hook(auto x, auto y, auto a3, auto a4, auto a5) {
 }
 
 Func<0x576960, void,
-	uint8_t,	// a1
+	uint8_t,	// index
 	int16_t,	// x
 	int16_t,	// y
 	void*		// a4
 > DrawSaveEntry;
-auto DrawSaveEntryHook(auto a1, auto x, auto y, auto a4) {
+auto DrawSaveEntryHook(auto index, auto x, auto y, auto a4) {
 	auto diff = ConfigManager::Get().GetScaledRenderWidth() - 320.f;
 	auto offset = diff / 2;
 
-	return DrawSaveEntry.Original(a1, x + offset, y, a4);
+	return DrawSaveEntry.Original(index, x + offset, y, a4);
 }
 
 Func<0x573CE0, void,
 	int16_t,	// x
 	int16_t,	// y
-	int16_t,	// w
-	int16_t,	// h
+	uint16_t,	// w
+	uint16_t,	// h
 	int,		// a5
 	int			// a6
 > DrawSelectedFrameOutline;
