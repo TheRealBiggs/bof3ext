@@ -125,6 +125,28 @@ void __forceinline WriteProtectedMemory(uintptr_t address, T(& val)[S]) {
 	VirtualProtect((void*)address, sizeof(T) * S, oldProtect, &oldProtect);
 }
 
+export void __forceinline WriteCall(uintptr_t address, void* function) {
+	uint8_t code[5];
+	code[0] = 0xE8;
+	*(uint32_t*)&code[1] = (uint32_t)function - (address + 5);
+
+	WriteProtectedMemory(address, code);
+}
+
+export template<size_t S>
+void __forceinline WriteNops(uintptr_t address) {
+	uint8_t nops[S];
+	std::memset(nops, 0x90, S);
+
+	WriteProtectedMemory(address, nops);
+}
+
+export template<size_t S>
+void __forceinline WriteCallAndNops(uintptr_t address, void* function) {
+	WriteCall(address, function);
+	WriteNops<S>(address + 5);
+}
+
 
 // Logging functions
 

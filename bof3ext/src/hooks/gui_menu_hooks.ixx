@@ -533,6 +533,22 @@ static void __declspec(naked) FixTextCenteringConfigController() {
 	}
 }
 
+static void __declspec(naked) FixTextCenteringMaster() {
+	__asm {
+		push edx;		// Save EDX register (x)
+		push eax;		// Save EAX register (textLen)
+		call GlyphManager::Get;
+		mov ecx, eax;
+		call GlyphManager::GetScaledGlyphAdvance;
+		fmul[HALF];
+		fimul[esp];
+		fistp[esp];
+		pop ecx;		// Half textLen * advance
+		pop edx;		// X
+		ret;
+	}
+}
+
 
 export void EnableGuiMenuHooks() {
 	EnableHook(DrawMenuTabs, DrawMenuTabsHook);
@@ -546,18 +562,10 @@ export void EnableGuiMenuHooks() {
 	WriteProtectedMemory(0x66B090, (uint16_t)288);
 
 	// Fix text centering for category in inventory window
-	uint8_t code[12];
-	code[0] = 0xE8;					// Call relative
-	std::memset(&code[5], 0x90, 7);	// NOPs
-
-	*(uint32_t*)&code[1] = (uint32_t)(&FixTextCentering<77>) - (0x575C7A + 5 /* 5 = size of CALL instruction */);
-
-	WriteProtectedMemory(0x575C7A, code);
+	WriteCallAndNops<7>(0x575C7A, FixTextCentering<77>);
 
 	// Fix text centering for category in equip window
-	*(uint32_t*)&code[1] = (uint32_t)(&FixTextCentering<77>) - (0x5766EA + 5);
-
-	WriteProtectedMemory(0x5766EA, code);
+	WriteCallAndNops<7>(0x5766EA, FixTextCentering<77>);
 
 	// Fix text centering for unique item count in inventory window
 	auto advance = GlyphManager::Get().GetScaledGlyphAdvance();
@@ -569,23 +577,20 @@ export void EnableGuiMenuHooks() {
 	// TODO: Fix text alignment for item count in item info
 
 	// Fix text centering for submenu text in pause menu
-	uint8_t code2[9];
-	code2[0] = 0xE8;
-	std::memset(&code2[5], 0x90, 4);
-	*(uint32_t*)&code2[1] = (uint32_t)&FixTextCenteringMainMenu - (0x59A015 + 5);
+	WriteCallAndNops<4>(0x59A015, FixTextCenteringMainMenu);
 
-	WriteProtectedMemory(0x59A015, code2);
 	WriteProtectedMemory(0x59A023, (uint8_t)36);
 
 	// Fix text centering for action names in controller config
-	code[0] = 0xE8;
-	std::memset(&code[5], 0x90, 7);
+	WriteCallAndNops<7>(0x461B36, FixTextCenteringConfigController);
 
-	*(uint32_t*)&code[1] = (uint32_t)&FixTextCenteringConfigController - (0x461B36 + 5);
-
-	WriteProtectedMemory(0x461B36, code);
+	// Fix text centering for Master title text
+	WriteCall(0x59C5D4, FixTextCenteringMaster);
 
 	// Intercept call to nullsub_2 in order to draw config background window
-	WriteProtectedMemory(0x461779, (uint32_t)&DrawConfigBackgroundWindow - (0x461778 + 5));
-	WriteProtectedMemory(0x461A85, (uint32_t)&DrawConfigControllerBackgroundWindow - (0x461A84 + 5));
+	WriteCall(0x461778, DrawConfigBackgroundWindow);
+	WriteCall(0x461A84, DrawConfigControllerBackgroundWindow);
+
+	// Remove draw of 2nd ':' in time text for save entries
+	WriteNops<5>(0x576ACD);
 }

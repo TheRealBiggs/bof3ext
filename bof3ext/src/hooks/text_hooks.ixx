@@ -71,9 +71,13 @@ const char charNameRei[] = "Rei";
 const char charNameMomo[] = "Momo";
 const char* defaultCharNames[] = { charNameRyu, charNameNina, charNameGarr, charNameTeepo, charNameRei, charNameMomo, "" };
 
+const char master[] = "Master";
+
 const char* battleCommandText[] = { "Attack", "Ability", "Item", "Examine", "Defend", "Charge", "Escape" };
 const char* battleCommandText2[] = { "Attack", " \x81\x01", "Examine", "DDD", "EEE", "FFF", "Reprisal", "Critical", "III", "JJJ", "Escape", "LLL" };
 const char* configActionText[] = { "Speak", "Move", "Action", "Menu", "View", "Change" };
+
+const char* skillNoteSortText[] = { "Sort", "Look", "High AP", "Low AP" };
 
 
 export void EnableTextHooks() {
@@ -140,6 +144,12 @@ export void EnableTextHooks() {
 		WriteProtectedMemory(0x66B5A0 + i * sizeof(char*), text.c_str());
 		WriteProtectedMemory(0x663984 + i * sizeof(char*), text.c_str());
 	}
+
+	// Master window category text
+	WriteProtectedMemory(0x66A1F0, master);
+
+	// Skill note window text
+	WriteProtectedMemory(0x66B36C, skillNoteSortText);
 
 	// Config controller action names
 	WriteProtectedMemory(0x66A368, configActionText);
