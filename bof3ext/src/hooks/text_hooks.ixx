@@ -90,6 +90,7 @@ export void EnableTextHooks() {
 	WriteProtectedMemory(0x516CE5, (uint8_t)advance);						// Glyph spacing for UI text
 	WriteProtectedMemory(0x497A47, (uint8_t)advance);						// Glyph spacing for dialogue
 	//WriteProtectedMemory(0x516F35, (uint8_t)(advance * (2.0 / 3.0))));	// Glyph spacing for small text
+	WriteProtectedMemory(0x5962E7, (uint8_t)advance);						// Glyph spacing for dialogue choices
 	WriteProtectedMemory(0x4979B7, (int16_t)-advance);						// X offset for '"' and '<' in dialogue
 	WriteProtectedMemory(0x4978DD, (uint8_t)12);							// Line height in dialogue
 
