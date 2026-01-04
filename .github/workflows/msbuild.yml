@@ -41,28 +41,23 @@ jobs:
 
     - name: Build Debug
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild /m /p:Configuration=Debug ${{env.SOLUTION_FILE_PATH}}
 
     - name: Build Release
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild /m /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}}
 
     - name: Create BOF3.CFG
       run: (echo 0 && echo a) > BOF3.CFG
 
+    - name: Setup 7Zip
+      uses: milliewalky/setup-7-zip@v2
+
     - name: Zip Debug artifacts
-      uses: edgarrc/action-7z@v1.0.5
-      with:
-        args: 7z a -t7z -mx=9 -i!./build/Debug/*.dll -i!./build/Debug/*.txt -i!./build/Debug/*.toml -i!./build/Debug/*.cfg -iBOF3.CFG -i./NewData/ -x./NewData/.github/ -x./NewData/.gitignore debug.7z
+      run: 7z a -t7z -mx=9 -i!./build/Debug/*.dll -i!./build/Debug/*.txt -i!./build/Debug/*.toml -i!./build/Debug/*.cfg -iBOF3.CFG -i./NewData/ -x./NewData/.github/ -x./NewData/.gitignore debug.7z
 
     - name: Zip Release artifacts
-      uses: edgarrc/action-7z@v1.0.5
-      with:
-        args: 7z a -t7z -mx=9 -i!./build/Release/*.dll -i!./build/Release/*.txt -i!./build/Release/*.toml -i!./build/Release/*.cfg -iBOF3.CFG -i./NewData/ -x./NewData/.github/ -x./NewData/.gitignore release.7z
+      run: 7z a -t7z -mx=9 -i!./build/Release/*.dll -i!./build/Release/*.txt -i!./build/Release/*.toml -i!./build/Release/*.cfg -iBOF3.CFG -i./NewData/ -x./NewData/.github/ -x./NewData/.gitignore release.7z
 
     - name: Upload Debug artifacts to GitHub release
       uses: svenstaro/upload-release-action@v2
