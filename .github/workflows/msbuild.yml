@@ -16,6 +16,10 @@ env:
 permissions:
   contents: read
 
+defaults:
+  run:
+    shell: cmd
+
 jobs:
   build:
     runs-on: windows-2022
@@ -54,10 +58,12 @@ jobs:
       uses: milliewalky/setup-7-zip@v2
 
     - name: Zip Debug artifacts
-      run: 7z a -t7z -mx=9 -i!build/Debug/*.dll -i!build/Debug/*.txt -i!build/Debug/*.toml -i!build/Debug/*.cfg -i!BOF3.CFG -ir!NewData/ -x!NewData/.git/ -x!NewData/.gitignore debug.7z
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: 7z a -t7z -mx=9 -i!build/Debug/*.dll -i!build/Debug/*.txt -i!build/Debug/*.toml -i!build/Debug/*.cfg -i!BOF3.CFG -ir!NewData/ -x!NewData/.git/ -x!NewData/.gitignore ./debug.7z
 
     - name: Zip Release artifacts
-      run: 7z a -t7z -mx=9 -i!build/Release/*.dll -i!build/Release/*.txt -i!build/Release/*.toml -i!build/Release/*.cfg -i!BOF3.CFG -ir!NewData/ -x!NewData/.git/ -x!NewData/.gitignore release.7z
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: 7z a -t7z -mx=9 -i!build/Release/*.dll -i!build/Release/*.txt -i!build/Release/*.toml -i!build/Release/*.cfg -i!BOF3.CFG -ir!NewData/ -x!NewData/.git/ -x!NewData/.gitignore ./release.7z
 
     - name: Upload Debug artifacts to GitHub release
       uses: svenstaro/upload-release-action@v2
