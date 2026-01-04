@@ -84,7 +84,7 @@
       <EnableUAC>false</EnableUAC>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(TargetPath)" "D:\Games\Breath of Fire III"</Command>
+      <Command>xcopy /Y /C "$(TargetPath)" "D:\Games\Breath of Fire III"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -109,7 +109,7 @@
       <EnableUAC>false</EnableUAC>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(TargetPath)" "D:\Games\Breath of Fire III"</Command>
+      <Command>xcopy /Y /C "$(TargetPath)" "D:\Games\Breath of Fire III"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
