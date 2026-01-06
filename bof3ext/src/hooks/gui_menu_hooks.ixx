@@ -478,10 +478,7 @@ void DrawConfigControllerBackgroundWindow(int16_t x, int16_t y, uint8_t a3, uint
 static const float HALF = 0.5f;
 
 
-template<int X>
-static void __declspec(naked) FixTextCentering() {
-	static const int x = X;
-
+static void __declspec(naked) FixTextCenteringInventoryCategory() {
 	__asm {
 		push ecx;				// Save ECX register (textLen)
 		call GlyphManager::Get;
@@ -490,7 +487,7 @@ static void __declspec(naked) FixTextCentering() {
 		fmul[HALF];				// Divide ST0 (advance) by 2
 		fimul[esp];				// Multiply ST0 by textLen
 		fistp[esp];				// Move and truncate ST0 into space on stack (reserved by previous `push ecx`)
-		mov edx, x;				// 77 is X offset of center of textbox
+		mov edx, 77;			// 77 is X offset of center of textbox
 		pop ecx;				// Pop converted float (half textLen * advance) into ECX
 		sub edx, ecx;			// Subtract converted float from 77 to get final X offset
 		ret;
@@ -562,10 +559,10 @@ export void EnableGuiMenuHooks() {
 	WriteProtectedMemory(0x66B090, (uint16_t)288);
 
 	// Fix text centering for category in inventory window
-	WriteCallAndNops<7>(0x575C7A, FixTextCentering<77>);
+	WriteCallAndNops<7>(0x575C7A, FixTextCenteringInventoryCategory);
 
 	// Fix text centering for category in equip window
-	WriteCallAndNops<7>(0x5766EA, FixTextCentering<77>);
+	WriteCallAndNops<7>(0x5766EA, FixTextCenteringInventoryCategory);
 
 	// Fix text centering for unique item count in inventory window
 	auto advance = GlyphManager::Get().GetScaledGlyphAdvance();

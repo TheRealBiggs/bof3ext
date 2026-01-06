@@ -120,10 +120,10 @@ export void EnableTextHooks() {
 	// Item count format string fix (*%2d -> x%2d)
 	WriteProtectedMemory(0x653EC0, 'x');
 
+	const auto& txtMgr = TextManager::Get();
+
 	// Item categories
 	for (int i = 0; i < 5; ++i) {
-		const auto& txtMgr = TextManager::Get();
-
 		if (!txtMgr.HasCategoryText(i))
 			break;
 
@@ -131,12 +131,11 @@ export void EnableTextHooks() {
 
 		WriteProtectedMemory(0x663970 + i * sizeof(char*), text.c_str());	// Inventory window
 		WriteProtectedMemory(0x663994 + i * sizeof(char*), text.c_str());	// Equipment window
+		WriteProtectedMemory(0x66B58C + i * sizeof(char*), text.c_str());	// In-battle inventory window
 	}
 
 	// Skill categories
 	for (int i = 0; i < 4; ++i) {
-		const auto& txtMgr = TextManager::Get();
-
 		if (!txtMgr.HasCategoryText(5 + i))
 			break;
 

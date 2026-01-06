@@ -336,7 +336,7 @@ export Func<0x461E50, void,
 export Func<0x516B30, uint8_t*,
 	int16_t,	// x
 	int16_t,	// y
-	uint32_t,	// paletteIdx
+	uint32_t,	// colourIdx
 	uint8_t,	// len
 	const char*	// text
 > DrawString;
@@ -354,7 +354,7 @@ export Func<0x516D50, void,
 export Func<0x516E70, const char*,
 	int16_t,	// x
 	int16_t,	// y
-	uint8_t,	// paletteIdx
+	uint8_t,	// colourIdx
 	uint8_t,	// len
 	const char* // text
 > DrawStringSmall;
@@ -362,14 +362,14 @@ export Func<0x516E70, const char*,
 export Func<0x516F60, void,
 	int16_t,	// x
 	int16_t,	// y
-	uint8_t,	// paletteId
+	uint8_t,	// colourIdx
 	const char*	// text
 > DrawStringLarge;
 
 export Func<0x517090, void,
 	int16_t,	// x
 	int16_t,	// y
-	uint32_t,	// paletteIdx
+	uint32_t,	// colourIdx
 	const char* // text
 > DrawStringNumFont;
 

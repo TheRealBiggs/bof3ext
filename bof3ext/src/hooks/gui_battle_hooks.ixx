@@ -12,6 +12,7 @@ import bof3ext.configManager;
 import bof3ext.glyphManager;
 import bof3ext.textManager;
 import bof3.battle;
+import bof3.gui;
 import bof3.render;
 import bof3.text;
 
@@ -51,7 +52,7 @@ Func<0x444D50, bool, int16_t /* x1 */, int16_t /* y1 */, int16_t /* x2 */, int16
 Func<0x443D90, void, int16_t /* x */, int16_t /* y */, uint8_t /* slot */> DrawBattleEnemyPanel;
 auto DrawBattleEnemyPanelHook(auto x, auto y, auto slot) {
 	DrawBorderedPanel(x, y, 74, 22);
-	
+
 	auto _slot = slot - 3;
 
 	if (g_EnemyBattleDatas[_slot].gap0 == 1)
@@ -129,6 +130,49 @@ auto DrawBattleActionTextPanelHook() {
 	}
 }
 
+Func<0x59E160, void, int16_t /* x */, int16_t /* y */, int8_t /* a3 */> DrawBattleInventoryTabs;
+auto DrawBattleInventoryTabsHook(auto x, auto y, auto a3) {
+	const auto& txtMgr = TextManager::Get();
+
+	DrawWindowBackground(x, y, 45u, 20u, 0, ((uint8_t*)0x9039E0)[122]);
+
+	uint8_t txtColour;
+
+	if (a3 == -1 || !a3)
+		txtColour = 0;
+	else
+		txtColour = 7;
+
+	auto advance = GlyphManager::Get().GetScaledGlyphAdvance();
+	advance /= 2;
+
+	const auto& useText = txtMgr.GetMenuTabText(0);
+	DrawString(x + 22 - advance * useText.length(), y + 3, txtColour, 16u, useText.c_str());
+
+	auto v4 = (char*)0x66B500;
+
+	if (a3)
+		v4 = (char*)0x66B4F8;
+
+	DrawUIGroup(x, y, v4, 1);
+	DrawWindowBackground(x + 48, y, 45u, 20u, 0, ((uint8_t*)0x9039E0)[122]);
+
+	if (a3 == -1 || a3 == 1)
+		txtColour = 0;
+	else
+		txtColour = 7;
+
+	const auto& equipText = txtMgr.GetMenuTabText(3);
+	DrawString(x + 70 - advance * equipText.length(), y + 3, txtColour, 16u, equipText.c_str());
+
+	v4 = (char*)0x66B500;
+
+	if (a3 != 1)
+		v4 = (char*)0x66B4F8;
+
+	DrawUIGroup(x + 48, y, v4, 1);
+}
+
 Func<0x42F680, void> sub_42F680;
 auto sub_42F680Hook() {
 	sub_42F680.Original();
@@ -140,10 +184,31 @@ auto sub_42F680Hook() {
 }
 
 
+static const float HALF = 0.5f;
+
+
+static void __declspec(naked) FixTextCenteringInventoryCategory() {
+	__asm {
+		push edx;				// Save EDX register (textLen)
+		call GlyphManager::Get;
+		mov ecx, eax;			// Move GlyphManager instance into ECX for __thiscall
+		call GlyphManager::GetScaledGlyphAdvance;
+		fmul[HALF];				// Divide ST0 (advance) by 2
+		fimul[esp];				// Multiply ST0 by textLen
+		fistp[esp];				// Move and truncate ST0 into space on stack (reserved by previous `push edx`)
+		mov eax, 77;			// 77 is X offset of center of textbox
+		pop edx;				// Pop converted float (half textLen * advance) into EDX
+		sub eax, edx;			// Subtract converted float from 77 to get final X offset
+		ret;
+	}
+}
+
+
 export void EnableGuiBattleHooks() {
 	//EnableHook(DrawBattleEnemyPanel, DrawBattleEnemyPanelHook);
 	EnableHook(DrawBattleCommandTextPanel, DrawBattleCommandTextPanelHook);
 	EnableHook(DrawBattleActionTextPanel, DrawBattleActionTextPanelHook);
+	EnableHook(DrawBattleInventoryTabs, DrawBattleInventoryTabsHook);
 	EnableHook(sub_42F680, sub_42F680Hook);
 
 	WriteProtectedMemory(0x443ECE, (uint8_t)(4 - 2));	// Move enemy name in battle left by 2 pixels
@@ -152,4 +217,6 @@ export void EnableGuiBattleHooks() {
 
 	g_EnemyBattlePanelPositions[0].x += diff;
 	g_EnemyBattlePanelPositions[3].x += diff;
+
+	WriteCallAndNops<7>(0x59CF6E, FixTextCenteringInventoryCategory);
 }
