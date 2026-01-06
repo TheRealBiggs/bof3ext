@@ -494,6 +494,22 @@ static void __declspec(naked) FixTextCenteringInventoryCategory() {
 	}
 }
 
+static void __declspec(naked) FixTextCenteringSkillCategory() {
+	__asm {
+		push ecx;				// Save ECX register (textLen)
+		call GlyphManager::Get;
+		mov ecx, eax;			// Move GlyphManager instance into ECX for __thiscall
+		call GlyphManager::GetScaledGlyphAdvance;
+		fmul[HALF];				// Divide ST0 (advance) by 2
+		fimul[esp];				// Multiply ST0 by textLen
+		fistp[esp];				// Move and truncate ST0 into space on stack (reserved by previous `push ecx`)
+		mov ecx, 77;			// 77 is X offset of center of textbox
+		pop eax;				// Pop converted float (half textLen * advance) into EAX
+		sub ecx, eax;			// Subtract converted float from 77 to get final X offset
+		ret;
+	}
+}
+
 static void __declspec(naked) FixTextCenteringMainMenu() {
 	__asm {
 		push edx;				// Save EDX register (&dword_905B84)
@@ -560,6 +576,9 @@ export void EnableGuiMenuHooks() {
 
 	// Fix text centering for category in inventory window
 	WriteCallAndNops<7>(0x575C7A, FixTextCenteringInventoryCategory);
+
+	// Fix text centering for category in skill window
+	WriteCallAndNops<7>(0x576101, FixTextCenteringSkillCategory);
 
 	// Fix text centering for category in equip window
 	WriteCallAndNops<7>(0x5766EA, FixTextCenteringInventoryCategory);
