@@ -62,7 +62,7 @@ auto DrawBattleEnemyPanelHook(auto x, auto y, auto slot) {
 
 	if (sub_444EB0(_slot)) {
 		const char* name = g_EnemyBattleDatas[_slot].name;
-		auto enemyIndex = g_EnemyBattleDatas[_slot].gap[0x4C];
+		auto enemyIndex = g_EnemyBattleDatas[_slot].enemyId;
 		auto areaId = *(uint8_t*)0x904EFC;
 
 		auto& txtMgr = TextManager::Get();
@@ -183,6 +183,16 @@ auto sub_42F680Hook() {
 	}
 }
 
+Func<0x44A960, void, uint8_t /* index */> sub_44A960;
+auto sub_44A960Hook(auto index) {
+	auto enemyId = g_EnemyBattleDatas[index - 3].enemyId;
+	auto areaId = *(uint8_t*)0x904EFC;
+
+	const auto& name = TextManager::Get().GetEnemyName(areaId, enemyId);
+
+	std::memcpy((void*)0x904CE0, name.c_str(), std::min(32U, name.length()));
+}
+
 
 static const float HALF = 0.5f;
 
@@ -219,6 +229,14 @@ static void __declspec(naked) FixTextCenteringSkillCategory() {
 	}
 }
 
+static void FixGetBattleLearnedSkillName() {
+	auto a = *(uint8_t*)0x904B34 - 3;
+	auto skillId = g_EnemyBattleDatas[a].word86;
+
+	const auto& skillName = TextManager::Get().GetSkillName(skillId);
+	std::memcpy((void*)0x904D00, skillName.c_str(), std::min(32U, skillName.length()));
+}
+
 
 export void EnableGuiBattleHooks() {
 	//EnableHook(DrawBattleEnemyPanel, DrawBattleEnemyPanelHook);
@@ -226,6 +244,7 @@ export void EnableGuiBattleHooks() {
 	EnableHook(DrawBattleActionTextPanel, DrawBattleActionTextPanelHook);
 	EnableHook(DrawBattleInventoryTabs, DrawBattleInventoryTabsHook);
 	EnableHook(sub_42F680, sub_42F680Hook);
+	EnableHook(sub_44A960, sub_44A960Hook);
 
 	WriteProtectedMemory(0x443ECE, (uint8_t)(4 - 2));	// Move enemy name in battle left by 2 pixels
 
@@ -236,4 +255,6 @@ export void EnableGuiBattleHooks() {
 
 	WriteCallAndNops<7>(0x59CF6E, FixTextCenteringInventoryCategory);
 	WriteCallAndNops<7>(0x59D43F, FixTextCenteringSkillCategory);
+
+	WriteCallAndNops<73>(0x42FED7, FixGetBattleLearnedSkillName);
 }

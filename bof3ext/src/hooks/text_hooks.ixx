@@ -42,7 +42,7 @@ auto GetTextHook(auto index) {
 
 Func<0x4976D0, void, uint16_t /* index */> LoadDialogue;
 auto LoadDialogueHook(auto index) {
-	LogDebug("LoadDialogue: %i\n", index);
+	//LogDebug("LoadDialogue: %i\n", index);
 
 	auto areaId = *(uint8_t*)0x904EFC;
 
