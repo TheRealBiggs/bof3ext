@@ -8,7 +8,7 @@ BoF3Ext is a replacement ddraw.dll for the Chinese PC port of Breath of Fire III
 
 ## What does it do?
 
-As of the time of writing, BoF3Ext translates the majority of the game into English and fixes numerous bugs (like missing sprites in some menus). It also allows basic texture replacement, which is currently being used to load HD textures for the main title screen, and replaces the default bitmap font with an external TrueType font that is rendered at 4x the original game's resolution. There is also partial widescreen support, but that is still very much a work-in-progress.
+As of the time of writing, BoF3Ext translates the majority of the game into English and fixes numerous bugs (like missing sprites in some menus). It also allows basic texture replacement, which is currently being used to load HD textures for the main title screen, and replaces the default bitmap font with an external TrueType font that is rendered at 4x the original game's resolution and that allows us to display more text on screen and remove abbreviations in item, enemy, and spell names. There is also partial widescreen support, but that is still very much a work-in-progress.
 
 ## What is planned for the future?
 
