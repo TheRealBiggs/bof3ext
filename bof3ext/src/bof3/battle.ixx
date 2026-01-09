@@ -43,3 +43,6 @@ export struct EnemyBattleData {
 
 
 export ArrayAccessor<0x93B9E0, EnemyBattleData> g_EnemyBattleDatas;
+
+
+export Func<0x598810, uint32_t, uint8_t /* charIdx */> GetXPToNextLevel;

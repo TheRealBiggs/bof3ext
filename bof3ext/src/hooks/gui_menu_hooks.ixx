@@ -512,7 +512,7 @@ static void __declspec(naked) FixTextCenteringSkillCategory() {
 
 static void __declspec(naked) FixTextCenteringMainMenu() {
 	__asm {
-		push edx;				// Save EDX register (&dword_905B84)
+		push edx;				// Save EDX register (&struct_905B84)
 		push eax;				// Save EAX register (textLen)
 		call GlyphManager::Get;
 		mov ecx, eax;			// Move GlyphManager instance into ECX for __thiscall
@@ -522,7 +522,7 @@ static void __declspec(naked) FixTextCenteringMainMenu() {
 		fistp[esp];				// Move and truncate ST0 into space on stack (reserved by previous `push EAX`)
 		pop ecx;				// Pop converted float (half textLen * advance) into ECX
 		pop edx;				// Restore EDX
-		mov ax, [edx + 4];		// Move dword_905B84->x into EAX
+		mov ax, [edx + 4];		// Move struct_905B84->x into EAX
 		ret;
 	}
 }

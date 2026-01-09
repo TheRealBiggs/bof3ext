@@ -288,21 +288,22 @@ export struct FontGlyph {
 };
 
 
-export struct struct_dword_905B84 {
+struct UnkStruct_UI {
 	uint8_t byte0;
 	uint8_t gap0;
 	uint8_t byte1;
 	uint8_t byte2;
 	int16_t x;
 	int16_t y;
-	uint8_t gap8[2];
-	uint8_t byteA;
-	uint8_t byteB;
 	uint8_t flags;
+	uint8_t byte9;
+	uint8_t index;
+	uint8_t byteB;
+	uint8_t flags2;
 	uint8_t byteD;
 	uint8_t gap2;
 	uint8_t byteF;
-	uint8_t gap3[2];
+	uint16_t word10;
 	uint16_t word12;
 	uint16_t word14;
 	uint8_t gap5[6];
@@ -319,6 +320,7 @@ export struct UnkStruct_7 {
 
 
 export constexpr float SMALL_TEXT_SCALE = 10.f / 12.f;
+export constexpr float LARGE_TEXT_SCALE = 16.f / 12.f;
 
 
 export Func<0x444340, void,
@@ -440,7 +442,7 @@ export ArrayAccessor<   0x6C2A40, UnkStruct_7>          g_CLUT;
 export PointerAccessor< 0x7E0670, GpuPrim>              g_GpuPrims;
 export PointerAccessor< 0x7CC334, IDirectDraw4>         g_IDirectDraw4;
 export PointerAccessor< 0x7CC350, IDirect3DDevice3>     g_IDirect3DDevice3;
-export PointerAccessor< 0x905B84, struct_dword_905B84>  dword_905B84;
+export PointerAccessor< 0x905B84, UnkStruct_UI>         struct_905B84;
 
 
 void SetGpuPrimTranslucent(GpuPrim* prim, bool value) {

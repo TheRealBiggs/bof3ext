@@ -2,6 +2,7 @@ module;
 
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 
 export module bof3ext.hooks:gui.battle;
@@ -23,6 +24,14 @@ struct RectS {
 	short Left, Top, Right, Bottom;
 };
 
+struct UnkStruct_D {
+	char name[8];
+	uint8_t gap0[1];
+	uint8_t byte9;
+	uint8_t level;
+	uint8_t gap[321];
+};
+
 struct UnkStruct_G {
 	uint8_t gap0[2];
 	bool isCharacterName;
@@ -36,8 +45,9 @@ struct UnkStruct_G {
 
 
 Accessor<0x904B80, uint16_t> word_904B80;
-ArrayAccessor<0x93B8E0, UnkStruct_G> stru_93B8E0;
 ArrayAccessor<0x656A34, Vec2s> g_EnemyBattlePanelPositions;
+ArrayAccessor<0x802DC0, UnkStruct_D> stru_802DC0;
+ArrayAccessor<0x93B8E0, UnkStruct_G> stru_93B8E0;
 
 
 Func<0x444900, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint8_t /* a4 */>														sub_444900;
@@ -56,7 +66,7 @@ auto DrawBattleEnemyPanelHook(auto x, auto y, auto slot) {
 	auto _slot = slot - 3;
 
 	if (g_EnemyBattleDatas[_slot].gap0 == 1)
-		sub_444A90(x + 6, y + 10, dword_905B84->byteB, dword_905B84->byteD, true);	// Health bar
+		sub_444A90(x + 6, y + 10, struct_905B84->byteB, struct_905B84->byteD, true);	// Health bar
 	else
 		DrawNumTiny(x + 36, y + 12, 0, 0xFFFF);	// Unknown health bar ( Just draws question mark )
 
@@ -103,11 +113,11 @@ auto DrawBattleCommandTextPanelHook(auto index) {
 // Draws the panel at the top of the screen that displays current character or skill name
 Func<0x597230, void> DrawBattleActionTextPanel;
 auto DrawBattleActionTextPanelHook() {
-	auto& stru = stru_93B8E0[dword_905B84->byteA];
+	auto& stru = stru_93B8E0[struct_905B84->index];
 
 	auto textLen = std::strlen(stru.text);
-	auto x = dword_905B84->x;
-	auto y = dword_905B84->y;
+	auto x = struct_905B84->x;
+	auto y = struct_905B84->y;
 
 	const auto& cfgMgr = ConfigManager::Get();
 	auto renderWidth = cfgMgr.GetScaledRenderWidth();
@@ -171,6 +181,47 @@ auto DrawBattleInventoryTabsHook(auto x, auto y, auto a3) {
 		v4 = (char*)0x66B4F8;
 
 	DrawUIGroup(x + 48, y, v4, 1);
+}
+
+Func<0x5985A0, void> DrawBattleXPResultPanel;
+auto DrawBattleXPResultPanelHook() {
+	const auto& txtMgr = TextManager::Get();
+
+	DrawBorderedPanel(20, 40, 280, struct_905B84->byte9);
+
+	auto y = 44;
+
+	for (auto i = 0; i < *(uint8_t*)0x904AB0; ++i) {
+		const auto& c = stru_802DC0[i];
+
+		// Character name
+		DrawString(25, y, 0, 5, c.name);
+
+		uint16_t textId;
+
+		if (c.level == 99)
+			textId = 65;	// " has reached MAX LVL!"
+		else {
+			char buf[7];
+
+			sprintf_s(buf, "%2d", c.level + 1);
+			DrawStringLarge(85, y, 0, buf);
+
+			auto advance = GlyphManager::Get().GetScaledGlyphAdvance();
+
+			auto x = 20 + 280 - 7 - std::ceil(6 * advance * LARGE_TEXT_SCALE);
+
+			sprintf_s(buf, "%6d", GetXPToNextLevel(i));
+			DrawStringLarge(x, y, 0, buf);
+
+			textId = 21;	// "EXP to next level:"
+		}
+
+		const auto text = GetText(textId);
+		DrawString(133, y, 0, 255, text);
+
+		y += 16;
+	}
 }
 
 Func<0x42F680, void> sub_42F680;
@@ -243,6 +294,7 @@ export void EnableGuiBattleHooks() {
 	EnableHook(DrawBattleCommandTextPanel, DrawBattleCommandTextPanelHook);
 	EnableHook(DrawBattleActionTextPanel, DrawBattleActionTextPanelHook);
 	EnableHook(DrawBattleInventoryTabs, DrawBattleInventoryTabsHook);
+	EnableHook(DrawBattleXPResultPanel, DrawBattleXPResultPanelHook);
 	EnableHook(sub_42F680, sub_42F680Hook);
 	EnableHook(sub_44A960, sub_44A960Hook);
 
