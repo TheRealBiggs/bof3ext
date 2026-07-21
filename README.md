@@ -45,4 +45,4 @@ You can contribute to BoF3Ext in many ways!
 * Contribute to the reverse-engineering effort that makes this work possible.
 * Help with making HD versions of text-based UI elements in the [BoF3Ext_Resources repo](https://github.com/TheRealBiggs/bof3ext_resources).
 * Help test development releases and report any issues you may find.
-* Show your support by sharing a link this repo with your friends!
+* Show your support by sharing a link to this repo with your friends, or by buying me a coffee on [ko-fi](https://ko-fi.com/therealbiggs)!
