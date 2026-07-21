@@ -161,7 +161,7 @@ public:
 	}
 
 	void LoadTextFile(unsigned int fileIndex, unsigned int fileNum) {
-		auto datName = g_DatFileNames[fileIndex];
+		auto datName = g_DatFileNames::At(fileIndex);
 		std::filesystem::path datPath(datName);
 		auto stem = datPath.stem().generic_string();
 

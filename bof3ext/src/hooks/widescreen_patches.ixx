@@ -72,7 +72,7 @@ void PatchDrawRangesForWidescreen(float diff) {
 }
 
 
-Func<0x462560, GpuPrim_TexturedRectWH*,
+typedef Func<0x462560, GpuPrim_TexturedRectWH*,
 	int16_t,	// x
 	int16_t,	// y
 	uint8_t,	// a3
@@ -83,10 +83,10 @@ auto sub_462560Hook(auto x, auto y, auto a3, auto a4, auto a5) {
 	auto diff = ConfigManager::Get().GetScaledRenderWidth() - 320.f;
 	auto offset = diff / 2;
 
-	return sub_462560.Original(x + offset, y, a3, a4, a5);
+	return sub_462560::Original(static_cast<int16_t>(x + offset), y, a3, a4, a5);
 }
 
-Func<0x576960, void,
+typedef Func<0x576960, void,
 	uint8_t,	// index
 	int16_t,	// x
 	int16_t,	// y
@@ -96,10 +96,10 @@ auto DrawSaveEntryHook(auto index, auto x, auto y, auto a4) {
 	auto diff = ConfigManager::Get().GetScaledRenderWidth() - 320.f;
 	auto offset = diff / 2;
 
-	return DrawSaveEntry.Original(index, x + offset, y, a4);
+	return DrawSaveEntry::Original(index, static_cast<int16_t>(x + offset), y, a4);
 }
 
-Func<0x573CE0, void,
+typedef Func<0x573CE0, void,
 	int16_t,	// x
 	int16_t,	// y
 	uint16_t,	// w
@@ -111,14 +111,14 @@ auto DrawSelectedFrameOutlineHook(auto x, auto y, auto w, auto h, auto a5, auto 
 	auto diff = ConfigManager::Get().GetScaledRenderWidth() - 320.f;
 	auto offset = diff / 2;
 
-	DrawSelectedFrameOutline.Original(x + offset, y, w, h, a5, a6);
+	DrawSelectedFrameOutline::Original(static_cast<uint16_t>(x + offset), y, w, h, a5, a6);
 }
 
 
 export void ApplyWidescreenPatches() {
-	EnableHook(sub_462560, sub_462560Hook);
-	EnableHook(DrawSaveEntry, DrawSaveEntryHook);
-	EnableHook(DrawSelectedFrameOutline, DrawSelectedFrameOutlineHook);
+	EnableHook<sub_462560>(sub_462560Hook);
+	EnableHook<DrawSaveEntry>(DrawSaveEntryHook);
+	EnableHook<DrawSelectedFrameOutline>(DrawSelectedFrameOutlineHook);
 
 	const auto& cfgMgr = ConfigManager::Get();
 

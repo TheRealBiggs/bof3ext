@@ -37,12 +37,12 @@ HRESULT WINAPI DirectDrawCreate(void* lpGUID, void* lplpDD, void* pUnkOuter) {
 
 void WINAPI ReleaseDDThreadLock() {
 #pragma EXPORT
-	return _ReleaseDDThreadLock();
+	_ReleaseDDThreadLock();
 }
 
 void WINAPI AcquireDDThreadLock() {
 #pragma EXPORT
-	return _AcquireDDThreadLock();
+	_AcquireDDThreadLock();
 }
 
 DWORD WINAPI DDInternalUnlock(DWORD arg) {
@@ -66,10 +66,10 @@ void ProxyDDraw() {
 	GetSystemDirectoryA(buf, MAX_PATH);
 	strcat_s(buf, MAX_PATH, "\\ddraw.dll");
 
-	auto ddraw = LoadLibraryA(buf);
+	HMODULE ddraw = LoadLibraryA(buf);
 
-	if (ddraw == INVALID_HANDLE_VALUE || ddraw == 0)
-		return FALSE;
+	if (ddraw == INVALID_HANDLE_VALUE || ddraw == (HANDLE)0)
+		return;
 
 	_DirectDrawEnumerateA = (DirectDrawEnumerateA_t)GetProcAddress(ddraw, "DirectDrawEnumerateA");
 	_DirectDrawCreate = (DirectDrawCreate_t)GetProcAddress(ddraw, "DirectDrawCreate");

@@ -140,8 +140,25 @@
     <ClInclude Include="include\bof3\audio.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="res\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="res\textfile.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\basic_shader.fs.glsl" />
+    <Text Include="res\basic_shader.vs.glsl" />
+    <Text Include="res\psx_shader.fs.glsl" />
+    <Text Include="res\psx_shader.vs.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res\resource.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

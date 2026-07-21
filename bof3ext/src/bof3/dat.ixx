@@ -10,8 +10,8 @@ import bof3ext.helpers;
 export int LastLoadedDatFileId;
 
 
-export ArrayAccessor<0x64F368, char*> g_DatFileNames;
-export ArrayAccessor<0x80B780, uint8_t> g_DatChunk_0_8200;
+export typedef ArrayAccessor<0x64F368, char*> g_DatFileNames;
+export typedef ArrayAccessor<0x80B780, uint8_t> g_DatChunk_0_8200;
 
 
 //FUNC(int, OpenAndCacheFile, 0x5A7380, const char*, filepath);

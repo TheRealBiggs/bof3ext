@@ -21,16 +21,16 @@ const char* WINDOW_TITLE = "Breath of Fire 3";
 
 
 auto sub_5A5160Hook(auto hWnd, auto a2, auto a3, auto a4) {
-	auto r = sub_5A5160.Original(hWnd, a2, a3, a4);
+	auto r = sub_5A5160::Original(hWnd, a2, a3, a4);
 
 	// Fix pre-calculated texture coordinates
 	for (int i = 0; i < 256; ++i)
-		((float*)0x7CA9E0)[i] = i / 256.0;
+		((float*)0x7CA9E0)[i] = i / 256.0f;
 
 	auto renderScale = ConfigManager::Get().GetRenderScale();
 
-	*g_RenderScaleX = renderScale;
-	*g_RenderScaleY = renderScale;
+	g_RenderScaleX::Get() = renderScale;
+	g_RenderScaleY::Get() = renderScale;
 
 	return r;
 }
@@ -38,15 +38,19 @@ auto sub_5A5160Hook(auto hWnd, auto a2, auto a3, auto a4) {
 auto SetDisplayRectHook(auto x, auto y) {
 	auto wndSize = ConfigManager::Get().GetWindowSize();
 
-	g_DisplayRect->left = x;
-	g_DisplayRect->top = y;
-	g_DisplayRect->right = x + wndSize.x;
-	g_DisplayRect->bottom = y + wndSize.y;
+	g_DisplayRect::Get().left = x;
+	g_DisplayRect::Get().top = y;
+	g_DisplayRect::Get().right = x + wndSize.x;
+	g_DisplayRect::Get().bottom = y + wndSize.y;
 }
 
-Func<0x59E360, void, const char* /* filename */, HWND /* hWnd */, BOOL /* a3 */> PlayMovieFile;
+typedef Func<0x59E360, void,
+	const char*,	// filename
+	HWND,			// hWnd
+	BOOL			// a3
+> PlayMovieFile;
 auto PlayMovieFileHook(auto filename, auto hWnd, auto a3) {
-	sub_5A5160(hWnd, &g_IsFullscreen, &g_UseHardwareRendering, nullptr);
+	sub_5A5160::Call(hWnd, g_IsFullscreen::Ptr(), g_UseHardwareRendering::Ptr(), nullptr);
 
 	auto cmd = std::format("open avivideo!{} alias vfw", filename);
 
@@ -90,7 +94,7 @@ auto PlayMovieFileHook(auto filename, auto hWnd, auto a3) {
 	mciSendStringA(cmd.c_str(), nullptr, 0, 0);
 	mciSendStringA("play vfw window from 0 notify", nullptr, 0, hWnd);
 
-	*g_IsVideoPlaying = true;
+	g_IsVideoPlaying::Get() = true;
 
 	MSG msg;
 
@@ -100,7 +104,7 @@ auto PlayMovieFileHook(auto filename, auto hWnd, auto a3) {
 
 		TranslateMessage(&msg);
 		DispatchMessageA(&msg);
-	} while (*g_IsVideoPlaying);
+	} while (g_IsVideoPlaying::Get());
 
 	mciSendStringA("stop vfw wait", nullptr, 0, 0);
 	mciSendStringA("close vfw wait", nullptr, 0, 0);
@@ -110,9 +114,9 @@ auto PlayMovieFileHook(auto filename, auto hWnd, auto a3) {
 
 
 export void EnableWindowHooks() {
-	EnableHook(SetDisplayRect, SetDisplayRectHook);
-	EnableHook(PlayMovieFile, PlayMovieFileHook);
-	EnableHook(sub_5A5160, sub_5A5160Hook);
+	EnableHook<SetDisplayRect>(SetDisplayRectHook);
+	EnableHook<PlayMovieFile>(PlayMovieFileHook);
+	EnableHook<sub_5A5160>(sub_5A5160Hook);
 
 	WriteProtectedMemory(0x4FCCD2, WINDOW_TITLE);
 

@@ -323,19 +323,19 @@ export constexpr float SMALL_TEXT_SCALE = 10.f / 12.f;
 export constexpr float LARGE_TEXT_SCALE = 16.f / 12.f;
 
 
-export Func<0x444340, void,
+export typedef Func<0x444340, void,
 	int16_t,	// x
 	int16_t,	// y
 	uint8_t,	// a3
 	uint16_t	// a4
 > DrawNumTiny;
 
-export Func<0x461E50, void,
+export typedef Func<0x461E50, void,
 	uint8_t,	// index
 	uint8_t		// cmdSize
 > PushGpuPrim_0;
 
-export Func<0x516B30, uint8_t*,
+export typedef Func<0x516B30, uint8_t*,
 	int16_t,	// x
 	int16_t,	// y
 	uint32_t,	// colourIdx
@@ -343,7 +343,7 @@ export Func<0x516B30, uint8_t*,
 	const char*	// text
 > DrawString;
 
-export Func<0x516D50, void,
+export typedef Func<0x516D50, void,
 	int16_t,	// x
 	int16_t,	// y
 	int16_t,	// w
@@ -353,7 +353,7 @@ export Func<0x516D50, void,
 	uint16_t	// a7
 > sub_516D50;
 
-export Func<0x516E70, const char*,
+export typedef Func<0x516E70, const char*,
 	int16_t,	// x
 	int16_t,	// y
 	uint8_t,	// colourIdx
@@ -361,21 +361,21 @@ export Func<0x516E70, const char*,
 	const char* // text
 > DrawStringSmall;
 
-export Func<0x516F60, void,
+export typedef Func<0x516F60, void,
 	int16_t,	// x
 	int16_t,	// y
 	uint8_t,	// colourIdx
 	const char*	// text
 > DrawStringLarge;
 
-export Func<0x517090, void,
+export typedef Func<0x517090, void,
 	int16_t,	// x
 	int16_t,	// y
 	uint32_t,	// colourIdx
 	const char* // text
 > DrawStringNumFont;
 
-export Func<0x59FBA0, void,
+export typedef Func<0x59FBA0, void,
 	uint32_t,	// r
 	uint32_t,	// g
 	uint32_t,	// b
@@ -385,31 +385,31 @@ export Func<0x59FBA0, void,
 	D3DCOLOR*	// outSpecular
 > GetD3DCOLOR;
 
-export Func<0x59FCA0, void,
+export typedef Func<0x59FCA0, void,
 	uint8_t,	// command
 	uint16_t	// texturePage
 > SetD3DRenderState_AlphaBlend;
 
-export Func<0x59FD80, void,
+export typedef Func<0x59FD80, void,
 	D3DSHADEMODE	// mode
 > SetD3DShadeMode;
 
-export Func<0x5A04C0, uint16_t*,
+export typedef Func<0x5A04C0, uint16_t*,
 	uint16_t	// id
 > GetCLUT;
 
-export Func<0x5A3160, int,
+export typedef Func<0x5A3160, int,
 	uint16_t,	// a1
 	uint16_t,	// a2
 	uint16_t,	// a3
 	uint16_t	// a4
 > sub_5A3160; // Something to do with getting character sprites?
 
-export Func<0x5A7710, void,
+export typedef Func<0x5A7710, void,
 	GpuPrim_TexturedRectWH*	// prim
 > Init_GpuPrim_TexturedRectWH;
 
-export Func<0x5A77C0, void,
+export typedef Func<0x5A77C0, void,
 	GpuPrim_SetDrawEnv*,	// prim
 	BOOL,					// allowDraw
 	BOOL,					// enableDither
@@ -417,32 +417,32 @@ export Func<0x5A77C0, void,
 	PSX_RECT*				// rect
 > Init_GpuPrim_SetDrawEnv;
 
-export Func<0x5A7650, void,
+export typedef Func<0x5A7650, void,
 	GpuPrim_Line*	// prim
 > Init_GpuPrim_Line;
 
-export Func<0x5A79A0, uint16_t,
+export typedef Func<0x5A79A0, uint16_t,
 	char,	// a1
 	char,	// a2
 	int,	// a3
 	int		// a4
 > CreateTexturePageValue;
 
-export Func<0x5A79E0, uint16_t,
+export typedef Func<0x5A79E0, uint16_t,
 	uint16_t,	// x
 	uint16_t	// y
 > CreatePaletteIdx;
 
 
-export Accessor<        0x7C9F4C, float>                g_RenderScaleX;
-export Accessor<        0x7C9F48, float>                g_RenderScaleY;
-export Accessor<        0x7DED00, DRAWENV>              g_DrawEnv;
-export ArrayAccessor<   0x7C9F50, FontGlyph>            g_FontGlyphs;
-export ArrayAccessor<   0x6C2A40, UnkStruct_7>          g_CLUT;
-export PointerAccessor< 0x7E0670, GpuPrim>              g_GpuPrims;
-export PointerAccessor< 0x7CC334, IDirectDraw4>         g_IDirectDraw4;
-export PointerAccessor< 0x7CC350, IDirect3DDevice3>     g_IDirect3DDevice3;
-export PointerAccessor< 0x905B84, UnkStruct_UI>         struct_905B84;
+export typedef Accessor<        0x7C9F4C, float>                g_RenderScaleX;
+export typedef Accessor<        0x7C9F48, float>                g_RenderScaleY;
+export typedef Accessor<        0x7DED00, DRAWENV>              g_DrawEnv;
+export typedef ArrayAccessor<   0x7C9F50, FontGlyph>            g_FontGlyphs;
+export typedef ArrayAccessor<   0x6C2A40, UnkStruct_7>          g_CLUT;
+export typedef PointerAccessor< 0x7E0670, GpuPrim>              g_GpuPrims;
+export typedef PointerAccessor< 0x7CC334, IDirectDraw4>         g_IDirectDraw4;
+export typedef PointerAccessor< 0x7CC350, IDirect3DDevice3>     g_IDirect3DDevice3;
+export typedef PointerAccessor< 0x905B84, UnkStruct_UI>         struct_905B84;
 
 
 void SetGpuPrimTranslucent(GpuPrim* prim, bool value) {
@@ -452,7 +452,7 @@ void SetGpuPrimTranslucent(GpuPrim* prim, bool value) {
 
 
 export void DrawRectWH(uint16_t x, uint16_t y, uint16_t width, uint16_t height, Vec3b colour, bool blend) {
-	auto prim = (GpuPrim_RectWH*)*g_GpuPrims;
+	auto prim = (GpuPrim_RectWH*)g_GpuPrims::Get();
 	prim->colour = colour;
 	prim->command = (int)GpuPrimType::RectWH;
 
@@ -461,11 +461,11 @@ export void DrawRectWH(uint16_t x, uint16_t y, uint16_t width, uint16_t height, 
 
 	SetGpuPrimTranslucent(prim, blend);
 
-	PushGpuPrim_0(1, sizeof(GpuPrim_RectWH));
+	PushGpuPrim_0::Call(1, sizeof(GpuPrim_RectWH));
 }
 
 export void DrawQuad(Vec2i p1, Vec2i p2, Vec2i p3, Vec2i p4, Vec3b colour, bool blend) {
-	auto prim = (GpuPrim_Quad*)*g_GpuPrims;
+	auto prim = (GpuPrim_Quad*)g_GpuPrims::Get();
 	prim->colour = colour;
 	prim->command = (int)GpuPrimType::Quad;
 
@@ -476,28 +476,28 @@ export void DrawQuad(Vec2i p1, Vec2i p2, Vec2i p3, Vec2i p4, Vec3b colour, bool 
 
 	SetGpuPrimTranslucent(prim, blend);
 
-	PushGpuPrim_0(1, sizeof(GpuPrim_Quad));
+	PushGpuPrim_0::Call(1, sizeof(GpuPrim_Quad));
 }
 
 export void DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, Vec3b colour) {
-	auto prim = (GpuPrim_Line*)*g_GpuPrims;
+	auto prim = (GpuPrim_Line*)g_GpuPrims::Get();
 	prim->colour = colour;
 	prim->command = (int)GpuPrimType::Line;
 
 	prim->v1 = { (float)x1, (float)y1, 0.01f };
 	prim->v2 = { (float)x2, (float)y2, 0.01f };
 
-	PushGpuPrim_0(1, sizeof(GpuPrim_Line));
+	PushGpuPrim_0::Call(1, sizeof(GpuPrim_Line));
 }
 
 export void SetBlendMode(int a1, int a2, int a3, int a4) {
-	auto prim = (GpuPrim_SetDrawEnv*)*g_GpuPrims;
+	auto prim = (GpuPrim_SetDrawEnv*)g_GpuPrims::Get();
 	prim->command = (int)GpuPrimType::SetDrawEnv;
 
-	auto flags = CreateTexturePageValue(a1, a2, a3, a4);
-	Init_GpuPrim_SetDrawEnv(prim, 0, 0, flags, 0);
+	auto flags = CreateTexturePageValue::Call(a1, a2, a3, a4);
+	Init_GpuPrim_SetDrawEnv::Call(prim, 0, 0, flags, 0);
 
-	PushGpuPrim_0(1, sizeof(GpuPrim_SetDrawEnv));
+	PushGpuPrim_0::Call(1, sizeof(GpuPrim_SetDrawEnv));
 }
 
 
@@ -505,7 +505,7 @@ export void DrawBorderedPanel(int16_t x, int16_t y, int16_t width, int16_t heigh
 	SetBlendMode(0, 0, 960, 0);
 
 	auto wndColourIdx = ((uint8_t*)0x9039E0)[122] * 64;
-	auto wndColour = *(uint16_t*)&g_DatChunk_0_8200[wndColourIdx + 40];
+	auto wndColour = *(uint16_t*)&g_DatChunk_0_8200::At(wndColourIdx + 40);
 	Vec3b colour = {
 		(uint8_t)(8 * (wndColour & 0x1F)),
 		(uint8_t)(8 * ((wndColour >> 5) & 0x1F)),

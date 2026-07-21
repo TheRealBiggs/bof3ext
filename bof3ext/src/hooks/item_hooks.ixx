@@ -42,10 +42,13 @@ auto GetItemNameHook(auto type, auto index) {
 
 	// TODO: Add key item names
 
-	return GetItemName.Original(type, index);
+	return GetItemName::Original(type, index);
 }
 
-Func<0x4B58F0, void, uint8_t /* id */, uint8_t /* type */> LoadItemName;
+typedef Func<0x4B58F0, void,
+	uint8_t,	// id
+	uint8_t		// type
+> LoadItemName;
 auto LoadItemNameHook(auto index, auto type) {
 	auto& txtMgr = TextManager::Get();
 	auto dst = (char*)0x904CE0;
@@ -91,6 +94,6 @@ auto LoadItemNameHook(auto index, auto type) {
 
 
 export void EnableItemHooks() {
-	EnableHook(GetItemName, GetItemNameHook);
-	EnableHook(LoadItemName, LoadItemNameHook);
+	EnableHook<GetItemName>(GetItemNameHook);
+	EnableHook<LoadItemName>(LoadItemNameHook);
 }

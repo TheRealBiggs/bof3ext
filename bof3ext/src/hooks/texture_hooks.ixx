@@ -42,7 +42,7 @@ void DumpTexture(const std::string& filename) {
 		DWORD magic = 0x20534444;
 		fwrite(&magic, 4, 1, file);
 
-		g_IDirect3DDevice3->GetTexture(0, &tex);
+		g_IDirect3DDevice3::Get()->GetTexture(0, &tex);
 		tex->QueryInterface(IID_IDirectDrawSurface4, (LPVOID*)&surf);
 
 		DDSURFACEDESC2 desc{ 0 };
@@ -78,7 +78,11 @@ uint32_t nextpow2(uint32_t v) {
 }
 
 
-Func<0x5A2CA0, void, int32_t /* surfId */, uint16_t /* charCode */, int32_t /* paletteIdx */> LoadGlyphTexture;
+typedef Func<0x5A2CA0, void,
+	int32_t,	// surfId
+	uint16_t,	// charCode
+	int32_t		// paletteIdx
+> LoadGlyphTexture;
 auto LoadGlyphTextureHook(auto surfId, auto charCode, auto paletteIdx) {
 	if (!GlyphManager::Get().HasGlyph(charCode))
 		charCode = '*';
@@ -92,7 +96,7 @@ auto LoadGlyphTextureHook(auto surfId, auto charCode, auto paletteIdx) {
 		surfSize *= 2;
 	}
 
-	auto* fontGlyph = &g_FontGlyphs[surfId];
+	auto* fontGlyph = &g_FontGlyphs::At(surfId);
 	auto* glyphSurf = fontGlyph->surface;
 
 	if (glyphSurf == nullptr) {
@@ -116,7 +120,7 @@ auto LoadGlyphTextureHook(auto surfId, auto charCode, auto paletteIdx) {
 
 		UINT err;
 
-		if ((err = g_IDirectDraw4->CreateSurface(&sd, &fontGlyph->surface, NULL)) != S_OK) {
+		if ((err = g_IDirectDraw4::Get()->CreateSurface(&sd, &fontGlyph->surface, NULL)) != S_OK) {
 			LogDebug("Error creating DirectDraw surface! Error code: %i\n", err);
 
 			return;
@@ -139,7 +143,7 @@ auto LoadGlyphTextureHook(auto surfId, auto charCode, auto paletteIdx) {
 		return;
 	}
 
-	auto colour = GetCLUT(paletteIdx)[1];
+	auto colour = GetCLUT::Call(paletteIdx)[1];
 	auto b = (colour & 0b11111) / 31.0;
 	auto g = ((colour >> 5) & 0b11111) / 31.0;
 	auto r = ((colour >> 10) & 0b11111) / 31.0;
@@ -182,7 +186,7 @@ auto LoadGlyphTextureHook(auto surfId, auto charCode, auto paletteIdx) {
 
 	fontGlyph->charCode = charCode;
 	fontGlyph->paletteIndex = paletteIdx;
-	fontGlyph->dword4 = g_CLUT[paletteIdx >> 6].dword0;
+	fontGlyph->dword4 = g_CLUT::At(paletteIdx >> 6).dword0;
 }
 
 auto SetTextureHook(auto a1, auto a2) {
@@ -191,10 +195,10 @@ auto SetTextureHook(auto a1, auto a2) {
 	if (replacementTextures.count(key) > 0) {
 		const auto& rep = replacementTextures.at(key);
 
-		g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
-		g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
+		g_IDirect3DDevice3::Get()->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
+		g_IDirect3DDevice3::Get()->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
 
-		g_IDirect3DDevice3->SetTexture(0, rep.texture);
+		g_IDirect3DDevice3::Get()->SetTexture(0, rep.texture);
 	} else {
 		const auto& filename = std::format("NewData\\Textures\\texture_{}_{}.png", a1, a2);
 
@@ -225,7 +229,7 @@ auto SetTextureHook(auto a1, auto a2) {
 
 			UINT err;
 
-			if ((err = g_IDirectDraw4->CreateSurface(&sd, &rep.surface, NULL)) != S_OK) {
+			if ((err = g_IDirectDraw4::Get()->CreateSurface(&sd, &rep.surface, NULL)) != S_OK) {
 				LogDebug("Error creating DirectDraw surface! Error code: %i\n", err);
 
 				return;
@@ -256,15 +260,15 @@ auto SetTextureHook(auto a1, auto a2) {
 
 			replacementTextures[key] = rep;
 
-			g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
-			g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
+			g_IDirect3DDevice3::Get()->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
+			g_IDirect3DDevice3::Get()->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
 
-			g_IDirect3DDevice3->SetTexture(0, rep.texture);
+			g_IDirect3DDevice3::Get()->SetTexture(0, rep.texture);
 		} else {
-			g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_POINT);
-			g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT);
+			g_IDirect3DDevice3::Get()->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_POINT);
+			g_IDirect3DDevice3::Get()->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT);
 
-			SetTexture.Original(a1, a2);
+			SetTexture::Original(a1, a2);
 
 			DumpTexture(std::format("NewData\\Textures\\Dumped\\texture_{}_{}.dds", a1, a2));
 		}
@@ -272,7 +276,7 @@ auto SetTextureHook(auto a1, auto a2) {
 }
 
 auto sub_5A3160Hook(auto a1, auto a2, auto a3, auto a4) {
-	auto r = sub_5A3160.Original(a1, a2, a3, a4);
+	auto r = sub_5A3160::Original(a1, a2, a3, a4);
 
 	uint64_t key = ((uint64_t)a1 << 48) | ((uint64_t)a2 << 32) | ((uint64_t)a3 << 16) | a4;
 
@@ -282,7 +286,7 @@ auto sub_5A3160Hook(auto a1, auto a2, auto a3, auto a4) {
 		/*g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
 		g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);*/
 
-		g_IDirect3DDevice3->SetTexture(0, rep.texture);
+		g_IDirect3DDevice3::Get()->SetTexture(0, rep.texture);
 	} else {
 		const auto& filename = std::format("NewData\\Textures\\texture_{}_{}_{}_{}.png", a1, a2, a3, a4);
 
@@ -313,7 +317,7 @@ auto sub_5A3160Hook(auto a1, auto a2, auto a3, auto a4) {
 
 			UINT err;
 
-			if ((err = g_IDirectDraw4->CreateSurface(&sd, &rep.surface, NULL)) != S_OK) {
+			if ((err = g_IDirectDraw4::Get()->CreateSurface(&sd, &rep.surface, NULL)) != S_OK) {
 				LogDebug("Error creating DirectDraw surface! Error code: %i\n", err);
 
 				return r;
@@ -347,7 +351,7 @@ auto sub_5A3160Hook(auto a1, auto a2, auto a3, auto a4) {
 			/*g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
 			g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);*/
 
-			g_IDirect3DDevice3->SetTexture(0, rep.texture);
+			g_IDirect3DDevice3::Get()->SetTexture(0, rep.texture);
 		} else {
 			/*g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_POINT);
 			g_IDirect3DDevice3->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT);*/
@@ -359,11 +363,20 @@ auto sub_5A3160Hook(auto a1, auto a2, auto a3, auto a4) {
 	return r;
 }
 
+auto Init_GpuPrim_SetDrawEnvHook(auto prim, auto allowDraw, auto enableDither, auto texturePage, auto rect) {
+	if (texturePage == 189) {
+		auto asd = true;
+	}
+
+	Init_GpuPrim_SetDrawEnv::Original(prim, allowDraw, enableDither, texturePage, rect);
+}
+
 
 export void EnableTextureHooks() {
-	EnableHook(LoadGlyphTexture, LoadGlyphTextureHook);
-	EnableHook(SetTexture, SetTextureHook);
+	EnableHook<LoadGlyphTexture>(LoadGlyphTextureHook);
+	EnableHook<SetTexture>(SetTextureHook);
 	//EnableHook(sub_5A3160, sub_5A3160Hook);
+	//EnableHook(Init_GpuPrim_SetDrawEnv, Init_GpuPrim_SetDrawEnvHook);
 
 	WriteProtectedMemory(0x5C4638, 0);	// Fix UV coordinates for textures
 }

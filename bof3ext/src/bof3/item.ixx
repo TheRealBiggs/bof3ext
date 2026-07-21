@@ -47,6 +47,16 @@ struct AccessoryData : public EquipmentBase {
 };
 
 
-export Func<0x591720, int, uint8_t /* type */, uint8_t /* index */>			GetItemIconId;
-export Func<0x591A80, uint8_t, uint8_t /* category */>						GetUniqueItemCount;
-export Func<0x591680, const char*, uint8_t /* type */, uint8_t /* index */>	GetItemName;
+export typedef Func<0x591720, int,
+	uint8_t,	// type
+	uint8_t		// index
+> GetItemIconId;
+
+export typedef Func<0x591A80, uint8_t,
+	uint8_t	// category
+> GetUniqueItemCount;
+
+export typedef Func<0x591680, const char*,
+	uint8_t,	// type
+	uint8_t		// index
+> GetItemName;

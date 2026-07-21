@@ -11,9 +11,9 @@ import bof3.enemy;
 import std;
 
 
-Func<0x4946C0, void, uint8_t /* slot */, uint8_t /* index */> LoadEnemyNameEtc;
+typedef Func<0x4946C0, void, uint8_t /* slot */, uint8_t /* index */> LoadEnemyNameEtc;
 auto LoadEnemyNameEtcHook(auto slot, auto index) {
-	LoadEnemyNameEtc.Original(slot, index);
+	LoadEnemyNameEtc::Original(slot, index);
 
 	auto battleSlot = (char*)0x93B9E0 + 296 * slot;	// Array of structs of size 296
 	auto areaId = *(uint8_t*)0x904EFC;
@@ -34,5 +34,5 @@ auto LoadEnemyNameEtcHook(auto slot, auto index) {
 
 
 export void EnableEnemyHooks() {
-	EnableHook(LoadEnemyNameEtc, LoadEnemyNameEtcHook);
+	EnableHook<LoadEnemyNameEtc>(LoadEnemyNameEtcHook);
 }

@@ -31,4 +31,4 @@ export struct Character {
 };
 
 
-export ArrayAccessor<0x903A70, Character> g_Characters;
+export typedef ArrayAccessor<0x903A70, Character> g_Characters;

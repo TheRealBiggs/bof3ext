@@ -68,9 +68,26 @@
     <ClCompile Include="src\text_manager.ixx">
       <FileType>Document</FileType>
     </ClCompile>
+    <ClInclude Include="res\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="res\textfile.bin" />
+    <Text Include="res\basic_shader.fs.glsl">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="res\basic_shader.vs.glsl">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="res\psx_shader.fs.glsl">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="res\psx_shader.vs.glsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res\resource.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -141,6 +158,7 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(ProjectDir)lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>freetype_d.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -160,19 +178,16 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <EnableModules>true</EnableModules>
       <BuildStlModules>true</BuildStlModules>
+      <DisableSpecificWarnings>4251;4250</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>freetype.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)lib</AdditionalLibraryDirectories>
+      <AdditionalOptions>/IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
-  
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command='xcopy /Y "$(TargetPath)" "D:\\Games\\Breath of Fire III"' IgnoreExitCode="true" />
-  </Target>
-  
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

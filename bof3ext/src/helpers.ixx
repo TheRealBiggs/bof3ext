@@ -27,39 +27,42 @@ export typedef int BOOL;
 
 export template <uintptr_t Address, typename T>
 struct Accessor {
-	__forceinline T& operator *() {
+	static __forceinline T& Get() {
 		return *(T*)Address;
 	}
 
-	__forceinline T* operator ->() {
+	static __forceinline T* Ptr() {
 		return (T*)Address;
 	}
 
-	__forceinline T* operator &() {
-		return (T*)Address;
-	}
+	Accessor() = delete;
 };
 
 export template <uintptr_t Address, typename T>
 struct ArrayAccessor {
-	__forceinline T& operator [](auto index) {
+	static __forceinline T& At(auto index) {
 		return ((T*)Address)[index];
 	}
 
-	__forceinline T* operator &() {
+	static __forceinline T* Ptr() {
 		return (T*)Address;
 	}
+
+	ArrayAccessor() = delete;
 };
 
 export template <uintptr_t Address, typename T>
 struct PointerAccessor {
-	__forceinline T*& operator *() {
+	static __forceinline T*& Get() {
 		return *(T**)Address;
 	}
 
-	__forceinline T* operator ->() {
-		return *(T**)Address;
+	template <typename U/*, class = typename std::enable_if_t<std::is_base_of_v<U, T>>*/>
+	static __forceinline U*& Get() {
+		return *(U**)Address;
 	}
+
+	PointerAccessor() = delete;
 };
 
 
@@ -69,39 +72,39 @@ export template<uintptr_t Address, typename ReturnType, typename... ArgTypes>
 struct Func {
 	typedef ReturnType(__cdecl* FuncType)(ArgTypes...);
 
-	FuncType FuncPointer = (FuncType)Address;
-	FuncType Original = (FuncType)Address;
+	static inline FuncType FuncPointer = (FuncType)Address;
+	static inline FuncType Original = (FuncType)Address;
 
-	ReturnType __forceinline operator()(ArgTypes... args) {
+	static ReturnType __forceinline Call(ArgTypes... args) {
 		return FuncPointer(args...);
 	}
 
-	__forceinline FuncType operator &() {
-		return FuncPointer;
-	}
+	Func() = delete;
 };
 
 export template<uintptr_t Address, typename ReturnType, typename... ArgTypes>
 struct FuncSTD {
 	typedef ReturnType(__stdcall* FuncType)(ArgTypes...);
 
-	FuncType FuncPointer = (FuncType)Address;
-	FuncType Original = (FuncType)Address;
+	static inline FuncType FuncPointer = (FuncType)Address;
+	static inline FuncType Original = (FuncType)Address;
 
-	ReturnType __forceinline operator()(ArgTypes... args) {
+	static ReturnType __forceinline Call(ArgTypes... args) {
 		return FuncPointer(args...);
 	}
+
+	FuncSTD() = delete;
 };
 
 
 export template<typename FuncType>
-void __forceinline EnableHook(FuncType& func, typename FuncType::FuncType hook) {
-	static_assert(std::is_same_v<decltype(func.FuncPointer), decltype(hook)>, "Function and hook type do not match!");
+void __forceinline EnableHook(typename FuncType::FuncType hook) {
+	static_assert(std::is_same_v<decltype(FuncType::FuncPointer), decltype(hook)>, "Function and hook type do not match!");
 
-	auto res = MH_CreateHook(func.FuncPointer, hook, (LPVOID*)&func.Original);
-	res = MH_EnableHook(func.FuncPointer);
+	auto res = MH_CreateHook(FuncType::FuncPointer, hook, (LPVOID*)&FuncType::Original);
+	res = MH_EnableHook(FuncType::FuncPointer);
 
-	func.FuncPointer = hook;
+	FuncType::FuncPointer = hook;
 }
 
 

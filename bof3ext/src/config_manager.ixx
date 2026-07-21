@@ -42,7 +42,7 @@ public:
 
 	uint16_t GetRenderWidth() const { return windowWidth; }
 	uint16_t GetRenderHeight() const { return windowHeight; }
-	uint16_t GetScaledRenderWidth() const { return windowWidth / renderScale; }
+	uint16_t GetScaledRenderWidth() const { return static_cast<uint16_t>(windowWidth / renderScale); }
 
 
 private:

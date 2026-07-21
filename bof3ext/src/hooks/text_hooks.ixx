@@ -17,7 +17,8 @@ import bof3.text;
 import std;
 
 
-Func<0x497770, void> sub_497770;
+typedef Func<0x497770, void
+> sub_497770;
 
 
 auto GetTextHook(auto index) {
@@ -40,7 +41,9 @@ auto GetTextHook(auto index) {
 	return (const char*)buf;
 }
 
-Func<0x4976D0, void, uint16_t /* index */> LoadDialogue;
+typedef Func<0x4976D0, void,
+	uint16_t	// index
+> LoadDialogue;
 auto LoadDialogueHook(auto index) {
 	//LogDebug("LoadDialogue: %i\n", index);
 
@@ -56,10 +59,10 @@ auto LoadDialogueHook(auto index) {
 
 		*(const char**)0x7DEE4C = text.c_str();
 		*(const char**)0x7DEE50 = *(const char**)0x7DEE4C;
-		sub_497770();
+		sub_497770::Call();
 		*(uint16_t*)0x7DEE48 = index;
 	} else
-		LoadDialogue.Original(index);
+		LoadDialogue::Original(index);
 }
 
 
@@ -81,11 +84,10 @@ const char* skillNoteSortText[] = { "Sort", "Look", "High AP", "Low AP" };
 
 
 export void EnableTextHooks() {
-	EnableHook(GetText, GetTextHook);
-	EnableHook(LoadDialogue, LoadDialogueHook);
+	EnableHook<GetText>(GetTextHook);
+	EnableHook<LoadDialogue>(LoadDialogueHook);
 
-	auto advance = (int)GlyphManager::Get().GetGlyphAdvance();
-	advance = (int)std::ceil(advance / ConfigManager::Get().GetRenderScale());
+	auto advance = (int)std::floor(GlyphManager::Get().GetScaledGlyphAdvance());
 
 	WriteProtectedMemory(0x516CE5, (uint8_t)advance);						// Glyph spacing for UI text
 	WriteProtectedMemory(0x497A47, (uint8_t)advance);						// Glyph spacing for dialogue

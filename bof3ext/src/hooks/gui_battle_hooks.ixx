@@ -44,35 +44,35 @@ struct UnkStruct_G {
 };
 
 
-Accessor<0x904B80, uint16_t> word_904B80;
-ArrayAccessor<0x656A34, Vec2s> g_EnemyBattlePanelPositions;
-ArrayAccessor<0x802DC0, UnkStruct_D> stru_802DC0;
-ArrayAccessor<0x93B8E0, UnkStruct_G> stru_93B8E0;
+typedef Accessor<0x904B80, uint16_t> word_904B80;
+typedef ArrayAccessor<0x656A34, Vec2s> g_EnemyBattlePanelPositions;
+typedef ArrayAccessor<0x802DC0, UnkStruct_D> stru_802DC0;
+typedef ArrayAccessor<0x93B8E0, UnkStruct_G> stru_93B8E0;
 
 
-Func<0x444900, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint8_t /* a4 */>														sub_444900;
-Func<0x4449E0, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint32_t /* a4 */, uint8_t /* a5 */>									sub_4449E0;
-Func<0x4447B0, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint8_t /* a4 */>														sub_4447B0;
-Func<0x444A90, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint8_t /* a4 */, bool /* a5 */>										sub_444A90;
-Func<0x444EB0, bool, uint8_t /* a1 */>																											sub_444EB0;
-Func<0x444E00, bool, int16_t /* x1 */, int16_t /* y1 */, int16_t /* x2 */, int16_t /* y2 */, uint8_t /* r */, uint8_t /* g */, uint8_t /* b */>	sub_444E00;
-Func<0x444D50, bool, int16_t /* x1 */, int16_t /* y1 */, int16_t /* x2 */, int16_t /* y2 */, uint8_t /* r */, uint8_t /* g */, uint8_t /* n */>	sub_444D50;
+typedef Func<0x444900, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint8_t /* a4 */>														sub_444900;
+typedef Func<0x4449E0, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint32_t /* a4 */, uint8_t /* a5 */>									sub_4449E0;
+typedef Func<0x4447B0, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint8_t /* a4 */>														sub_4447B0;
+typedef Func<0x444A90, void, int16_t /* x */, int16_t /* y */, uint8_t /* a3 */, uint8_t /* a4 */, bool /* a5 */>										sub_444A90;
+typedef Func<0x444EB0, bool, uint8_t /* a1 */>																											sub_444EB0;
+typedef Func<0x444E00, bool, int16_t /* x1 */, int16_t /* y1 */, int16_t /* x2 */, int16_t /* y2 */, uint8_t /* r */, uint8_t /* g */, uint8_t /* b */>	sub_444E00;
+typedef Func<0x444D50, bool, int16_t /* x1 */, int16_t /* y1 */, int16_t /* x2 */, int16_t /* y2 */, uint8_t /* r */, uint8_t /* g */, uint8_t /* n */>	sub_444D50;
 
 
-Func<0x443D90, void, int16_t /* x */, int16_t /* y */, uint8_t /* slot */> DrawBattleEnemyPanel;
+typedef Func<0x443D90, void, int16_t /* x */, int16_t /* y */, uint8_t /* slot */> DrawBattleEnemyPanel;
 auto DrawBattleEnemyPanelHook(auto x, auto y, auto slot) {
 	DrawBorderedPanel(x, y, 74, 22);
 
 	auto _slot = slot - 3;
 
-	if (g_EnemyBattleDatas[_slot].gap0 == 1)
-		sub_444A90(x + 6, y + 10, struct_905B84->byteB, struct_905B84->byteD, true);	// Health bar
+	if (g_EnemyBattleDatas::At(_slot).gap0 == 1)
+		sub_444A90::Call(x + 6, y + 10, struct_905B84::Get()->byteB, struct_905B84::Get()->byteD, true);	// Health bar
 	else
-		DrawNumTiny(x + 36, y + 12, 0, 0xFFFF);	// Unknown health bar ( Just draws question mark )
+		DrawNumTiny::Call(x + 36, y + 12, 0, 0xFFFF);	// Unknown health bar ( Just draws question mark )
 
-	if (sub_444EB0(_slot)) {
-		const char* name = g_EnemyBattleDatas[_slot].name;
-		auto enemyIndex = g_EnemyBattleDatas[_slot].enemyId;
+	if (sub_444EB0::Call(_slot)) {
+		const char* name = g_EnemyBattleDatas::At(_slot).name;
+		auto enemyIndex = g_EnemyBattleDatas::At(_slot).enemyId;
 		auto areaId = *(uint8_t*)0x904EFC;
 
 		auto& txtMgr = TextManager::Get();
@@ -83,13 +83,13 @@ auto DrawBattleEnemyPanelHook(auto x, auto y, auto slot) {
 		if (txtMgr.HasEnemyName(areaId, enemyIndex))
 			name = txtMgr.GetEnemyName(areaId, enemyIndex).c_str();
 
-		auto len = GetStringLength(name);
+		auto len = GetStringLength::Call(name);
 
-		DrawStringSmall(x + 4, y + 3, 0, len, name);
+		DrawStringSmall::Call(x + 4, y + 3, 0, len, name);
 	}
 }
 
-Func<0x4439A0, void, uint8_t /* index */> DrawBattleCommandTextPanel;
+typedef Func<0x4439A0, void, uint8_t /* index */> DrawBattleCommandTextPanel;
 auto DrawBattleCommandTextPanelHook(auto index) {
 	auto x = ((RectS*)0x64E2C8)[index].Left;
 	auto y = ((RectS*)0x64E2C8)[index].Top;
@@ -102,22 +102,22 @@ auto DrawBattleCommandTextPanelHook(auto index) {
 	DrawBorderedPanel(x, y, 54, 18);
 
 	auto text = ((char**)0x669D60)[index];
-	auto textLen = GetStringLength(text);
+	auto textLen = GetStringLength::Call(text);
 
 	auto advance = GlyphManager::Get().GetScaledGlyphAdvance();
 	advance /= 2;
 
-	DrawString(x + 27 - advance * textLen, y + 3, 0, textLen, text);
+	DrawString::Call(static_cast<int16_t>(x + 27 - advance * textLen), y + 3, 0, textLen, text);
 }
 
 // Draws the panel at the top of the screen that displays current character or skill name
-Func<0x597230, void> DrawBattleActionTextPanel;
+typedef Func<0x597230, void> DrawBattleActionTextPanel;
 auto DrawBattleActionTextPanelHook() {
-	auto& stru = stru_93B8E0[struct_905B84->index];
+	auto& stru = stru_93B8E0::At(struct_905B84::Get()->index);
 
 	auto textLen = std::strlen(stru.text);
-	auto x = struct_905B84->x;
-	auto y = struct_905B84->y;
+	auto x = struct_905B84::Get()->x;
+	auto y = struct_905B84::Get()->y;
 
 	const auto& cfgMgr = ConfigManager::Get();
 	auto renderWidth = cfgMgr.GetScaledRenderWidth();
@@ -125,26 +125,26 @@ auto DrawBattleActionTextPanelHook() {
 	auto diff = (float)(renderWidth - 320.f);
 	auto offset = diff / 2;
 
-	x += offset;
+	x += static_cast<uint16_t>(offset);
 
 	auto advance = std::ceil(GlyphManager::Get().GetScaledGlyphAdvance());
 
 	if (stru.isCharacterName) {
 		DrawBorderedPanel(x - 16, y, 102, 18);
-		auto _x = (x - 16 + 51) - (textLen * advance) / 2;
-		DrawString(_x, y + 3, stru.byteA, textLen, stru.text);
+		auto _x = static_cast<int16_t>((x - 16 + 51) - (textLen * advance) / 2);
+		DrawString::Call(_x, y + 3, stru.byteA, static_cast<uint8_t>(textLen), stru.text);
 	} else {
 		DrawBorderedPanel(x, y, 70, 18);
-		auto _x = (x + 35) - (textLen * advance) / 2;
-		DrawString(_x, y + 3, stru.byteA, textLen, stru.text);
+		auto _x = static_cast<int16_t>((x + 35) - (textLen * advance) / 2);
+		DrawString::Call(_x, y + 3, stru.byteA, static_cast<uint8_t>(textLen), stru.text);
 	}
 }
 
-Func<0x59E160, void, int16_t /* x */, int16_t /* y */, int8_t /* a3 */> DrawBattleInventoryTabs;
+typedef Func<0x59E160, void, int16_t /* x */, int16_t /* y */, int8_t /* a3 */> DrawBattleInventoryTabs;
 auto DrawBattleInventoryTabsHook(auto x, auto y, auto a3) {
 	const auto& txtMgr = TextManager::Get();
 
-	DrawWindowBackground(x, y, 45u, 20u, 0, ((uint8_t*)0x9039E0)[122]);
+	DrawWindowBackground::Call(x, y, 45u, 20u, 0, ((uint8_t*)0x9039E0)[122]);
 
 	uint8_t txtColour;
 
@@ -157,15 +157,15 @@ auto DrawBattleInventoryTabsHook(auto x, auto y, auto a3) {
 	advance /= 2;
 
 	const auto& useText = txtMgr.GetMenuTabText(0);
-	DrawString(x + 22 - advance * useText.length(), y + 3, txtColour, 16u, useText.c_str());
+	DrawString::Call(static_cast<int16_t>(x + 22 - advance * useText.length()), y + 3, txtColour, 16u, useText.c_str());
 
 	auto v4 = (char*)0x66B500;
 
 	if (a3)
 		v4 = (char*)0x66B4F8;
 
-	DrawUIGroup(x, y, v4, 1);
-	DrawWindowBackground(x + 48, y, 45u, 20u, 0, ((uint8_t*)0x9039E0)[122]);
+	DrawUIGroup::Call(x, y, v4, 1);
+	DrawWindowBackground::Call(x + 48, y, 45u, 20u, 0, ((uint8_t*)0x9039E0)[122]);
 
 	if (a3 == -1 || a3 == 1)
 		txtColour = 0;
@@ -173,29 +173,29 @@ auto DrawBattleInventoryTabsHook(auto x, auto y, auto a3) {
 		txtColour = 7;
 
 	const auto& equipText = txtMgr.GetMenuTabText(3);
-	DrawString(x + 70 - advance * equipText.length(), y + 3, txtColour, 16u, equipText.c_str());
+	DrawString::Call(static_cast<int16_t>(x + 70 - advance * equipText.length()), y + 3, txtColour, 16u, equipText.c_str());
 
 	v4 = (char*)0x66B500;
 
 	if (a3 != 1)
 		v4 = (char*)0x66B4F8;
 
-	DrawUIGroup(x + 48, y, v4, 1);
+	DrawUIGroup::Call(x + 48, y, v4, 1);
 }
 
-Func<0x5985A0, void> DrawBattleXPResultPanel;
+typedef Func<0x5985A0, void> DrawBattleXPResultPanel;
 auto DrawBattleXPResultPanelHook() {
 	const auto& txtMgr = TextManager::Get();
 
-	DrawBorderedPanel(20, 40, 280, struct_905B84->byte9);
+	DrawBorderedPanel(20, 40, 280, struct_905B84::Get()->byte9);
 
 	auto y = 44;
 
 	for (auto i = 0; i < *(uint8_t*)0x904AB0; ++i) {
-		const auto& c = stru_802DC0[i];
+		const auto& c = stru_802DC0::At(i);
 
 		// Character name
-		DrawString(25, y, 0, 5, c.name);
+		DrawString::Call(25, y, 0, 5, c.name);
 
 		uint16_t textId;
 
@@ -205,38 +205,38 @@ auto DrawBattleXPResultPanelHook() {
 			char buf[7];
 
 			sprintf_s(buf, "%2d", c.level + 1);
-			DrawStringLarge(85, y, 0, buf);
+			DrawStringLarge::Call(85, y, 0, buf);
 
 			auto advance = GlyphManager::Get().GetScaledGlyphAdvance();
 
-			auto x = 20 + 280 - 7 - std::ceil(6 * advance * LARGE_TEXT_SCALE);
+			auto x = static_cast<int16_t>(20 + 280 - 7 - std::ceil(6 * advance * LARGE_TEXT_SCALE));
 
-			sprintf_s(buf, "%6d", GetXPToNextLevel(i));
-			DrawStringLarge(x, y, 0, buf);
+			sprintf_s(buf, "%6d", GetXPToNextLevel::Call(i));
+			DrawStringLarge::Call(x, y, 0, buf);
 
 			textId = 21;	// "EXP to next level:"
 		}
 
-		const auto text = GetText(textId);
-		DrawString(133, y, 0, 255, text);
+		const auto text = GetText::Call(textId);
+		DrawString::Call(133, y, 0, 255, text);
 
 		y += 16;
 	}
 }
 
-Func<0x42F680, void> sub_42F680;
+typedef Func<0x42F680, void> sub_42F680;
 auto sub_42F680Hook() {
-	sub_42F680.Original();
+	sub_42F680::Original();
 
-	if (*word_904B80 != 151) {
-		const auto& skillName = TextManager::Get().GetSkillName(*word_904B80);
+	if (word_904B80::Get() != 151) {
+		const auto& skillName = TextManager::Get().GetSkillName(word_904B80::Get());
 		strncpy_s((char*)0x904EA0, 32, skillName.c_str(), skillName.length());
 	}
 }
 
-Func<0x44A960, void, uint8_t /* index */> sub_44A960;
+typedef Func<0x44A960, void, uint8_t /* index */> sub_44A960;
 auto sub_44A960Hook(auto index) {
-	auto enemyId = g_EnemyBattleDatas[index - 3].enemyId;
+	auto enemyId = g_EnemyBattleDatas::At(index - 3).enemyId;
 	auto areaId = *(uint8_t*)0x904EFC;
 
 	const auto& name = TextManager::Get().GetEnemyName(areaId, enemyId);
@@ -282,7 +282,7 @@ static void __declspec(naked) FixTextCenteringSkillCategory() {
 
 static void FixGetBattleLearnedSkillName() {
 	auto a = *(uint8_t*)0x904B34 - 3;
-	auto skillId = g_EnemyBattleDatas[a].word86;
+	auto skillId = g_EnemyBattleDatas::At(a).word86;
 
 	const auto& skillName = TextManager::Get().GetSkillName(skillId);
 	std::memcpy((void*)0x904D00, skillName.c_str(), std::min(32U, skillName.length()));
@@ -291,19 +291,19 @@ static void FixGetBattleLearnedSkillName() {
 
 export void EnableGuiBattleHooks() {
 	//EnableHook(DrawBattleEnemyPanel, DrawBattleEnemyPanelHook);
-	EnableHook(DrawBattleCommandTextPanel, DrawBattleCommandTextPanelHook);
-	EnableHook(DrawBattleActionTextPanel, DrawBattleActionTextPanelHook);
-	EnableHook(DrawBattleInventoryTabs, DrawBattleInventoryTabsHook);
-	EnableHook(DrawBattleXPResultPanel, DrawBattleXPResultPanelHook);
-	EnableHook(sub_42F680, sub_42F680Hook);
-	EnableHook(sub_44A960, sub_44A960Hook);
+	EnableHook<DrawBattleCommandTextPanel>(DrawBattleCommandTextPanelHook);
+	EnableHook<DrawBattleActionTextPanel>(DrawBattleActionTextPanelHook);
+	EnableHook<DrawBattleInventoryTabs>(DrawBattleInventoryTabsHook);
+	EnableHook<DrawBattleXPResultPanel>(DrawBattleXPResultPanelHook);
+	EnableHook<sub_42F680>(sub_42F680Hook);
+	EnableHook<sub_44A960>(sub_44A960Hook);
 
 	WriteProtectedMemory(0x443ECE, (uint8_t)(4 - 2));	// Move enemy name in battle left by 2 pixels
 
 	auto diff = ConfigManager::Get().GetScaledRenderWidth() - 320;
 
-	g_EnemyBattlePanelPositions[0].x += diff;
-	g_EnemyBattlePanelPositions[3].x += diff;
+	g_EnemyBattlePanelPositions::At(0).x += diff;
+	g_EnemyBattlePanelPositions::At(3).x += diff;
 
 	WriteCallAndNops<7>(0x59CF6E, FixTextCenteringInventoryCategory);
 	WriteCallAndNops<7>(0x59D43F, FixTextCenteringSkillCategory);
