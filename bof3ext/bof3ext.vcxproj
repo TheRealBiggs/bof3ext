@@ -24,6 +24,7 @@
     <ClCompile Include="src\bof3\texture.ixx" />
     <ClCompile Include="src\bof3\window.ixx" />
     <ClCompile Include="src\config_manager.ixx" />
+    <ClCompile Include="src\gl_glyph_manager.ixx" />
     <ClCompile Include="src\helpers.ixx" />
     <ClCompile Include="src\hooks\audio_hooks.cpp" />
     <ClCompile Include="src\hooks\dat_hooks.ixx" />
@@ -59,8 +60,10 @@
     <ClCompile Include="src\bof3\item.ixx">
       <FileType>Document</FileType>
     </ClCompile>
-    <ClCompile Include="src\math.ixx" />
+    <ClCompile Include="src\bof3\math.ixx" />
+    <ClCompile Include="src\hooks\winmain_hooks.ixx" />
     <ClCompile Include="src\renderer.ixx" />
+    <ClCompile Include="src\render_helpers.ixx" />
     <ClCompile Include="src\shader_program.ixx" />
     <ClCompile Include="src\singleton.ixx">
       <FileType>Document</FileType>
@@ -72,6 +75,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+    <Text Include="res\text_shader.fs.glsl">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="res\text_shader.vs.glsl">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="res\replaced_texture_shader.fs.glsl">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="res\replaced_texture_shader.vs.glsl">
+      <FileType>Document</FileType>
+    </Text>
     <None Include="res\textfile.bin" />
     <Text Include="res\basic_shader.fs.glsl">
       <FileType>Document</FileType>

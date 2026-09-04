@@ -72,7 +72,7 @@ void PatchDrawRangesForWidescreen(float diff) {
 }
 
 
-typedef Func<0x462560, GpuPrim_TexturedRectWH*,
+typedef Func<0x462560, GpuPrim_RectWHTexture*,
 	int16_t,	// x
 	int16_t,	// y
 	uint8_t,	// a3
@@ -108,8 +108,17 @@ typedef Func<0x573CE0, void,
 	int			// a6
 > DrawSelectedFrameOutline;
 auto DrawSelectedFrameOutlineHook(auto x, auto y, auto w, auto h, auto a5, auto a6) {
-	auto diff = ConfigManager::Get().GetScaledRenderWidth() - 320.f;
-	auto offset = diff / 2;
+	auto& cfgMgr = ConfigManager::Get();
+
+	auto scale = cfgMgr.GetRenderScale();
+
+	x -= scale / 4;
+	y -= scale / 4;
+	w += scale / 2;
+	h += scale;
+
+	auto resDiff = cfgMgr.GetScaledRenderWidth() - 320.f;
+	auto offset = resDiff / 2;
 
 	DrawSelectedFrameOutline::Original(static_cast<uint16_t>(x + offset), y, w, h, a5, a6);
 }

@@ -2,7 +2,7 @@ module;
 
 #include <cstdint>
 
-export module bof3ext.math;
+export module bof3.math;
 
 
 export struct Vec2f {
@@ -14,6 +14,10 @@ export struct Vec2i {
 };
 
 export struct Vec2s {
+	int16_t x, y;
+};
+
+export struct Vec2us {
 	uint16_t x, y;
 };
 

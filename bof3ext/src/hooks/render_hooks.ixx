@@ -7,11 +7,10 @@ module;
 export module bof3ext.hooks:render;
 
 import bof3ext.helpers;
-import bof3ext.math;
 import bof3ext.configManager;
 import bof3ext.glyphManager;
 import bof3ext.textManager;
-
+import bof3.math;
 import bof3.render;
 import bof3.text;
 import bof3.texture;
@@ -193,9 +192,6 @@ auto DrawStringNumFontHook(auto x, auto y, auto paletteIdx, auto text) {
 	DrawStringSmall::Call(x, y + 2, paletteIdx, GetStringLength::Call(text), text);
 }
 
-typedef Func<0x5A2900, void,
-	GpuPrim_TextGlyph*	// prim
-> ProcessGpuPrim_TextGlyph;
 auto ProcessGpuPrim_TextGlyphHook(auto prim) {
 	g_IDirect3DDevice3::Get()->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR);
 	g_IDirect3DDevice3::Get()->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR);
@@ -203,10 +199,7 @@ auto ProcessGpuPrim_TextGlyphHook(auto prim) {
 	return ProcessGpuPrim_TextGlyph::Original(prim);
 }
 
-typedef Func<0x5A0C40, void,
-	GpuPrim_TexturedQuad*	// prim
-> ProcessGpuPrim_TexturedQuad;
-auto ProcessGpuPrim_TexturedQuadHook(auto prim) {
+auto ProcessGpuPrim_QuadTextureHook(auto prim) {
 	D3DCOLOR colour, specular;
 
 	GetD3DCOLOR::Call(prim->colour.r, prim->colour.g, prim->colour.b, prim->value, prim->texturePage, &colour, &specular);
@@ -262,9 +255,6 @@ auto ProcessGpuPrim_TexturedQuadHook(auto prim) {
 	g_IDirect3DDevice3::Get()->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
 }
 
-typedef Func<0x5A17A0, void,
-	GpuPrim_Line*	// prim
-> ProcessGpuPrim_Line;
 auto ProcessGpuPrim_LineHook(auto prim) {
 	D3DCOLOR colour;
 
@@ -317,10 +307,7 @@ auto ProcessGpuPrim_LineHook(auto prim) {
 	g_IDirect3DDevice3::Get()->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
 }
 
-typedef Func<0x5A2300, void,
-	GpuPrim_TexturedRectWH*	// prim
-> ProcessGpuPrim_TexturedRectWH;
-auto ProcessGpuPrim_TexturedRectWHHook(auto prim) {
+auto ProcessGpuPrim_RectWHTextureHook(auto prim) {
 	D3DCOLOR colour, specular;
 
 	GetD3DCOLOR::Call(prim->colour.r, prim->colour.g, prim->colour.b, prim->value, g_DrawEnv::Get().tpage, &colour, &specular);
@@ -376,10 +363,7 @@ auto ProcessGpuPrim_TexturedRectWHHook(auto prim) {
 	g_IDirect3DDevice3::Get()->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
 }
 
-typedef Func<0x5A2520, void,
-	GpuPrim_TexturedRect8*	// prim
-> ProcessGpuPrim_TexturedRect8;
-auto ProcessGpuPrim_TexturedRect8Hook(auto prim) {
+auto ProcessGpuPrim_Rect8TextureHook(auto prim) {
 	D3DCOLOR colour, specular;
 
 	GetD3DCOLOR::Call(prim->colour.r, prim->colour.g, prim->colour.b, prim->value, g_DrawEnv::Get().tpage, &colour, &specular);
@@ -435,10 +419,7 @@ auto ProcessGpuPrim_TexturedRect8Hook(auto prim) {
 	g_IDirect3DDevice3::Get()->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
 }
 
-typedef Func<0x5A2710, void,
-	GpuPrim_TexturedRect16*	// prim
-> ProcessGpuPrim_TexturedRect16;
-auto ProcessGpuPrim_TexturedRect16Hook(auto prim) {
+auto ProcessGpuPrim_Rect16TextureHook(auto prim) {
 	D3DCOLOR colour, specular;
 
 	GetD3DCOLOR::Call(prim->colour.r, prim->colour.g, prim->colour.b, prim->value, g_DrawEnv::Get().tpage, &colour, &specular);
@@ -494,19 +475,14 @@ auto ProcessGpuPrim_TexturedRect16Hook(auto prim) {
 	g_IDirect3DDevice3::Get()->DrawPrimitive(D3DPT_TRIANGLESTRIP, D3DFVF_TLVERTEX, v, 4, 0);
 }
 
-//Func<0x5A2EB0, void, GpuPrim_Sprite* /* prim */> ProcessGpuPrim_Sprite;
 /*auto ProcessGpuPrim_SpriteHook(auto prim) {
 	prim->word18 = 1;
 	prim->word1A = 1;
 	prim->word1E = 1;
 
-	ProcessGpuPrim_Sprite.Original(prim);
+	ProcessGpuPrim_Sprite::Original(prim);
 }*/
 
-typedef Func<0x5A7AE0, void,
-	int,	// x
-	int		// y
-> SetGeomOffset;
 auto SetGeomOffsetHook(auto x, auto y) {
 	LogDebug("SetGeomOffset: %i, %i\n", x, y);
 
@@ -516,13 +492,6 @@ auto SetGeomOffsetHook(auto x, auto y) {
 	SetGeomOffset::Original(x + diff / 2, y);
 }
 
-typedef Func<0x5A7910, void,
-	DRAWENV*,	// env
-	short,		// x
-	short,		// y
-	short,		// w
-	short		// h
-> SetDefDrawEnv;
 auto SetDefDrawEnvHook(auto env, auto x, auto y, auto w, auto h) {
 	LogDebug("SetDefDrawEnv: %i, %i, %i, %i\n", x, y, w, h);
 
@@ -532,13 +501,6 @@ auto SetDefDrawEnvHook(auto env, auto x, auto y, auto w, auto h) {
 	SetDefDrawEnv::Original(env, x + diff, y, width, h);
 }
 
-typedef Func<0x5A78E0, void,
-	DISPENV*,	// disp
-	short,		// x
-	short,		// y
-	short,		// w
-	short		// h
-> SetDefDispEnv;
 auto SetDefDispEnvHook(auto disp, auto x, auto y, auto w, auto h) {
 	LogDebug("SetDefDispEnv: %i, %i, %i, %i\n", x, y, w, h);
 
@@ -560,24 +522,24 @@ export void EnableRenderHooks() {
 	EnableHook<DrawStringSmall>(DrawStringSmallHook);
 	EnableHook<DrawStringLarge>(DrawStringLargeHook);
 	EnableHook<DrawNumTiny>(DrawNumTinyHook);
-	EnableHook<ProcessGpuPrim_TextGlyph>(ProcessGpuPrim_TextGlyphHook);
-	EnableHook<ProcessGpuPrim_TexturedQuad>(ProcessGpuPrim_TexturedQuadHook);
-	EnableHook<ProcessGpuPrim_Line>(ProcessGpuPrim_LineHook);
-	EnableHook<ProcessGpuPrim_TexturedRectWH>(ProcessGpuPrim_TexturedRectWHHook);
-	EnableHook<ProcessGpuPrim_TexturedRect8>(ProcessGpuPrim_TexturedRect8Hook);
-	EnableHook<ProcessGpuPrim_TexturedRect16>(ProcessGpuPrim_TexturedRect16Hook);
+	//EnableHook<ProcessGpuPrim_TextGlyph>(ProcessGpuPrim_TextGlyphHook);
+	//EnableHook<ProcessGpuPrim_QuadTexture>(ProcessGpuPrim_QuadTextureHook);
+	//EnableHook<ProcessGpuPrim_Line>(ProcessGpuPrim_LineHook);
+	//EnableHook<ProcessGpuPrim_RectWHTexture>(ProcessGpuPrim_RectWHTextureHook);
+	//EnableHook<ProcessGpuPrim_Rect8Texture>(ProcessGpuPrim_Rect8TextureHook);
+	//EnableHook<ProcessGpuPrim_Rect16Texture>(ProcessGpuPrim_Rect16TextureHook);
 	//EnableHook<ProcessGpuPrim_Sprite>(ProcessGpuPrim_SpriteHook);
-	EnableHook<SetGeomOffset>(SetGeomOffsetHook);
-	EnableHook<SetDefDrawEnv>(SetDefDrawEnvHook);
-	EnableHook<SetDefDispEnv>(SetDefDispEnvHook);
+	//EnableHook<SetGeomOffset>(SetGeomOffsetHook);
+	//EnableHook<SetDefDrawEnv>(SetDefDrawEnvHook);
+	//EnableHook<SetDefDispEnv>(SetDefDispEnvHook);
 	//EnableHook<sub_461F00>(sub_461F00Hook);
 
-	// Set render size
-	const auto& cfgMgr = ConfigManager::Get();
-	*(uint32_t*)0x66B710 = cfgMgr.GetRenderWidth();
-	*(uint32_t*)0x66B714 = cfgMgr.GetRenderHeight();
+	//// Set render size
+	//const auto& cfgMgr = ConfigManager::Get();
+	//*(uint32_t*)0x66B710 = cfgMgr.GetRenderWidth();
+	//*(uint32_t*)0x66B714 = cfgMgr.GetRenderHeight();
 
-	WriteProtectedMemory(0x516E54, (uint8_t)0);	// Disable translucency for text
-	WriteProtectedMemory(0x5A2B71, (uint8_t)3);	// Enable alpha blending...
-	WriteProtectedMemory(0x5A2B8D, (uint8_t)1);	//   ...for text
+	//WriteProtectedMemory(0x516E54, (uint8_t)0);	// Disable translucency for text
+	//WriteProtectedMemory(0x5A2B71, (uint8_t)3);	// Enable alpha blending...
+	//WriteProtectedMemory(0x5A2B8D, (uint8_t)1);	//   ...for text
 }

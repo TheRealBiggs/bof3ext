@@ -70,8 +70,20 @@ public:
 		auto asd = true;
 	}
 
+	void SetUniformInt32(const char* name, int32_t value) {
+		glUniform1i(glGetUniformLocation(program, name), value);
+	}
+
 	void SetUniformUInt32(const char* name, uint32_t value) {
 		glUniform1ui(glGetUniformLocation(program, name), value);
+	}
+
+	void SetUniformFloat(const char* name, float value) {
+		glUniform1f(glGetUniformLocation(program, name), value);
+	}
+
+	void SetUniformVec2(const char* name, float x, float y) {
+		glUniform2f(glGetUniformLocation(program, name), x, y);
 	}
 
 	void Use() {

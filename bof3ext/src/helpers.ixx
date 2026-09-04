@@ -31,6 +31,14 @@ struct Accessor {
 		return *(T*)Address;
 	}
 
+	static __forceinline void Set(const T& val) {
+		*(T*)Address = val;
+	}
+
+	static __forceinline void Set(T* val) {
+		*(T*)Address = *val;
+	}
+
 	static __forceinline T* Ptr() {
 		return (T*)Address;
 	}
@@ -72,39 +80,39 @@ export template<uintptr_t Address, typename ReturnType, typename... ArgTypes>
 struct Func {
 	typedef ReturnType(__cdecl* FuncType)(ArgTypes...);
 
-	static inline FuncType FuncPointer = (FuncType)Address;
+	static inline FuncType Pointer = (FuncType)Address;
 	static inline FuncType Original = (FuncType)Address;
 
 	static ReturnType __forceinline Call(ArgTypes... args) {
-		return FuncPointer(args...);
+		return Pointer(args...);
 	}
 
 	Func() = delete;
 };
 
 export template<uintptr_t Address, typename ReturnType, typename... ArgTypes>
-struct FuncSTD {
+struct FuncStd {
 	typedef ReturnType(__stdcall* FuncType)(ArgTypes...);
 
-	static inline FuncType FuncPointer = (FuncType)Address;
+	static inline FuncType Pointer = (FuncType)Address;
 	static inline FuncType Original = (FuncType)Address;
 
 	static ReturnType __forceinline Call(ArgTypes... args) {
-		return FuncPointer(args...);
+		return Pointer(args...);
 	}
 
-	FuncSTD() = delete;
+	FuncStd() = delete;
 };
 
 
 export template<typename FuncType>
 void __forceinline EnableHook(typename FuncType::FuncType hook) {
-	static_assert(std::is_same_v<decltype(FuncType::FuncPointer), decltype(hook)>, "Function and hook type do not match!");
+	static_assert(std::is_same_v<decltype(FuncType::Pointer), decltype(hook)>, "Function and hook type do not match!");
 
-	auto res = MH_CreateHook(FuncType::FuncPointer, hook, (LPVOID*)&FuncType::Original);
-	res = MH_EnableHook(FuncType::FuncPointer);
+	auto res = MH_CreateHook(FuncType::Pointer, hook, (LPVOID*)&FuncType::Original);
+	res = MH_EnableHook(FuncType::Pointer);
 
-	FuncType::FuncPointer = hook;
+	FuncType::Pointer = hook;
 }
 
 

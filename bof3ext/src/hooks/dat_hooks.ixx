@@ -6,17 +6,19 @@ import bof3ext.helpers;
 import bof3.dat;
 
 
-typedef Func<0x454590, void, int /* id */> LoadDatFile;
 auto LoadDatFileHook(auto id) {
 	LogDebug("LoadDatFile: %i - %s\n", id, g_DatFileNames::At(id));
 
 	if (id == 2 || (id >= 210 && id <= 251) || id == 549)
 		LastLoadedDatFileId = id;
 
+	if (id == 27) {
+		auto asd = true;
+	}
+
 	LoadDatFile::Original(id);
 }
 
-typedef Func<0x454770, void, int /* id */> LoadDatFile2;
 auto LoadDatFile2Hook(auto id) {
 	LogDebug("LoadDatFile2: %i - %s\n", id, g_DatFileNames::At(id));
 

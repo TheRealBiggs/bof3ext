@@ -10,6 +10,7 @@ export module bof3ext.hooks:gui.menu;
 import bof3ext.helpers;
 import bof3ext.configManager;
 import bof3ext.glyphManager;
+import bof3ext.renderHelpers;
 import bof3ext.textManager;
 import bof3.character;
 import bof3.item;
@@ -409,8 +410,8 @@ void DrawConfigBackgroundWindow(int16_t x, int16_t y, uint8_t a3, uint8_t a4) {
 	Vec3b colour = { 128, 128, 128 };
 	uint16_t palette = CreatePaletteIdx::Call(176, 481);
 
-	auto prim = (GpuPrim_TexturedRectWH*)g_GpuPrims::Get();
-	Init_GpuPrim_TexturedRectWH::Call(prim);
+	auto prim = (GpuPrim_RectWHTexture*)g_GpuPrims::Get();
+	Init_GpuPrim_RectWHTexture::Call(prim);
 
 	prim->v1.x = x + 16.0f;
 	prim->v1.y = y;
@@ -420,7 +421,7 @@ void DrawConfigBackgroundWindow(int16_t x, int16_t y, uint8_t a3, uint8_t a4) {
 	prim->colour = colour;
 	prim->palette = palette;
 
-	PushGpuPrim_0::Call(1, sizeof(GpuPrim_TexturedRectWH));
+	PushGpuPrim_0::Call(1, sizeof(GpuPrim_RectWHTexture));
 
 	// Bottom edge
 	rect = (PSX_RECT*)g_GpuPrims::Get();
@@ -434,8 +435,8 @@ void DrawConfigBackgroundWindow(int16_t x, int16_t y, uint8_t a3, uint8_t a4) {
 	Init_GpuPrim_SetDrawEnv::Call(g_GpuPrims::Get<GpuPrim_SetDrawEnv>(), 0, 0, tpage.value, rect);
 	PushGpuPrim_0::Call(1, sizeof(GpuPrim_SetDrawEnv));
 
-	prim = (GpuPrim_TexturedRectWH*)g_GpuPrims::Get();
-	Init_GpuPrim_TexturedRectWH::Call(prim);
+	prim = (GpuPrim_RectWHTexture*)g_GpuPrims::Get();
+	Init_GpuPrim_RectWHTexture::Call(prim);
 
 	prim->v1.x = x + 16.0f;
 	prim->v1.y = static_cast<float>(y + 8 * a4 - 8);
@@ -445,7 +446,7 @@ void DrawConfigBackgroundWindow(int16_t x, int16_t y, uint8_t a3, uint8_t a4) {
 	prim->colour = colour;
 	prim->palette = palette;
 
-	PushGpuPrim_0::Call(1, sizeof(GpuPrim_TexturedRectWH));
+	PushGpuPrim_0::Call(1, sizeof(GpuPrim_RectWHTexture));
 
 	// Left edge
 	rect = (PSX_RECT*)g_GpuPrims::Get();
@@ -459,8 +460,8 @@ void DrawConfigBackgroundWindow(int16_t x, int16_t y, uint8_t a3, uint8_t a4) {
 	Init_GpuPrim_SetDrawEnv::Call(g_GpuPrims::Get<GpuPrim_SetDrawEnv>(), 0, 0, tpage.value, rect);
 	PushGpuPrim_0::Call(1, sizeof(GpuPrim_SetDrawEnv));
 
-	prim = (GpuPrim_TexturedRectWH*)g_GpuPrims::Get();
-	Init_GpuPrim_TexturedRectWH::Call(prim);
+	prim = (GpuPrim_RectWHTexture*)g_GpuPrims::Get();
+	Init_GpuPrim_RectWHTexture::Call(prim);
 
 	prim->v1.x = x;
 	prim->v1.y = y + 16.0f;
@@ -470,7 +471,7 @@ void DrawConfigBackgroundWindow(int16_t x, int16_t y, uint8_t a3, uint8_t a4) {
 	prim->colour = colour;
 	prim->palette = palette;
 
-	PushGpuPrim_0::Call(1, sizeof(GpuPrim_TexturedRectWH));
+	PushGpuPrim_0::Call(1, sizeof(GpuPrim_RectWHTexture));
 
 	// Right edge
 	rect = (PSX_RECT*)g_GpuPrims::Get();
@@ -484,8 +485,8 @@ void DrawConfigBackgroundWindow(int16_t x, int16_t y, uint8_t a3, uint8_t a4) {
 	Init_GpuPrim_SetDrawEnv::Call(g_GpuPrims::Get<GpuPrim_SetDrawEnv>(), 0, 0, tpage.value, rect);
 	PushGpuPrim_0::Call(1, sizeof(GpuPrim_SetDrawEnv));
 
-	prim = (GpuPrim_TexturedRectWH*)g_GpuPrims::Get();
-	Init_GpuPrim_TexturedRectWH::Call(prim);
+	prim = (GpuPrim_RectWHTexture*)g_GpuPrims::Get();
+	Init_GpuPrim_RectWHTexture::Call(prim);
 
 	prim->v1.x = static_cast<float>(x + 8 * a3 - 8);
 	prim->v1.y = y + 16.0f;
@@ -495,7 +496,7 @@ void DrawConfigBackgroundWindow(int16_t x, int16_t y, uint8_t a3, uint8_t a4) {
 	prim->colour = colour;
 	prim->palette = palette;
 
-	PushGpuPrim_0::Call(1, sizeof(GpuPrim_TexturedRectWH));
+	PushGpuPrim_0::Call(1, sizeof(GpuPrim_RectWHTexture));
 
 	// Center
 	rect = (PSX_RECT*)g_GpuPrims::Get();
@@ -509,8 +510,8 @@ void DrawConfigBackgroundWindow(int16_t x, int16_t y, uint8_t a3, uint8_t a4) {
 	Init_GpuPrim_SetDrawEnv::Call(g_GpuPrims::Get<GpuPrim_SetDrawEnv>(), 0, 0, tpage.value, rect);
 	PushGpuPrim_0::Call(1, sizeof(GpuPrim_SetDrawEnv));
 
-	prim = (GpuPrim_TexturedRectWH*)g_GpuPrims::Get();
-	Init_GpuPrim_TexturedRectWH::Call(prim);
+	prim = (GpuPrim_RectWHTexture*)g_GpuPrims::Get();
+	Init_GpuPrim_RectWHTexture::Call(prim);
 
 	prim->v1.x = x + 8.0f;
 	prim->v1.y = y + 8.0f;
@@ -520,7 +521,7 @@ void DrawConfigBackgroundWindow(int16_t x, int16_t y, uint8_t a3, uint8_t a4) {
 	prim->colour = colour;
 	prim->palette = palette;
 
-	PushGpuPrim_0::Call(1, sizeof(GpuPrim_TexturedRectWH));
+	PushGpuPrim_0::Call(1, sizeof(GpuPrim_RectWHTexture));
 }
 
 void DrawConfigControllerBackgroundWindow(int16_t x, int16_t y, uint8_t a3, uint8_t a4) {

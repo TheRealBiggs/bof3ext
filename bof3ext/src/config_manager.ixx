@@ -7,8 +7,8 @@ module;
 export module bof3ext.configManager;
 
 import bof3ext.helpers;
-import bof3ext.math;
 import bof3ext.singleton;
+import bof3.math;
 
 
 export class ConfigManager : public Singleton<ConfigManager> {

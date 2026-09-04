@@ -8,12 +8,13 @@ module;
 export module bof3ext.hooks:gui.battle;
 
 import bof3ext.helpers;
-import bof3ext.math;
 import bof3ext.configManager;
 import bof3ext.glyphManager;
+import bof3ext.renderHelpers;
 import bof3ext.textManager;
 import bof3.battle;
 import bof3.gui;
+import bof3.math;
 import bof3.render;
 import bof3.text;
 
@@ -24,28 +25,9 @@ struct RectS {
 	short Left, Top, Right, Bottom;
 };
 
-struct UnkStruct_D {
-	char name[8];
-	uint8_t gap0[1];
-	uint8_t byte9;
-	uint8_t level;
-	uint8_t gap[321];
-};
-
-struct UnkStruct_G {
-	uint8_t gap0[2];
-	bool isCharacterName;
-	uint8_t gap1;
-	char* text;
-	uint8_t gap2;
-	uint8_t gap3;
-	uint8_t byteA;
-	uint8_t gap;
-};
-
 
 typedef Accessor<0x904B80, uint16_t> word_904B80;
-typedef ArrayAccessor<0x656A34, Vec2s> g_EnemyBattlePanelPositions;
+//typedef ArrayAccessor<0x656A34, Vec2us> g_EnemyBattlePanelPositions;
 typedef ArrayAccessor<0x802DC0, UnkStruct_D> stru_802DC0;
 typedef ArrayAccessor<0x93B8E0, UnkStruct_G> stru_93B8E0;
 

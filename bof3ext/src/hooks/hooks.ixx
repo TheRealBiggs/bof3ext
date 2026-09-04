@@ -1,7 +1,6 @@
 export module bof3ext.hooks;
 
 export import :dat;
-export import :directx;
 export import :enemy;
 export import :item;
 export import :gui;
@@ -10,3 +9,4 @@ export import :text;
 export import :texture;
 export import :widescreen;
 export import :window;
+export import :winmain;

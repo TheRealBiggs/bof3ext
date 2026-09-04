@@ -16,14 +16,10 @@ layout(std140, binding = 1) uniform Scale {
 };
 
 out vec4 VertColor;
-noperspective out vec2 TexCoord;
-flat out int TexPage;
-flat out int Palette;
+out vec2 TexCoord;
 
 void main() {
 	gl_Position = proj * vec4(pos.x * scaleX, pos.y * scaleY, pos.z, 1.0);
 	VertColor = color;
 	TexCoord = uv;
-	TexPage = tpage;
-	Palette = palette;
 }

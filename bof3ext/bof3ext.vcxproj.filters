@@ -117,7 +117,7 @@
     <ClCompile Include="src\config_manager.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\math.ixx">
+    <ClCompile Include="src\bof3\math.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\hooks\widescreen_patches.ixx">
@@ -133,6 +133,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\shader_program.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render_helpers.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gl_glyph_manager.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\winmain_hooks.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -155,6 +164,10 @@
     <Text Include="res\basic_shader.vs.glsl" />
     <Text Include="res\psx_shader.fs.glsl" />
     <Text Include="res\psx_shader.vs.glsl" />
+    <Text Include="res\replaced_texture_shader.fs.glsl" />
+    <Text Include="res\replaced_texture_shader.vs.glsl" />
+    <Text Include="res\text_shader.fs.glsl" />
+    <Text Include="res\text_shader.vs.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res\resource.rc">
