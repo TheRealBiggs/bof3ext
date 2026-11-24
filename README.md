@@ -1,4 +1,8 @@
-# Breath of Fire 3 Extender
+<img width="1483" height="389" alt="bof3ext_logo" src="https://github.com/user-attachments/assets/0214f150-608c-477e-963b-3e009b8176d6" />
+
+
+
+# Breath of Fire 3 Extended
 
 <br>
 
