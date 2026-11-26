@@ -11,13 +11,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loader", "Loader\Loader.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoF3Ext.Generators", "BoF3Ext.Generators\BoF3Ext.Generators.csproj", "{C593C785-1890-4EF3-8420-BFEF8B4D815B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MinHook", "MinHook\MinHook.vcxproj", "{4A7644B5-914D-4A9A-8B6E-7DF6C3353301}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MinHook", "deps\MinHook\MinHook.vcxproj", "{4A7644B5-914D-4A9A-8B6E-7DF6C3353301}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deps", "deps", "{FDBB9627-8292-41B6-BB36-05EAC4A10151}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StbImage", "StbImage\StbImage.vcxproj", "{3E80BFD1-0C1D-49C1-AF38-55D494728753}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StbImage", "deps\StbImage\StbImage.vcxproj", "{3E80BFD1-0C1D-49C1-AF38-55D494728753}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StbImageWrite", "StbImageWrite\StbImageWrite.vcxproj", "{8134CF12-7864-4B26-B9EA-4CD1D9293589}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StbImageWrite", "deps\StbImageWrite\StbImageWrite.vcxproj", "{8134CF12-7864-4B26-B9EA-4CD1D9293589}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

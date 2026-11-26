@@ -427,5 +427,7 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
-# Local publish and deployment settings
+
 /BoF3Ext.Net/Directory.Build.props
+
+lib/
