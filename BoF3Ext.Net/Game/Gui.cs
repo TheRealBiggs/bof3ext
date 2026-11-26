@@ -51,9 +51,6 @@ static partial class Gui {
 	[GameFunction(0x576960, hookable: true)]
 	public static partial void DrawSaveEntry(byte index, short x, short y, nint saveFile);
 
-	[GameFunction(0x586160, hookable: true)]
-	public static partial void DrawBorderedTextPanel_2(short x, short y, ushort width, ushort height, byte paletteIndex);
-
 	[GameFunction(0x57CF60)]
 	public static partial void DrawWindowBackground(
 		short x, short y, ushort width, ushort height, byte flags, byte paletteIndex
@@ -64,6 +61,12 @@ static partial class Gui {
 
 	[GameFunction(0x57D910)]
 	public static partial void DrawUiParts(short x, short y, nint parts, byte flags);
+
+	[GameFunction(0x586160, hookable: true)]
+	public static partial void DrawBorderedTextPanel_2(short x, short y, ushort width, ushort height, byte paletteIndex);
+
+	[GameFunction(0x5888D0, hookable: true)]
+	public static partial void DrawStartMenuItem(short y, byte index, bool greyed);
 
 	[GameFunction(0x595C50, hookable: true)]
 	public static partial void DrawDialogueWindow(short x, short y, byte width, byte height);
@@ -77,6 +80,9 @@ static partial class Gui {
 
 	[GameVariable(0x66386C, arrayLength: 6)]
 	public static partial Span<byte> EquipWindowItemIconIds { get; set; }
+
+	[GameVariable(0x6BDF90, arrayLength: 3)]
+	public static partial Span<byte> StartMenuItemWhiteness { get; set; }
 
 	[GameVariable(0x905B84, isPointer: true)]
 	public static partial ref UiWindow CurrentUiWindow { get; }

@@ -114,6 +114,9 @@ static partial class Gui {
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static unsafe void DrawMenuTabsHook(short x, short y, byte index, byte selectedTabIndex) {
+		// Widescreen fix
+		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
+
 		ref var group = ref Game.Gui.MenuTabGroups[index];
 
 		var advance = GlyphManager.Instance.ScaledGlyphAdvance;
@@ -319,6 +322,13 @@ static partial class Gui {
 			RendererHelpers.DrawRectWHTexture(indicatorX, 221, 8, 8, 208, 248, tpage, palette, new(128, 128, 128), true);
 	}
 
+	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+	static unsafe void DrawCursorHook(short x, short y) {
+		var offset = ConfigManager.Instance.HalfRenderWidthDiff;
+
+		Game.Gui.OriginalDrawCursor((short)(x + offset), y);
+	}
+
 
 	static unsafe void EnableMenuGuiHooks() {
 		EnableConfigMenuGuiHooks();
@@ -329,5 +339,6 @@ static partial class Gui {
 		Game.Gui.HookDrawEquipmentWindow(&DrawEquipmentWindowHook);
 		Game.Gui.HookDrawSkillInfo(&DrawSkillInfoHook);
 		Game.Gui.HookDrawSaves(&DrawSavesHook);
+		Game.Gui.HookDrawCursor(&DrawCursorHook);
 	}
 }

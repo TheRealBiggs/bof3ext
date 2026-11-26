@@ -29,20 +29,6 @@ static partial class Gui {
 		return Game.Render.DrawStringNormal((short)(x + offset), y, paletteIndex, len, text);
 	}
 
-	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static void DrawConfigCursor(short x, short y) {
-		var offset = ConfigManager.Instance.HalfRenderWidthDiff;
-
-		Game.Gui.DrawCursor((short)(x + offset), y);
-	}
-
-	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static void DrawConfigControllerCursor(short x, short y) {
-		var offset = ConfigManager.Instance.HalfRenderWidthDiff;
-
-		Game.Gui.DrawCursor((short)(x + offset - Hooks.Gui.CONFIG_CONTROLLER_TEXT_WIDTH_ADJ), y);
-	}
-
 
 	static nint DrawCenteredTextFix(short x, short y, uint paletteIndex, byte len, GameString text, short offset) {
 		var textLen = Game.Text.GetStringLength(text);
@@ -97,11 +83,6 @@ static partial class Gui {
 
 		foreach (var address in CONFIG_DESCRIPTION_TEXT_CALLS)
 			ProtectedMemory.WriteCall(address, (DrawCenteredTextSig)(&DrawConfigDescriptionText));
-
-		ProtectedMemory.WriteCall(0x461454, (DrawConfigCursorSig)(&DrawConfigControllerCursor));
-
-		ProtectedMemory.WriteCall(0x460E8F, (DrawConfigCursorSig)(&DrawConfigCursor));
-		ProtectedMemory.WriteCall(0x460FAA, (DrawConfigCursorSig)(&DrawConfigCursor));
 
 		// Remove draw of 2nd ':' in time text for save entries
 		ProtectedMemory.Nop(0x576ACD, 5);

@@ -56,7 +56,7 @@ static partial class Gui {
 	[GameFunction(0x5903F0, hookable: true)]
 	public static partial void DrawMenuIcon(byte id, short x, short y, byte width, byte height, byte whiteness);
 
-	[GameFunction(0x5905D0)]
+	[GameFunction(0x5905D0, hookable: true)]
 	public static partial void DrawCursor(short x, short y);
 
 

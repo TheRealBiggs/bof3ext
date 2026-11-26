@@ -46,13 +46,6 @@ static class Widescreen {
 	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static unsafe void DrawConfigMenuTabsHook(byte index, short x, short y) {
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
-
-		Game.Gui.OriginalDrawConfigMenuTabs(index, x, y);
-	}
-
-	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static unsafe void DrawConfigMenuHook(short x, short y) {
 		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
 
@@ -154,6 +147,28 @@ static class Widescreen {
 	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+	static void DrawStartMenuItemHook(short y, byte index, bool greyed) {
+		var x = (ConfigManager.Instance.ScaledRenderWidth - 254) / 2;
+		var whiteness = Game.Gui.StartMenuItemWhiteness[index];
+
+		if (greyed) {
+			var c = (byte)(whiteness * 2);
+
+			RendererHelpers.DrawRectWHTexture(
+				x, y, 254, 32, 0, index * 32,
+				Game.Render.GetTPage(0, 2, 896, 0), Game.Render.CreatePaletteIndex(0, 491),
+				new(c, c, c), true
+			);
+		}
+
+		RendererHelpers.DrawRectWHTexture(
+			x, y, 254, 32, 0, index * 32,
+			Game.Render.GetTPage(0, 1, 896, 0), Game.Render.CreatePaletteIndex(32, 483),
+			new(whiteness, whiteness, whiteness), greyed
+		);
+	}
+
+	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static unsafe void DrawStartMenuLogoHook(short x, short y, byte spriteIndex, byte drawIndex) {
 		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
 
@@ -204,7 +219,6 @@ static class Widescreen {
 		Game.Gui.HookDrawOverworldRegionPanel(&DrawOverworldRegionPanel_Area016Hook);
 		Game.Gui.HookDrawOverworldCompassNeedle(&DrawOverworldCompassNeedleHook);
 		Game.Gui.HookDrawLargeMenuIcon(&DrawLargeMenuIconHook);
-		Game.Gui.HookDrawConfigMenuTabs(&DrawConfigMenuTabsHook);
 		Game.Gui.HookDrawConfigMenu(&DrawConfigMenuHook);
 		Game.Render.HookDrawTitleDemoTextureFrame(&DrawTitleDemoTextureFrameHook);
 		Game.Intro.HookDrawTapestry(&DrawTapestryHook);
@@ -212,6 +226,7 @@ static class Widescreen {
 		Game.Gui.HookDrawDialoguePageIndicator(&DrawDialoguePageIndicatorHook);
 		Game.Gui.HookDrawSelectedFrameOutline(&DrawSelectedFrameOutlineHook);
 		Game.Gui.HookDrawSaveEntry(&DrawSaveEntryHook);
+		Game.Gui.HookDrawStartMenuItem(&DrawStartMenuItemHook);
 		Game.Render.HookDrawStartMenuLogo(&DrawStartMenuLogoHook);
 		Game.Gui.HookDrawMenuIcon(&DrawMenuIconHook);
 		Game.Gui.HookDrawDialogueChoice(&DrawDialogueChoiceHook);

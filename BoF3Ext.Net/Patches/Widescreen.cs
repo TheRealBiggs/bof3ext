@@ -117,16 +117,38 @@ static class Widescreen {
 		// Disable terrain column trimming
 		ProtectedMemory.Nop(0x56ECD3, 2);
 
-		// Set width of all start menu items to 254
-		// Needed for fitting English text in new textures
-		ProtectedMemory.Write(0x5888E8, (byte)254);
-		ProtectedMemory.Write(0x5888ED, (byte)254);
-		ProtectedMemory.Write(0x5888F2, (byte)254);
+		// One-time draw range patches
+		// `drawRanges` is allocated once and then never moved, so we can safely just
+		//   write pointers to the values in it
+		ProtectedMemory.Write(0x5109BB, (nuint)(&drawRanges->TerrainMin1));
+		ProtectedMemory.Write(0x5109D2, (nuint)(&drawRanges->TerrainMax1));
+		ProtectedMemory.Write(0x51097E, (nuint)(&drawRanges->TerrainMin2));
+		ProtectedMemory.Write(0x510991, (nuint)(&drawRanges->TerrainMax2));
+		ProtectedMemory.Write(0x56EDFA, (nuint)(&drawRanges->TerrainMin1));
+		ProtectedMemory.Write(0x56EE14, (nuint)(&drawRanges->TerrainMax1));
+
+		ProtectedMemory.Write(0x4CEC09, (nuint)(&drawRanges->ObjectMin1));
+		ProtectedMemory.Write(0x4CEC1F, (nuint)(&drawRanges->ObjectMax1));
+		ProtectedMemory.Write(0x5700D1, (nuint)(&drawRanges->ObjectMin1));
+		ProtectedMemory.Write(0x5700E7, (nuint)(&drawRanges->ObjectMax1));
+		ProtectedMemory.Write(0x570319, (nuint)(&drawRanges->ObjectMin2));
+		ProtectedMemory.Write(0x570333, (nuint)(&drawRanges->ObjectMax2));
+
+		ProtectedMemory.Write(0x4CF319, (nuint)(&drawRanges->SpriteMin1));
+		ProtectedMemory.Write(0x4CF335, (nuint)(&drawRanges->SpriteMax1));
+		ProtectedMemory.Write(0x4FF6A3, (nuint)(&drawRanges->SpriteMin1));
+		ProtectedMemory.Write(0x4FF6BF, (nuint)(&drawRanges->SpriteMax1));
+		ProtectedMemory.Write(0x571366, (nuint)(&drawRanges->SpriteMin1));
+		ProtectedMemory.Write(0x571386, (nuint)(&drawRanges->SpriteMax1));
+
+		ProtectedMemory.Write(0x5054E3, (nuint)(&drawRanges->UnknownMin1));
+		ProtectedMemory.Write(0x5054FA, (nuint)(&drawRanges->UnknownMax1));
+		ProtectedMemory.Write(0x59293A, (nuint)(&drawRanges->UnknownMax2));
 
 		Update();
 	}
 
-	public static unsafe void Update() {
+	public static void Update() {
 		var cfgMgr = ConfigManager.Instance;
 
 		var renderWidth = (float)cfgMgr.ScaledRenderWidth;
@@ -137,10 +159,6 @@ static class Widescreen {
 		ProtectedMemory.Write(0x57B9EB, (uint)renderWidth);
 
 		var offset = cfgMgr.HalfRenderWidthDiff;
-
-		// Widescreen fix for start menu items
-		ProtectedMemory.Write(0x58893B, (uint)(renderWidth / 2));
-		ProtectedMemory.Write(0x588A19, (uint)(renderWidth / 2));
 
 		// Widescreen fix for save menu
 		ProtectedMemory.Write(0x5881AC, (byte)(20 + offset));   // Top panel X
@@ -198,31 +216,7 @@ static class Widescreen {
 			UnknownMax2 = 320f + diff
 		};
 
-		ProtectedMemory.Write(0x5109BB, (nuint)(&r->TerrainMin1));
-		ProtectedMemory.Write(0x5109D2, (nuint)(&r->TerrainMax1));
-		ProtectedMemory.Write(0x51097E, (nuint)(&r->TerrainMin2));
-		ProtectedMemory.Write(0x510991, (nuint)(&r->TerrainMax2));
-		ProtectedMemory.Write(0x56EDFA, (nuint)(&r->TerrainMin1));
-		ProtectedMemory.Write(0x56EE14, (nuint)(&r->TerrainMax1));
-
-		ProtectedMemory.Write(0x4CEC09, (nuint)(&r->ObjectMin1));
-		ProtectedMemory.Write(0x4CEC1F, (nuint)(&r->ObjectMax1));
-		ProtectedMemory.Write(0x5700D1, (nuint)(&r->ObjectMin1));
-		ProtectedMemory.Write(0x5700E7, (nuint)(&r->ObjectMax1));
-		ProtectedMemory.Write(0x570319, (nuint)(&r->ObjectMin2));
-		ProtectedMemory.Write(0x570333, (nuint)(&r->ObjectMax2));
-
-		ProtectedMemory.Write(0x4CF319, (nuint)(&r->SpriteMin1));
-		ProtectedMemory.Write(0x4CF335, (nuint)(&r->SpriteMax1));
-		ProtectedMemory.Write(0x4FF6A3, (nuint)(&r->SpriteMin1));
-		ProtectedMemory.Write(0x4FF6BF, (nuint)(&r->SpriteMax1));
-		ProtectedMemory.Write(0x571366, (nuint)(&r->SpriteMin1));
-		ProtectedMemory.Write(0x571386, (nuint)(&r->SpriteMax1));
 		ProtectedMemory.Write(0x59360B, r->SpriteMin2);
 		ProtectedMemory.Write(0x593615, r->SpriteMax2);
-
-		ProtectedMemory.Write(0x5054E3, (nuint)(&r->UnknownMin1));
-		ProtectedMemory.Write(0x5054FA, (nuint)(&r->UnknownMax1));
-		ProtectedMemory.Write(0x59293A, (nuint)(&r->UnknownMax2));
 	}
 }
