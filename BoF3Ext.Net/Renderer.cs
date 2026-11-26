@@ -122,24 +122,26 @@ unsafe partial class Renderer : Singleton<Renderer> {
 
 			gl.BindVertexBuffer(0, vbo, 0, (uint)Unsafe.SizeOf<Vert>());
 
+			Vert v = default;
+
 			gl.EnableVertexAttribArray(0);
-			gl.VertexAttribFormat(0, 3, VertexAttribType.Float, false, (uint)Marshal.OffsetOf<Vert>(nameof(Vert.Position)));
+			gl.VertexAttribFormat(0, 3, VertexAttribType.Float, false, GetFieldOffset(ref v, ref v.Position));
 			gl.VertexAttribBinding(0, 0);
 
 			gl.EnableVertexAttribArray(1);
-			gl.VertexAttribFormat(1, 4, VertexAttribType.Float, false, (uint)Marshal.OffsetOf<Vert>(nameof(Vert.Colour)));
+			gl.VertexAttribFormat(1, 4, VertexAttribType.Float, false, GetFieldOffset(ref v, ref v.Colour));
 			gl.VertexAttribBinding(1, 0);
 
 			gl.EnableVertexAttribArray(2);
-			gl.VertexAttribFormat(2, 2, VertexAttribType.Float, false, (uint)Marshal.OffsetOf<Vert>(nameof(Vert.Uv)));
+			gl.VertexAttribFormat(2, 2, VertexAttribType.Float, false, GetFieldOffset(ref v, ref v.Uv));
 			gl.VertexAttribBinding(2, 0);
 
 			gl.EnableVertexAttribArray(3);
-			gl.VertexAttribIFormat(3, 1, VertexAttribIType.Int, (uint)Marshal.OffsetOf<Vert>(nameof(Vert.TPage)));
+			gl.VertexAttribIFormat(3, 1, VertexAttribIType.Int, GetFieldOffset(ref v, ref v.TPage));
 			gl.VertexAttribBinding(3, 0);
 
 			gl.EnableVertexAttribArray(4);
-			gl.VertexAttribIFormat(4, 1, VertexAttribIType.Int, (uint)Marshal.OffsetOf<Vert>(nameof(Vert.Palette)));
+			gl.VertexAttribIFormat(4, 1, VertexAttribIType.Int, GetFieldOffset(ref v, ref v.Palette));
 			gl.VertexAttribBinding(4, 0);
 		}
 		gl.BindVertexArray(0);
@@ -548,4 +550,7 @@ unsafe partial class Renderer : Singleton<Renderer> {
 				: 1f)
 			: 1f;
 	}
+
+	static uint GetFieldOffset<T, U>(ref T origin, ref U target) where T : unmanaged where U : unmanaged
+		=> (uint)Unsafe.ByteOffset(ref Unsafe.As<T, U>(ref origin), ref target);
 }

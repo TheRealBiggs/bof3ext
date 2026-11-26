@@ -16,3 +16,6 @@
 [submodule "modules/freetype"]
 	path = modules/freetype
 	url = https://github.com/freetype/freetype.git
+[submodule "modules/silk.net"]
+	path = modules/silk.net
+	url = https://github.com/dotnet/Silk.NET.git
