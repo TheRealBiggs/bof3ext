@@ -58,13 +58,47 @@
   
   <ItemGroup>
     <ProjectReference Include="..\BoF3Ext.Generators\BoF3Ext.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" Private="false" />
+    <ProjectReference Include="..\modules\silk.net\src\Core\Silk.NET.Core\Silk.NET.Core.csproj"
+                      AdditionalProperties="DirectoryBuildTargetsPath=$(MSBuildThisFileDirectory)..\deps\Silk.NET.Core\Silk.NET.Core.targets;SilkSourceLinkExempt=true" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Silk.NET.Core" Version="2.23.0" />
+    <PackageReference Include="PublishAotCompressed" Version="1.0.5" PrivateAssets="all"
+                      Condition="'$(Configuration)' == 'Release'" />
+    <PackageReference Include="Silk.NET.Input.Common" Version="2.23.0" ExcludeAssets="all" />
+    <PackageReference Include="Silk.NET.Windowing.Common" Version="2.23.0" ExcludeAssets="all" />
     <PackageReference Include="Silk.NET.Input.Glfw" Version="2.23.0" />
     <PackageReference Include="Silk.NET.OpenAL" Version="2.23.0" />
     <PackageReference Include="Silk.NET.OpenGL" Version="2.23.0" />
     <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.23.0" />
   </ItemGroup>
+  <ItemGroup>
+    <SilkPlatformProject Include="..\modules\silk.net\src\Windowing\Silk.NET.Windowing.Common\Silk.NET.Windowing.Common.csproj"
+                         Framework="netstandard2.1" />
+    <SilkPlatformProject Include="..\modules\silk.net\src\Input\Silk.NET.Input.Common\Silk.NET.Input.Common.csproj"
+                         Framework="net6.0" />
+    <Reference Include="Silk.NET.Windowing.Common">
+      <HintPath>..\modules\silk.net\src\Windowing\Silk.NET.Windowing.Common\bin\$(Configuration)\netstandard2.1\Silk.NET.Windowing.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Silk.NET.Input.Common">
+      <HintPath>..\modules\silk.net\src\Input\Silk.NET.Input.Common\bin\$(Configuration)\net6.0\Silk.NET.Input.Common.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="BuildSilkPlatforms" BeforeTargets="ResolveAssemblyReferences"
+          Condition="'$(DesignTimeBuild)' != 'true' and '$(NoBuild)' != 'true'">
+    <MSBuild Projects="@(SilkPlatformProject)" Targets="Restore;Build"
+             Properties="Configuration=$(Configuration);Platform=AnyCPU;
+                         TargetFramework=%(SilkPlatformProject.Framework);TargetFrameworks=%(SilkPlatformProject.Framework);
+                         DirectoryBuildTargetsPath=$(MSBuildThisFileDirectory)..\deps\Silk.NET.Platforms\Silk.NET.Platforms.targets;
+                         NuGetPackageRoot=$(NuGetPackageRoot);SilkSourceLinkExempt=true;SilkPublicApiExempt=true;BuildProjectReferences=false" />
+  </Target>
+
+  <!-- Visual Studio does not build project references outside the solution automatically. -->
+  <Target Name="BuildSilkCore" BeforeTargets="ResolveProjectReferences"
+          Condition="'$(BuildingInsideVisualStudio)' == 'true' and '$(DesignTimeBuild)' != 'true' and '$(NoBuild)' != 'true'">
+    <MSBuild Projects="@(ProjectReference)" Targets="Build"
+             Properties="Configuration=$(Configuration);TargetFramework=net6.0"
+             Condition="'%(ProjectReference.Filename)' == 'Silk.NET.Core'" />
+  </Target>
 </Project>

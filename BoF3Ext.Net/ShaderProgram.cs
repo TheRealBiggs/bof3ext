@@ -18,6 +18,16 @@ class ShaderProgram(GL gl) {
 	}
 
 
+	static readonly string[] UNIFORM_NAMES = [
+		"TextureWindow",
+		"BlendMode",
+		"Pass",
+		"ProjectionMatrix",
+		"Scale",
+		"TexturePages"
+	];
+
+
 	readonly Dictionary<Uniforms, long> uniformLocations = [];
 	uint program;
 
@@ -104,16 +114,16 @@ class ShaderProgram(GL gl) {
 	}
 
 	void CacheUniformLocation(Uniforms value) {
-		uniformLocations[value] = gl.GetUniformLocation(program, Enum.GetName(value));
+		uniformLocations[value] = gl.GetUniformLocation(program, UNIFORM_NAMES[(int)value]);
 	}
 
 	void CacheUniformBlockIndex(Uniforms value) {
-		uniformLocations[value] = gl.GetUniformBlockIndex(program, Enum.GetName(value));
+		uniformLocations[value] = gl.GetUniformBlockIndex(program, UNIFORM_NAMES[(int)value]);
 	}
 
 	void CacheProgramResourceIndex(Uniforms value) {
 		uniformLocations[value] = gl.GetProgramResourceIndex(
-			program, ProgramInterface.ShaderStorageBlock, Enum.GetName(value)
+			program, ProgramInterface.ShaderStorageBlock, UNIFORM_NAMES[(int)value]
 		);
 	}
 

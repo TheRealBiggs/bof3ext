@@ -1,0 +1,40 @@
+<Project>
+  <PropertyGroup>
+    <DocumentationFile />
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <EnableSourceLink>false</EnableSourceLink>
+    <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Remove="@(ProjectReference)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Silk.NET.Windowing.Common'">
+    <Compile Remove="Window.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Window.cs" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>$(NuGetPackageRoot)system.runtime.compilerservices.unsafe/6.1.2/lib/netstandard2.0/System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="Silk.NET.Core">
+      <HintPath>$(NuGetPackageRoot)silk.net.core/2.23.0/lib/netstandard2.1/Silk.NET.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Silk.NET.Maths">
+      <HintPath>$(NuGetPackageRoot)silk.net.maths/2.23.0/lib/netstandard2.1/Silk.NET.Maths.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Silk.NET.Input.Common'">
+    <Compile Remove="InputWindowExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InputWindowExtensions.cs" />
+    <Reference Include="Silk.NET.Core">
+      <HintPath>$(NuGetPackageRoot)silk.net.core/2.23.0/lib/net5.0/Silk.NET.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Silk.NET.Maths">
+      <HintPath>$(NuGetPackageRoot)silk.net.maths/2.23.0/lib/net5.0/Silk.NET.Maths.dll</HintPath>
+    </Reference>
+    <Reference Include="Silk.NET.Windowing.Common">
+      <HintPath>$(MSBuildThisFileDirectory)../../modules/silk.net/src/Windowing/Silk.NET.Windowing.Common/bin/$(Configuration)/netstandard2.1/Silk.NET.Windowing.Common.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

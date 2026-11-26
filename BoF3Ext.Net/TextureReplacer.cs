@@ -58,16 +58,52 @@ class TextureReplacer : Singleton<TextureReplacer>, IDisposable {
 		if (!File.Exists("NewData/Textures/index.json"))
 			return;
 
-		using var file = File.OpenRead("NewData/Textures/index.json");
-		using var json = JsonDocument.Parse(file);
+		ReadOnlySpan<byte> json = File.ReadAllBytes("NewData/Textures/index.json");
 
-		foreach (var entry in json.RootElement.EnumerateArray()) {
-			var id = entry.GetProperty("id").GetString()!;
-			var rect = entry.GetProperty("rect");
+		if (json.StartsWith("\uFEFF"u8))
+			json = json[3..];
 
-			indexEntries[ParseTextureId(id)] = new(entry.GetProperty("texture").GetString()!,
-				rect[0].GetUInt16(), rect[1].GetUInt16(), rect[2].GetUInt16(), rect[3].GetUInt16());
+		Utf8JsonReader reader = new(json, new JsonReaderOptions { CommentHandling = JsonCommentHandling.Skip });
+		Span<ushort> rect = stackalloc ushort[4];
+
+		reader.Read();
+
+		while (reader.Read() && reader.TokenType == JsonTokenType.StartObject) {
+			string? id = null, texture = null;
+			var hasRect = false;
+
+			while (reader.Read() && reader.TokenType == JsonTokenType.PropertyName) {
+				if (reader.ValueTextEquals("id"u8)) {
+					reader.Read();
+					id = reader.GetString();
+				} else if (reader.ValueTextEquals("texture"u8)) {
+					reader.Read();
+					texture = reader.GetString();
+				} else if (reader.ValueTextEquals("rect"u8)) {
+					reader.Read();
+
+					for (int i = 0; i < rect.Length; i++) {
+						reader.Read();
+						rect[i] = reader.GetUInt16();
+					}
+
+					while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+						reader.Skip();
+
+					hasRect = true;
+				} else {
+					reader.Skip();
+				}
+			}
+
+			if (id == null || texture == null || !hasRect)
+				throw new JsonException();
+
+			indexEntries[ParseTextureId(id)] = new(texture, rect[0], rect[1], rect[2], rect[3]);
 		}
+
+		if (reader.Read())
+			throw new JsonException();
 	}
 
 	public ReplacementTexture GetReplacementTexture(int x, int y, int w, int h, ushort tpage, ushort palette) {
