@@ -1,0 +1,15 @@
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+
+namespace {{ sym.ContainingNamespace }};
+
+
+static unsafe partial class {{ sym.ContainingType.Name }} {
+	public partial struct {{ sym.Name }} {
+{{ for field in baseFields }}
+		[UnscopedRef]
+		public ref {{ field.Type }} {{ field.Name }}
+			=> ref @{{ baseName }}.{{ field.Name }};
+{{ end }}
+	}
+}

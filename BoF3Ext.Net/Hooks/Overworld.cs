@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
+
+namespace BoF3Ext.Hooks;
+
+
+static class Overworld {
+	public static nint LocationPanelActor;
+
+
+	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+	static unsafe void UpdateLocationPanelHook() {
+		LocationPanelActor = (nint)Unsafe.AsPointer(ref Game.World.CurrentActor);
+
+		Game.Overworld.OriginalUpdateLocationPanel();
+	}
+
+
+	public static unsafe void Enable() {
+		Game.Overworld.HookUpdateLocationPanel(&UpdateLocationPanelHook);
+	}
+}

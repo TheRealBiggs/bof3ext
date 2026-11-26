@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{52ABA78F-4429-4A37-91AB-05B91AF443EB}</ProjectGuid>
+    <RootNamespace>FreeType</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <FreeTypeSourceDir Condition="'$(FreeTypeSourceDir)'==''">$(ProjectDir)..\modules\freetype\</FreeTypeSourceDir>
+    <OutDir>$(ProjectDir)..\lib\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
+    <TargetName>freetype.x86</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(FreeTypeSourceDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FT2_BUILD_LIBRARY;FT_CONFIG_OPTIONS_H=&lt;bof3_ftoption.h&gt;;FT_CONFIG_MODULES_H=&lt;bof3_ftmodule.h&gt;;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization Condition="'$(Configuration)'=='Debug'">Disabled</Optimization>
+      <Optimization Condition="'$(Configuration)'=='Release'">MinSpace</Optimization>
+      <FunctionLevelLinking Condition="'$(Configuration)'=='Release'">true</FunctionLevelLinking>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="$(FreeTypeSourceDir)src\base\ftbase.c" />
+    <ClCompile Include="$(FreeTypeSourceDir)src\base\ftbbox.c" />
+    <ClCompile Include="$(FreeTypeSourceDir)src\base\ftbitmap.c" />
+    <ClCompile Include="$(FreeTypeSourceDir)src\base\ftinit.c" />
+    <ClCompile Include="$(FreeTypeSourceDir)builds\windows\ftdebug.c" />
+    <ClCompile Include="$(FreeTypeSourceDir)builds\windows\ftsystem.c" />
+    <ClCompile Include="$(FreeTypeSourceDir)src\sdf\sdf.c" />
+    <ClCompile Include="$(FreeTypeSourceDir)src\sfnt\sfnt.c" />
+    <ClCompile Include="$(FreeTypeSourceDir)src\truetype\truetype.c" />
+    <ClInclude Include="bof3_ftmodule.h" />
+    <ClInclude Include="bof3_ftoption.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

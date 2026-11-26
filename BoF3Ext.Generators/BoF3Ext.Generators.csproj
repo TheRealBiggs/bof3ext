@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>14.0</LangVersion>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageScribanIncludeSource>true</PackageScribanIncludeSource>
+    <DefineConstants>$(DefineConstants);SCRIBAN_NO_ASYNC</DefineConstants>
+    <PolySharpIncludeRuntimeSupportedAttributes>true</PolySharpIncludeRuntimeSupportedAttributes>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <None Remove="Templates\CompositeStructTemplate.scriban" />
+    <None Remove="Templates\GameFunctionTemplate.scriban" />
+    <None Remove="Templates\GameVariableTemplate.scriban" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\CompositeStructTemplate.scriban" />
+    <EmbeddedResource Include="Templates\AdditionOperatorTemplate.scriban" />
+    <EmbeddedResource Include="Templates\UnmanagedSizePropertyTemplate.scriban" />
+    <EmbeddedResource Include="Templates\ZeroPropertyTemplate.scriban" />
+    <EmbeddedResource Include="Templates\GameFunctionTemplate.scriban" />
+    <EmbeddedResource Include="Templates\GameVariableTemplate.scriban" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" PrivateAssets="all" />
+    <PackageReference Include="Scriban" Version="7.5.3" PrivateAssets="all" IncludeAssets="build" />
+    <PackageReference Include="PolySharp" Version="1.16.0" PrivateAssets="all" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+</Project>

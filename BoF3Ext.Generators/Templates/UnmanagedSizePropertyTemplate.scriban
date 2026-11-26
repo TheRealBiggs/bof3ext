@@ -1,0 +1,10 @@
+using System.Runtime.CompilerServices;
+
+namespace {{ sym.ContainingNamespace }};
+
+
+static partial class {{ sym.ContainingType.Name }} {
+	partial {{ if sym.IsRecord }}record{{ end }} struct {{ sym.Name }} {
+		public static int UnmanagedSize => Unsafe.SizeOf<{{ sym.Name }}>();
+	}
+}

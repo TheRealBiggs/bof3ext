@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4A7644B5-914D-4A9A-8B6E-7DF6C3353301}</ProjectGuid>
+    <RootNamespace>MinHook</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <SolutionDir Condition="'$(SolutionDir)'=='' Or '$(SolutionDir)'=='*Undefined*'">$(ProjectDir)..\</SolutionDir>
+    <MinHookSourceDir Condition="'$(MinHookSourceDir)'==''">$(ProjectDir)..\modules\minhook\</MinHookSourceDir>
+    <OutDir>$(SolutionDir)lib\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
+    <TargetName>minhook.x86</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization Condition="'$(Configuration)'=='Debug'">Disabled</Optimization>
+      <Optimization Condition="'$(Configuration)'=='Release'">MinSpace</Optimization>
+      <FunctionLevelLinking Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</FunctionLevelLinking>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MinHookSourceDir)src\buffer.c" />
+    <ClCompile Include="$(MinHookSourceDir)src\hook.c" />
+    <ClCompile Include="$(MinHookSourceDir)src\trampoline.c" />
+    <ClCompile Include="$(MinHookSourceDir)src\hde\hde32.c" />
+    <ClInclude Include="$(MinHookSourceDir)include\MinHook.h" />
+    <ClInclude Include="$(MinHookSourceDir)src\buffer.h" />
+    <ClInclude Include="$(MinHookSourceDir)src\trampoline.h" />
+    <ClInclude Include="$(MinHookSourceDir)src\hde\hde32.h" />
+    <ClInclude Include="$(MinHookSourceDir)src\hde\pstdint.h" />
+    <ClInclude Include="$(MinHookSourceDir)src\hde\table32.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

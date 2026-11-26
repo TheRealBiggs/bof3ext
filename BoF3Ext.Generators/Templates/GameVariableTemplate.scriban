@@ -1,0 +1,57 @@
+using System;
+using System.Runtime.InteropServices;
+
+namespace {{ sym.ContainingNamespace }};
+
+
+static unsafe partial class {{ sym.ContainingType.Name }} {
+	/// <summary>0x{{ address | math.format "X8" }}</summary>
+	public static partial {{ if sym.ReturnsByRef }} ref {{ end }} {{ sym.Type }} {{ sym.Name }} {
+{{ if sym.ReturnsByRef }}
+	{{ if isPointer }}
+		get => ref **({{ sym.Type }}**)(nuint){{ address }};
+	{{ else }}
+		get => ref *({{ sym.Type }}*)(nuint){{ address }};
+	{{ end }}
+{{ else if sym.Type.Name == "GameString" }}
+	{{ if isPointer }}
+		{{ if sym.GetMethod }}
+		get => *({{ sym.Type }}*)(nuint){{ address }};
+		{{ end }}
+
+		{{ if sym.SetMethod }}
+		set => *({{ sym.Type }}*)(nuint){{ address }} = value;
+		{{ end }}
+	{{ else }}
+		{{ if sym.GetMethod }}
+		get {
+			var pointer = (byte*)(nuint){{ address }};
+			return *({{ sym.Type }}*)&pointer;
+		}
+		{{ end }}
+
+		{{ if sym.SetMethod }}
+		set {
+			var bytes = MemoryMarshal.CreateReadOnlySpanFromNullTerminated(value.Pointer);
+			Span<byte> destination = new((void*)(nuint){{ address }}, {{ length }});
+			bytes.CopyTo(destination[..^1]);
+			destination[bytes.Length] = 0;
+		}
+		{{ end }}
+	{{ end }}
+{{ else if sym.Type.OriginalDefinition.MetadataName == "Span`1" }}
+		get => new((void*)(nuint){{ address }}, {{ length }});
+		set => value.CopyTo(new {{ sym.Type }}((void*)(nuint){{ address }}, {{ length }}));
+{{ else }}
+		get => *({{ sym.Type }}*)(nuint){{ address }};
+		set => *({{ sym.Type }}*)(nuint){{ address }} = value;
+{{ end }}
+	}
+
+{{ if sym.ReturnsByRef && isPointer }}
+	public static nint {{ sym.Name }}Pointer {
+		get => *(nint*)(nuint){{ address }};
+		set => *(nint*)(nuint){{ address }} = value;
+	}
+{{ end }}
+}
