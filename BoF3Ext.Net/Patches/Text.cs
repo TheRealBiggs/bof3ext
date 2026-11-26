@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -23,22 +23,20 @@ static class Text {
 	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static unsafe int PrintLevelUpSkillNameFix(nint buffer, nint format, GameString originalName) {
-		var id = (uint)(
-			(Game.Skill.SkillData*)originalName.Pointer
-			- (Game.Skill.SkillData*)Unsafe.AsPointer(ref Game.Skill.SkillDatas[0])
-		);
+	static unsafe int PrintLevelUpSkillNameFix(nint buffer, nint format, GameString name) {
+		var id = (uint)name.Pointer - (uint)Unsafe.AsPointer(ref Game.Skill.SkillDatas[0]);
+		id /= (uint)Unsafe.SizeOf<Game.Skill.SkillData>();
 
-		ReadOnlySpan<byte> source = TextManager.Instance.TryGetSkillName(id, out var text)
+		ReadOnlySpan<byte> newName = TextManager.Instance.TryGetSkillName(id, out var text)
 			? new(text.GameString.Pointer, text.ByteCount)
-			: MemoryMarshal.CreateReadOnlySpanFromNullTerminated(originalName.Pointer);
+			: MemoryMarshal.CreateReadOnlySpanFromNullTerminated(name.Pointer);
 
-		Span<byte> destination = new((void*)buffer, 32);
+		Span<byte> bufferSpan = new((void*)buffer, 32);
 
-		source.CopyTo(destination);
-		destination[source.Length] = 0;
+		newName.CopyTo(bufferSpan);
+		bufferSpan[newName.Length] = 0;
 
-		return source.Length;
+		return newName.Length;
 	}
 
 
@@ -69,7 +67,7 @@ static class Text {
 		"Momo\0"u8.CopyTo(characters[5].Name);
 
 		// Fix item count format string
-		ProtectedMemory.Write(0x653EC0, (byte)'x'); // *%2d -> x%2d
+		Game.Text.ItemCountFormat[0] = (byte)'x'; // *%2d -> x%2d
 
 		var textMgr = TextManager.Instance;
 
@@ -101,7 +99,7 @@ static class Text {
 		}
 
 		// Remove text from empty save slots that was added for the PC port
-		ProtectedMemory.Write(0x669CCC, (byte)0);   // Set first char as null-terminator
+		Game.Text.EmptySaveSlotText[0] = 0;   // Set first char as null-terminator
 
 		Game.Text.ZennyGlyph = TextManager.EncodeCharacter('ƶ');
 

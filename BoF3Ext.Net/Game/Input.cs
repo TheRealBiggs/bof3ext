@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 using BoF3Ext.Generators;
 
@@ -39,6 +39,9 @@ static partial class Input {
 		Cancel
 	};
 
+
+	[GameVariable(0x656AEC, arrayLength: 9)]
+	public static partial Span<Buttons> DefaultButtonMappings { get; set; }
 
 	[GameVariable(0x7E1BE8)]
 	public static partial ref Buttons HeldButtons { get; }

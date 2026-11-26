@@ -26,6 +26,10 @@
     <StackTraceSupport>false</StackTraceSupport>
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>1701;1702;0649;0169</NoWarn>
+  </PropertyGroup>
   
   <ItemGroup>
     <EmbeddedResource Include="res\shaders\basic_shader.fs.glsl" />

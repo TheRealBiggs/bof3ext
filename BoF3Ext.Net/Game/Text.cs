@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 using BoF3Ext.Generators;
 
@@ -37,6 +37,9 @@ static partial class Text {
 	[GameVariable(0x653818, arrayLength: 6)]
 	public static partial Span<Array4<sbyte>> ConfigControllerKeyTexts { get; set; }
 
+	[GameVariable(0x653EC0, arrayLength: 5)]
+	public static partial Span<byte> ItemCountFormat { get; set; }
+
 	[GameVariable(0x663970, arrayLength: 5)]
 	public static partial Span<GameString> InventoryCategoryTexts { get; set; }
 
@@ -45,6 +48,9 @@ static partial class Text {
 
 	[GameVariable(0x663994, arrayLength: 5)]
 	public static partial Span<GameString> EquipmentCategoryTexts { get; set; }
+
+	[GameVariable(0x669CCC, arrayLength: 9)]
+	public static partial Span<byte> EmptySaveSlotText { get; set; }
 
 	[GameVariable(0x669DE0, arrayLength: 12)]
 	public static partial Span<GameString> BattleActionTexts { get; set; }

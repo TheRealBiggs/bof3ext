@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+using Silk.NET.Core.Loader;
 using Silk.NET.Input;
 using Silk.NET.Input.Glfw;
 using Silk.NET.Maths;
@@ -35,6 +36,15 @@ static class Window {
 			ShouldSwapAutomatically = false,
 			VSync = false
 		};
+
+		SilkWindow.ShouldLoadFirstPartyPlatforms(false);
+		InputWindowExtensions.ShouldLoadFirstPartyPlatforms(false);
+
+		var resolver = (DefaultPathResolver)PathResolver.Default;
+
+		resolver.Resolvers.Clear();
+		resolver.Resolvers.Add(DefaultPathResolver.PassthroughResolver);
+		resolver.Resolvers.Add(DefaultPathResolver.BaseDirectoryResolver);
 
 		GlfwWindowing.RegisterPlatform();
 		GlfwInput.RegisterPlatform();
@@ -90,9 +100,7 @@ static class Window {
 		var envs = Game.Render.Envs;
 
 		SetDefDrawEnv(ref envs[0].Draw, 0, 0, 320, 240);
-		//SetDefDispEnv(ref envs[0].Disp, 0, 240, 320, 240);
 		SetDefDrawEnv(ref envs[1].Draw, 0, 240, 320, 240);
-		//SetDefDispEnv(ref envs[1].Disp, 0, 0, 320, 240);
 
 		Game.Render.ClearOTagR((nint)Unsafe.AsPointer(ref envs[0].OrderingTable), 8);
 		envs[0].Draw.IsBg = true;
@@ -120,7 +128,6 @@ static class Window {
 		{
 			ref var env = ref Game.Render.CurrentEnv;
 
-			//PutDispEnv(ref env.Disp);
 			PutDrawEnv(ref env.Draw);
 
 			Game.Render.LoadPalettes();
@@ -189,10 +196,6 @@ static class Window {
 		draw.TextureWindow = new(0, 0, 256, 256);
 	}
 
-	//static void SetDefDispEnv(ref Game.Render.DISPENV disp, short x, short y, short width, short height) {
-	//	disp.Disp = new(x, y, width, height);
-	//}
-
 	static void UpdateInput() {
 		var mappings = Game.Input.CurrentButtonMappings;
 		mappings[(int)Game.Input.ButtonMappingId.Confirm] = mappings[(int)Game.Input.ButtonMappingId.Speak];
@@ -204,10 +207,6 @@ static class Window {
 		Game.Input.HeldButtons = inputMgr.HeldButtons;
 		Game.Input.PressedButtons = inputMgr.PressedButtons;
 	}
-
-	//static void PutDispEnv(ref Game.Render.DISPENV disp) {
-	//	Game.Render.DispEnv = disp;
-	//}
 
 	static void PutDrawEnv(ref Game.Render.DRAWENV draw) {
 		ref var currentDraw = ref Game.Render.DrawEnv;

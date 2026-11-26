@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -111,7 +112,7 @@ class TextManager : Singleton<TextManager> {
 			enemyNames, area, index, SimpleKeyFunc, SimpleIndexFunc, EnemyNameFilepathFunc, out name, enemyNameMap
 		);
 
-	public bool TryGetLocationName(uint id, out TextEntry name)
+	public bool TryGetLocationName(uint id, [NotNullWhen(true)] out TextEntry? name)
 		=> locations.TryGetValue(id, out name);
 
 	public bool TryGetItemName(uint index, out TextEntry name)
