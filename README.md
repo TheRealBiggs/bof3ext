@@ -26,7 +26,7 @@ You can either compile BoF3Ext yourself using Visual Studio 2022, or find pre-bu
 
 If you are using a pre-built release of BoF3Ext, just extract the .7z archive directly into the folder where Breath of Fire III is installed.
 
-If you choose to compile BoF3Ext yourself, you will need to copy over the compiled `ddraw.dll`, `bof3ext.dll`, `bof3ext.toml`, and `loader.cfg` files to your Breath of Fire III installation folder. You should then download the resource files that contain all of the translated text from the [BoF3Ext_Resources repo](https://github.com/TheRealBiggs/bof3ext_resources) and place them in a folder titled `/NewData/` in your BoF3 installation folder.
+If you choose to compile BoF3Ext yourself, you will need to copy over the compiled `ddraw.dll`, `bof3ext.dll`, `bof3ext.json`, and `loader.cfg` files to your Breath of Fire III installation folder. You should then download the resource files that contain all of the translated text from the [BoF3Ext_Resources repo](https://github.com/TheRealBiggs/bof3ext_resources) and place them in a folder titled `/NewData/` in your BoF3 installation folder.
 
 ## How do I uninstall it?
 
@@ -36,7 +36,7 @@ Delete `ddraw.dll` from your Breath of Fire III installation folder, or remove t
 
 * `ddraw.dll` is a proxy DLL for the original DirectDraw library that is part of Microsoft's legacy DirectX runtime. By using a local DLL file with the same name, we can force bof3.exe to load our code, allowing us to inject hooks into the game. These hooks change how the code in the game works so that we can do things like loading text from external files. `ddraw.dll` itself does not apply any hooks and is simply a loader for other DLLs.
 * `bof3ext.dll` is the main part of BoF3Ext and contains all of the code and hooks.
-* `bof3ext.toml` is the configuration file for BoF3Ext. With it, you can set the window size and render resolution scale, enable or disable the console in debug builds, and enable texture dumping if you plan to replace ingame textures.
+* `bof3ext.json` is the configuration file for BoF3Ext. With it, you can set the window size and render resolution scale, enable or disable the console in debug builds, and enable texture dumping if you plan to replace ingame textures.
 * `loader.cfg` is a line-separated file that tells `ddraw.dll` which DLLs to load. By default, this file only includes `bof3ext.dll`, but other DLLs (like SpecialK) can be added to this list.
 * `BOF3.CFG` is bof3.exe's configuration file. It contains 2 integer values on separate lines. The first value enables software rendering if set to 1, and the second value enables windowed mode if set to run. It is recommended to not change this file and to leave these 2 values as they originally are (0 and 1, respectively).
 * `/NewData/` is a folder that contains all of the replacement data, including translated text, new HD textures for the title screen, and a new font.
