@@ -71,6 +71,9 @@ static partial class Gui {
 	[GameFunction(0x595F60, hookable: true)]
 	public static partial void DrawDialogueWindowBorder(short x, short y, byte width, byte height);
 
+	[GameFunction(0x5961C0, hookable: true)]
+	public static partial GameString DrawDialogueChoice(short x, short y, GameString text);
+
 
 	[GameVariable(0x66386C, arrayLength: 6)]
 	public static partial Span<byte> EquipWindowItemIconIds { get; set; }

@@ -168,6 +168,13 @@ static class Widescreen {
 	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+	static unsafe GameString DrawDialogueChoiceHook(short x, short y, GameString text) {
+		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
+
+		return Game.Gui.OriginalDrawDialogueChoice(x, y, text);
+	}
+
+	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static unsafe void SetGeomOffsetHook(int x, int y) {
 		x += ConfigManager.Instance.HalfRenderWidthDiff;
 
@@ -207,6 +214,7 @@ static class Widescreen {
 		Game.Gui.HookDrawSaveEntry(&DrawSaveEntryHook);
 		Game.Render.HookDrawStartMenuLogo(&DrawStartMenuLogoHook);
 		Game.Gui.HookDrawMenuIcon(&DrawMenuIconHook);
+		Game.Gui.HookDrawDialogueChoice(&DrawDialogueChoiceHook);
 		Game.Render.HookSetGeomOffset(&SetGeomOffsetHook);
 	}
 }
