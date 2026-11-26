@@ -1,0 +1,70 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>14.0</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Platforms>x86</Platforms>
+    <PlatformTarget>x86</PlatformTarget>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <PublishAot>true</PublishAot>
+    <IsAotCompatible>true</IsAotCompatible>
+    <NativeLib>Shared</NativeLib>
+    <OutputType>Library</OutputType>
+    <RootNamespace>BoF3Ext</RootNamespace>
+    <Nullable>enable</Nullable>
+    <PublishDir>$(MSBuildThisFileDirectory)..\build\$(Configuration)\</PublishDir>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
+    <AssemblyName>bof3ext</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <OptimizationPreference>Size</OptimizationPreference>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <DebuggerSupport>false</DebuggerSupport>
+    <StackTraceSupport>false</StackTraceSupport>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>1701;1702;0649;0169</NoWarn>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="res\shaders\basic_shader.fs.glsl" />
+    <EmbeddedResource Include="res\shaders\basic_shader.vs.glsl" />
+    <EmbeddedResource Include="res\shaders\psx_shader.fs.glsl" />
+    <EmbeddedResource Include="res\shaders\psx_shader.vs.glsl" />
+    <EmbeddedResource Include="res\shaders\replaced_texture_shader.fs.glsl" />
+    <EmbeddedResource Include="res\shaders\replaced_texture_shader.vs.glsl" />
+    <EmbeddedResource Include="res\shaders\text_shader.fs.glsl" />
+    <EmbeddedResource Include="res\shaders\text_shader.vs.glsl" />
+    
+    <None Update="res\bof3ext.json" TargetPath="bof3ext.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <DirectPInvoke Include="minhook" />
+    <DirectPInvoke Include="freetype" />
+    <DirectPInvoke Include="stb_image" />
+    <DirectPInvoke Include="stb_image_write" Condition="'$(Configuration)' == 'Debug'" />
+    
+    <NativeLibrary Include="$(MSBuildThisFileDirectory)..\lib\minhook.x86.lib" />
+    <NativeLibrary Include="$(MSBuildThisFileDirectory)..\lib\freetype.x86.lib" />
+    <NativeLibrary Include="$(MSBuildThisFileDirectory)..\lib\stb_image.x86.lib" />
+    <NativeLibrary Include="$(MSBuildThisFileDirectory)..\lib\stb_image_write.x86.lib" Condition="'$(Configuration)' == 'Debug'" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\BoF3Ext.Generators\BoF3Ext.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Silk.NET.Core" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Input.Glfw" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.OpenAL" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.OpenGL" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.23.0" />
+  </ItemGroup>
+</Project>

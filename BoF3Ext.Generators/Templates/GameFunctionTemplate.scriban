@@ -1,0 +1,67 @@
+{{-
+	func format_parameter(param)
+		if param.RefKind == "Ref"
+			ret "ref " + param.Type + " " + param.Name
+		end
+
+		ret param.Type + " " + param.Name
+	end
+
+	func format_parameter_type(param)
+		if param.RefKind == "Ref"
+			ret param.Type + "*"
+		end
+
+		ret param.Type
+	end
+
+	func format_argument(param)
+		if param.RefKind == "Ref"
+			ret "(" + param.Type + "*)Unsafe.AsPointer(ref " + param.Name + ")"
+		end
+
+		ret param.Name
+	end
+
+	parameters = sym.Parameters | array.each @format_parameter | array.join ", "
+	param_names = sym.Parameters | array.each @format_argument | array.join ", "
+	param_types = sym.Parameters | array.each @format_parameter_type | array.add sym.ReturnType | array.join ", "
+	delegate_type = "delegate* unmanaged[" + callingConvention + "]<" + param_types + ">"
+-}}
+
+using System;
+using System.Runtime.CompilerServices;
+
+namespace {{ sym.ContainingNamespace }};
+
+
+static unsafe partial class {{ sym.ContainingType.Name }} {
+	static {{ delegate_type }} {{ sym.Name }}Ptr = ({{ delegate_type }})(nuint){{ address }};
+
+	/// <summary>0x{{ address | math.format "X8" }}</summary>
+	public static partial {{ sym.ReturnType }} {{ sym.Name }}({{ parameters }}) {
+{{ if !sym.ReturnsVoid }}
+		return
+{{ end }}
+		{{ sym.Name }}Ptr({{ param_names }});
+	}
+
+{{ if hookable }}
+	/// <summary>0x{{ address | math.format "X8" }}</summary>
+	public static {{ delegate_type }} Original{{ sym.Name }} = ({{ delegate_type }})(nuint){{ address }};
+
+	static bool {{ sym.Name }}Hooked;
+
+	public static void Hook{{ sym.Name }}({{ delegate_type }} hookFunction) {
+		if ({{ sym.Name }}Hooked)
+			throw new InvalidOperationException("{{ sym.Name }} is already hooked");
+
+		var orig = Wrappers.MinHook.Create((nint)(nuint){{ address }}, (nint)hookFunction);
+
+		Original{{ sym.Name }} = ({{ delegate_type }})orig;
+
+		{{ sym.Name }}Ptr = hookFunction;
+		{{ sym.Name }}Hooked = true;
+	}
+{{ end }}
+}

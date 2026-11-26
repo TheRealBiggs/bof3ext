@@ -1,0 +1,28 @@
+﻿{
+  "window": {
+    // Display width of window client area in pixels.
+    // Use a multiple of 320 and keep a 4:3 ratio with height for pixel-perfect scaling.
+    "width": 1600,
+
+    // Display height of window client area in pixels.
+    // Use a multiple of 240 and keep a 3:4 ratio with width for pixel-perfect scaling.
+    "height": 960
+  },
+
+  "render": {
+    // Render scale (0 = auto, 2 = 2x scale, 2.5 = 2.5x scale, etc.).
+    // Use integer values for pixel-perfect scaling.
+    // NOTE: Most users will want to leave this at the default value of '0'.
+    "scale":  0
+  },
+
+  "debug": {
+    // Enable console window and debug/error logging.
+    // Only applicable for Debug builds
+    "enableConsole": true,
+
+    // Enable texture dumping.
+    // Textures are dumped to NewData/Textures/Dumped
+    "dumpTextures": true
+  }
+}

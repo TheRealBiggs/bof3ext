@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>14.0</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Platforms>x86</Platforms>
+    <PlatformTarget>x86</PlatformTarget>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <PublishAot>true</PublishAot>
+    <NativeLib>Shared</NativeLib>
+    <OutputType>Library</OutputType>
+    <AssemblyName>ddraw</AssemblyName>
+    <PublishDir>$(MSBuildThisFileDirectory)..\build\$(Configuration)\</PublishDir>
+    <BootstrapObject>$(MSBuildThisFileDirectory)obj\$(Configuration)\bootstrap\Bootstrap.obj</BootstrapObject>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <OptimizationPreference>Size</OptimizationPreference>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <DebuggerSupport>false</DebuggerSupport>
+    <StackTraceSupport>false</StackTraceSupport>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <NativeLibrary Include="$(BootstrapObject)" />
+    <LinkerArg Include="/ENTRY:LoaderDllMain@12" />
+    <None Update="loader.cfg" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  
+  <Target Name="CompileLoaderBootstrap" BeforeTargets="LinkNative" DependsOnTargets="SetupOSSpecificProps"
+          Inputs="$(MSBuildThisFileDirectory)Bootstrap.cpp" Outputs="$(BootstrapObject)">
+    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(BootstrapObject)'))" />
+    <Exec Command="&quot;$([System.IO.Path]::GetDirectoryName('$(CppLinker)'))\cl.exe&quot; /nologo /c /O2 /GS- /Zl /Fo&quot;$(BootstrapObject)&quot; &quot;$(MSBuildThisFileDirectory)Bootstrap.cpp&quot;" />
+  </Target>
+</Project>

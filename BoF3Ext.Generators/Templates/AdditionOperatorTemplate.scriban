@@ -1,0 +1,13 @@
+using System;
+
+namespace {{ sym.ContainingNamespace }};
+
+
+partial {{ if sym.IsRecord }}record{{ end }} struct {{ sym.Name }} {
+	public static {{ sym.Name }} operator +({{ sym.Name }} lhs, {{ sym.Name }} rhs)
+		=> new() {
+{{ for field in fields }}
+			{{ field.Name }} = ({{ field.Type }})(lhs.{{ field.Name }} + rhs.{{ field.Name }}),
+{{ end }}
+		};
+}

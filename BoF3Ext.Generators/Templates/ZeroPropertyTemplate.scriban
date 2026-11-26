@@ -1,0 +1,12 @@
+namespace {{ sym.ContainingNamespace }};
+
+
+{{ if sym.ContainingType }}
+static partial class {{ sym.ContainingType.Name }} {
+{{ end }}
+	partial {{ if sym.IsRecord }}record{{ end }} struct {{ sym.Name }} {
+		public static {{ sym.Name }} Zero => default;
+	}
+{{ if sym.ContainingType }}
+}
+{{ end }}

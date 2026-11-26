@@ -10,3 +10,9 @@
 [submodule "modules/toml++"]
 	path = modules/toml++
 	url = https://github.com/marzer/tomlplusplus.git
+[submodule "modules/nlohmann"]
+	path = modules/nlohmann
+	url = https://github.com/nlohmann/json.git
+[submodule "modules/freetype"]
+	path = modules/freetype
+	url = https://github.com/freetype/freetype.git

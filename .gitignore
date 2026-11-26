@@ -426,3 +426,8 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+
+/BoF3Ext.Net/Directory.Build.props
+
+lib/
