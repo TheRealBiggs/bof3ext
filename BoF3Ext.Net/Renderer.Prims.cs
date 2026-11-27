@@ -18,15 +18,9 @@ partial class Renderer {
 
 		var count = (uint)cmd.Verts.Count;
 
-		Vec3f offset = new(env.OffsetX, env.OffsetY, 0f);
-
-		var v1 = p.Vert1 + offset;
-		var v2 = p.Vert2 + offset;
-		var v3 = p.Vert3 + offset;
-
-		cmd.Verts.Add(new(v1, c, new(0, 0), -1, 0));
-		cmd.Verts.Add(new(v2, c, new(0, 0), -1, 0));
-		cmd.Verts.Add(new(v3, c, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert1, c, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert2, c, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert3, c, new(0, 0), -1, 0));
 
 		cmd.Indices.Add(count); cmd.Indices.Add(count + 1); cmd.Indices.Add(count + 2);
 	}
@@ -44,15 +38,9 @@ partial class Renderer {
 
 		var count = (uint)cmd.Verts.Count;
 
-		Vec3f offset = new(env.OffsetX, env.OffsetY, 0f);
-
-		var v1 = p.Vert1 + offset;
-		var v2 = p.Vert2 + offset;
-		var v3 = p.Vert3 + offset;
-
-		cmd.Verts.Add(new(v1, c1, new(0, 0), -1, 0));
-		cmd.Verts.Add(new(v2, c2, new(0, 0), -1, 0));
-		cmd.Verts.Add(new(v3, c3, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert1, c1, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert2, c2, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert3, c3, new(0, 0), -1, 0));
 
 		cmd.Indices.Add(count); cmd.Indices.Add(count + 1); cmd.Indices.Add(count + 2);
 	}
@@ -68,15 +56,10 @@ partial class Renderer {
 
 		var count = (uint)cmd.Verts.Count;
 
-		var v1 = p.Vert1 + new Vec3f(env.OffsetX, env.OffsetY, 0f);
-		var v2 = p.Vert2 + new Vec3f(env.OffsetX, env.OffsetY, 0f);
-		var v3 = p.Vert3 + new Vec3f(env.OffsetX, env.OffsetY, 0f);
-		var v4 = p.Vert4 + new Vec3f(env.OffsetX, env.OffsetY, 0f);
-
-		cmd.Verts.Add(new(v1, c, new(0, 0), -1, 0));
-		cmd.Verts.Add(new(v2, c, new(0, 0), -1, 0));
-		cmd.Verts.Add(new(v3, c, new(0, 0), -1, 0));
-		cmd.Verts.Add(new(v4, c, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert1, c, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert2, c, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert3, c, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert4, c, new(0, 0), -1, 0));
 
 		cmd.Indices.Add(count); cmd.Indices.Add(count + 1); cmd.Indices.Add(count + 2);
 		cmd.Indices.Add(count + 2); cmd.Indices.Add(count + 1); cmd.Indices.Add(count + 3);
@@ -96,17 +79,10 @@ partial class Renderer {
 
 		var count = (uint)cmd.Verts.Count;
 
-		Vec3f offset = new(env.OffsetX, env.OffsetY, 0f);
-
-		var v1 = p.Vert1 + offset;
-		var v2 = p.Vert2 + offset;
-		var v3 = p.Vert3 + offset;
-		var v4 = p.Vert4 + offset;
-
-		cmd.Verts.Add(new(v1, c1, new(0, 0), -1, 0));
-		cmd.Verts.Add(new(v2, c2, new(0, 0), -1, 0));
-		cmd.Verts.Add(new(v3, c3, new(0, 0), -1, 0));
-		cmd.Verts.Add(new(v4, c4, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert1, c1, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert2, c2, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert3, c3, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert4, c4, new(0, 0), -1, 0));
 
 		cmd.Indices.Add(count); cmd.Indices.Add(count + 1); cmd.Indices.Add(count + 2);
 		cmd.Indices.Add(count + 2); cmd.Indices.Add(count + 1); cmd.Indices.Add(count + 3);
@@ -152,13 +128,6 @@ partial class Renderer {
 
 		var count = (uint)cmd.Verts.Count;
 
-		Vec3f offset = new(env.OffsetX, env.OffsetY, 0f);
-
-		var v1 = p.Vert1 + offset;
-		var v2 = p.Vert2 + offset;
-		var v3 = p.Vert3 + offset;
-		var v4 = p.Vert4 + offset;
-
 		if (rtex.Atlas != null) {
 			float t1x = p.Uv1.X - mintx, t1y = p.Uv1.Y - minty;
 			float t2x = p.Uv2.X - mintx, t2y = p.Uv2.Y - minty;
@@ -185,18 +154,18 @@ partial class Renderer {
 			t3x /= rtex.Atlas.Width; t3y /= rtex.Atlas.Height;
 			t4x /= rtex.Atlas.Width; t4y /= rtex.Atlas.Height;
 
-			cmd.Verts.Add(new(v1, c, new(t1x, t1y)));
-			cmd.Verts.Add(new(v2, c, new(t2x, t2y)));
-			cmd.Verts.Add(new(v3, c, new(t3x, t3y)));
-			cmd.Verts.Add(new(v4, c, new(t4x, t4y)));
+			cmd.Verts.Add(new(p.Vert1, c, new(t1x, t1y)));
+			cmd.Verts.Add(new(p.Vert2, c, new(t2x, t2y)));
+			cmd.Verts.Add(new(p.Vert3, c, new(t3x, t3y)));
+			cmd.Verts.Add(new(p.Vert4, c, new(t4x, t4y)));
 		} else {
 			var tpage = p.TPage;
 			var palette = p.Palette;
 
-			cmd.Verts.Add(new(v1, c, new(p.Uv1.X, p.Uv1.Y), tpage, palette));
-			cmd.Verts.Add(new(v2, c, new(p.Uv2.X, p.Uv2.Y), tpage, palette));
-			cmd.Verts.Add(new(v3, c, new(p.Uv3.X, p.Uv3.Y), tpage, palette));
-			cmd.Verts.Add(new(v4, c, new(p.Uv4.X, p.Uv4.Y), tpage, palette));
+			cmd.Verts.Add(new(p.Vert1, c, new(p.Uv1.X, p.Uv1.Y), tpage, palette));
+			cmd.Verts.Add(new(p.Vert2, c, new(p.Uv2.X, p.Uv2.Y), tpage, palette));
+			cmd.Verts.Add(new(p.Vert3, c, new(p.Uv3.X, p.Uv3.Y), tpage, palette));
+			cmd.Verts.Add(new(p.Vert4, c, new(p.Uv4.X, p.Uv4.Y), tpage, palette));
 		}
 
 		cmd.Indices.Add(count); cmd.Indices.Add(count + 1); cmd.Indices.Add(count + 2);
@@ -246,13 +215,6 @@ partial class Renderer {
 
 		var count = (uint)cmd.Verts.Count;
 
-		Vec3f offset = new(env.OffsetX, env.OffsetY, 0f);
-
-		var v1 = p.Vert1 + offset;
-		var v2 = p.Vert2 + offset;
-		var v3 = p.Vert3 + offset;
-		var v4 = p.Vert4 + offset;
-
 		if (rtex.Atlas != null) {
 			float t1x = p.Uv1.X - mintx, t1y = p.Uv1.Y - minty;
 			float t2x = p.Uv2.X - mintx, t2y = p.Uv2.Y - minty;
@@ -279,18 +241,18 @@ partial class Renderer {
 			t3x /= rtex.Atlas.Width; t3y /= rtex.Atlas.Height;
 			t4x /= rtex.Atlas.Width; t4y /= rtex.Atlas.Height;
 
-			cmd.Verts.Add(new(v1, c1, new(t1x, t1y)));
-			cmd.Verts.Add(new(v2, c2, new(t2x, t2y)));
-			cmd.Verts.Add(new(v3, c3, new(t3x, t3y)));
-			cmd.Verts.Add(new(v4, c4, new(t4x, t4y)));
+			cmd.Verts.Add(new(p.Vert1, c1, new(t1x, t1y)));
+			cmd.Verts.Add(new(p.Vert2, c2, new(t2x, t2y)));
+			cmd.Verts.Add(new(p.Vert3, c3, new(t3x, t3y)));
+			cmd.Verts.Add(new(p.Vert4, c4, new(t4x, t4y)));
 		} else {
 			var tpage = p.TPage;
 			var palette = p.Palette;
 
-			cmd.Verts.Add(new(v1, c1, new(p.Uv1.X, p.Uv1.Y), tpage, palette));
-			cmd.Verts.Add(new(v2, c2, new(p.Uv2.X, p.Uv2.Y), tpage, palette));
-			cmd.Verts.Add(new(v3, c3, new(p.Uv3.X, p.Uv3.Y), tpage, palette));
-			cmd.Verts.Add(new(v4, c4, new(p.Uv4.X, p.Uv4.Y), tpage, palette));
+			cmd.Verts.Add(new(p.Vert1, c1, new(p.Uv1.X, p.Uv1.Y), tpage, palette));
+			cmd.Verts.Add(new(p.Vert2, c2, new(p.Uv2.X, p.Uv2.Y), tpage, palette));
+			cmd.Verts.Add(new(p.Vert3, c3, new(p.Uv3.X, p.Uv3.Y), tpage, palette));
+			cmd.Verts.Add(new(p.Vert4, c4, new(p.Uv4.X, p.Uv4.Y), tpage, palette));
 		}
 
 		cmd.Indices.Add(count); cmd.Indices.Add(count + 1); cmd.Indices.Add(count + 2);
@@ -306,8 +268,8 @@ partial class Renderer {
 
 		Vec4f c = new(p.Colour1.X / 255f, p.Colour1.Y / 255f, p.Colour1.Z / 255f, alpha);
 
-		float x = p.Vert1.X + env.OffsetX;
-		float y = p.Vert1.Y + env.OffsetY;
+		float x = p.Vert1.X;
+		float y = p.Vert1.Y;
 		float z = p.Vert1.Z;
 
 		var w = (int)p.Size.X;
@@ -364,8 +326,8 @@ partial class Renderer {
 
 		Vec4f c = new(p.Colour1.X / 255f, p.Colour1.Y / 255f, p.Colour1.Z / 255f, alpha);
 
-		float x = p.Vert1.X + env.OffsetX;
-		float y = p.Vert1.Y + env.OffsetY;
+		float x = p.Vert1.X;
+		float y = p.Vert1.Y;
 		float z = p.Vert1.Z;
 
 		var ftx = (float)tx;
@@ -420,20 +382,15 @@ partial class Renderer {
 
 		var vcount = (uint)cmd.Verts.Count;
 
-		var v1 = p.Vert1 + new Vec3f(env.OffsetX, env.OffsetY, 0f);
-		var v2 = p.Vert2 + new Vec3f(env.OffsetX, env.OffsetY, 0f);
-
-		cmd.Verts.Add(new(v1, c, new(0, 0), -1, 0));
-		cmd.Verts.Add(new(v2, c, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert1, c, new(0, 0), -1, 0));
+		cmd.Verts.Add(new(p.Vert2, c, new(0, 0), -1, 0));
 
 		cmd.Indices.Add(vcount); cmd.Indices.Add(vcount + 1);
 
 		if (count > 1) {
 			ref var _p = ref Unsafe.As<Game.Render.GpuPrim_Line, Game.Render.GpuPrim_TwoLines>(ref p);
 
-			var v3 = _p.Vert3 + new Vec3f(env.OffsetX, env.OffsetY, 0f);
-
-			cmd.Verts.Add(new(v3, c, new(0, 0), -1, 0));
+			cmd.Verts.Add(new(_p.Vert3, c, new(0, 0), -1, 0));
 
 			cmd.Indices.Add(vcount + 2);
 		}
@@ -441,9 +398,7 @@ partial class Renderer {
 		if (count > 2) {
 			ref var _p = ref Unsafe.As<Game.Render.GpuPrim_Line, Game.Render.GpuPrim_ThreeLines>(ref p);
 
-			var v4 = _p.Vert4 + new Vec3f(env.OffsetX, env.OffsetY, 0f);
-
-			cmd.Verts.Add(new(v4, c, new(0, 0), -1, 0));
+			cmd.Verts.Add(new(_p.Vert4, c, new(0, 0), -1, 0));
 
 			cmd.Indices.Add(vcount + 3);
 		}
@@ -476,12 +431,10 @@ partial class Renderer {
 			1f
 		);
 
-		var v1 = p.Vert1 + new Vec2s((short)env.OffsetX, (short)env.OffsetY);
-
-		float x1 = v1.X;
-		float y1 = v1.Y - (2.0f * sy);
-		float x2 = v1.X + glyphMgr.CellWidth / GlyphManager.FONT_SCALE * sx;
-		float y2 = v1.Y - (2.0f * sy) + glyphMgr.CellHeight / GlyphManager.FONT_SCALE * sy;
+		float x1 = p.Vert1.X;
+		float y1 = p.Vert1.Y - (2.0f * sy);
+		float x2 = p.Vert1.X + glyphMgr.CellWidth / GlyphManager.FONT_SCALE * sx;
+		float y2 = p.Vert1.Y - (2.0f * sy) + glyphMgr.CellHeight / GlyphManager.FONT_SCALE * sy;
 		float z = 0.99000001f;
 
 		var tx1 = glyphUv.X;
@@ -534,8 +487,8 @@ partial class Renderer {
 
 		Vec4f c = new(p.Colour1.X / 255f, p.Colour1.Y / 255f, p.Colour1.Z / 255f, alpha);
 
-		float x = p.Vert1.X + env.OffsetX;
-		float y = p.Vert1.Y + env.OffsetY;
+		float x = p.Vert1.X;
+		float y = p.Vert1.Y;
 		float z = p.Vert1.Z;
 
 		var ftx = (float)tx;
@@ -599,8 +552,8 @@ partial class Renderer {
 				tx, ty, w, h, block.TPage, p.Palette
 			);
 
-			var x = p.Position.X + env.OffsetX;
-			var y = p.Position.Y + env.OffsetY;
+			var x = p.Position.X;
+			var y = p.Position.Y;
 
 			float x1, x2;
 
@@ -722,8 +675,8 @@ partial class Renderer {
 
 		var cmd = CreateOrGetDrawCommand(DrawCommandType.ReplacedTexture, (int)p.TextureId, true, 0, env.TextureWindow);
 
-		var x1 = p.Vert1.X + env.OffsetX;
-		var y1 = p.Vert1.Y + env.OffsetY;
+		var x1 = p.Vert1.X;
+		var y1 = p.Vert1.Y;
 		var x2 = x1 + p.Size.X;
 		var y2 = y1 + p.Size.Y;
 
