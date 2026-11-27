@@ -47,12 +47,12 @@ unsafe partial class Renderer : Singleton<Renderer> {
 	readonly Stack<DrawCommand> commandPool = new();
 	readonly List<DrawCommand> commandQueue = [];
 	readonly byte[] cpuTPages = new byte[64 * 256 * sizeof(ushort) * 32];
-	readonly float[] scale = new float[2];
+	readonly float[] scaleAndOffset = new float[4];
 
 	Mat4f projectionMatrix;
 	ShaderProgram basicShader = null!, psxShader = null!, replacedTextureShader = null!, textShader = null!;
 	uint vao, vbo, ebo;
-	uint uboProj, uboScale, ssboTPages;
+	uint uboProj, uboScaleAndOffset, ssboTPages;
 	uint locationNameBgTextureId, dialogueBorderTextureId;
 	GL gl = null!;
 
@@ -68,7 +68,7 @@ unsafe partial class Renderer : Singleton<Renderer> {
 		vbo = gl.GenBuffer();
 		ebo = gl.GenBuffer();
 		uboProj = gl.GenBuffer();
-		uboScale = gl.GenBuffer();
+		uboScaleAndOffset = gl.GenBuffer();
 		ssboTPages = gl.GenBuffer();
 
 		if (!LoadTexture("location_name_bg.png", out locationNameBgTextureId))
@@ -88,12 +88,12 @@ unsafe partial class Renderer : Singleton<Renderer> {
 		}
 		gl.BindBuffer(BufferTargetARB.UniformBuffer, 0);
 
-		gl.BindBuffer(BufferTargetARB.UniformBuffer, uboScale);
+		gl.BindBuffer(BufferTargetARB.UniformBuffer, uboScaleAndOffset);
 		{
 			gl.BufferData(
 				BufferTargetARB.UniformBuffer,
-				2 * sizeof(float),
-				scale.AsSpan(),
+				4 * sizeof(float),
+				scaleAndOffset.AsSpan(),
 				BufferUsageARB.StaticDraw
 			);
 		}
@@ -177,12 +177,13 @@ unsafe partial class Renderer : Singleton<Renderer> {
 
 		var _scale = ConfigManager.Instance.RenderScale;
 
-		scale[0] = _scale;
-		scale[1] = _scale;
+		scaleAndOffset[0] = _scale;
+		scaleAndOffset[1] = _scale;
+		scaleAndOffset[2] = ConfigManager.Instance.HalfRenderWidthDiff;
 
-		gl.BindBuffer(BufferTargetARB.UniformBuffer, uboScale);
+		gl.BindBuffer(BufferTargetARB.UniformBuffer, uboScaleAndOffset);
 		{
-			gl.BufferSubData(BufferTargetARB.UniformBuffer, 0, scale);
+			gl.BufferSubData(BufferTargetARB.UniformBuffer, 0, scaleAndOffset);
 		}
 		gl.BindBuffer(BufferTargetARB.UniformBuffer, 0);
 	}
@@ -198,7 +199,7 @@ unsafe partial class Renderer : Singleton<Renderer> {
 		var w = rect.W * sizeof(ushort);
 		var dataOffset = 0;
 
-		for (int i = 0; i < rect.H; ++i) {
+		for (int i = 0; i < rect.H; i++) {
 			var row = data.Slice(dataOffset, w);
 
 			gl.BufferSubData(BufferTargetARB.ShaderStorageBuffer, offset, row);
@@ -387,7 +388,7 @@ unsafe partial class Renderer : Singleton<Renderer> {
 		}
 
 		shader.SetUniformBlockBuffer(ShaderProgram.Uniforms.ProjectionMatrix, 0, uboProj);
-		shader.SetUniformBlockBuffer(ShaderProgram.Uniforms.Scale, 1, uboScale);
+		shader.SetUniformBlockBuffer(ShaderProgram.Uniforms.ScaleAndOffset, 1, uboScaleAndOffset);
 
 		return true;
 	}

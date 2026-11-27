@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "Profile 1": {
+    "Breath of Fire III": {
       "commandName": "Executable",
-      "executablePath": "D:\\Games\\Breath of Fire III\\BOF3.orig.exe",
+      "executablePath": "D:\\Games\\Breath of Fire III\\BOF3.exe",
       "workingDirectory": "D:\\Games\\Breath of Fire III\\"
     }
   }

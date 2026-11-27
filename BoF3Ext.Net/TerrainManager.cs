@@ -114,8 +114,8 @@ unsafe class TerrainManager : Singleton<TerrainManager> {
 	}
 
 	public void InitialiseTerrainPrims() {
-		for (var slot = 0; slot < TERRAIN_SLOT_COUNT; ++slot) {
-			for (var frame = 0; frame < 2; ++frame) {
+		for (var slot = 0; slot < TERRAIN_SLOT_COUNT; slot++) {
+			for (var frame = 0; frame < 2; frame++) {
 				ref var prim = ref terrainPrims[slot][frame];
 
 				prim.Value = ((byte)Game.Render.GpuPrimType.QuadTexture << 2);
@@ -127,8 +127,8 @@ unsafe class TerrainManager : Singleton<TerrainManager> {
 	}
 
 	public void ResetTerrainSlotMetadata() {
-		for (var slot = 0; slot < TERRAIN_SLOT_COUNT; ++slot) {
-			for (var frame = 0; frame < 2; ++frame)
+		for (var slot = 0; slot < TERRAIN_SLOT_COUNT; slot++) {
+			for (var frame = 0; frame < 2; frame++)
 				ResetTerrainPrimMetadata(ref terrainPrims[slot][frame]);
 		}
 	}

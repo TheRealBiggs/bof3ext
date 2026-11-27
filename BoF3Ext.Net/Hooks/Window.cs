@@ -165,14 +165,10 @@ static class Window {
 
 		var cfgMgr = ConfigManager.Instance;
 
-		var oldOffset = ConfigManager.Instance.HalfRenderWidthDiff;
 		var scale = size.Y / 240.0f;
 
 		cfgMgr.WindowSize = new(size.X, size.Y);
 		cfgMgr.RenderScale = scale;
-
-		var newOffset = ConfigManager.Instance.HalfRenderWidthDiff;
-		Game.Render.GeomOffsetX += newOffset - oldOffset;
 
 		Patches.Widescreen.Update();
 

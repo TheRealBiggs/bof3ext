@@ -6,7 +6,7 @@ namespace BoF3Ext.Patches;
 
 static partial class Gui {
 	static unsafe void ApplyBattleGuiPatches() {
-		var diff = ConfigManager.Instance.RenderWidthDiff;
+		var diff = ConfigManager.Instance.HalfRenderWidthDiff;
 		var positions = Game.Gui.EnemyBattlePanelPositions;
 
 		positions[0].x += (ushort)diff;

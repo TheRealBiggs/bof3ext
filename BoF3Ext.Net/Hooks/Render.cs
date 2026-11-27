@@ -117,7 +117,7 @@ static class Render {
 			var offsets = (ushort*)0x803580;
 			var count = offsets[0] / 2;
 
-			for (var i = 0; i < count; ++i) {
+			for (var i = 0; i < count; i++) {
 				if (0x803580U + offsets[i] != address)
 					continue;
 
@@ -184,7 +184,7 @@ static class Render {
 
 		new Span<byte>(buffer, padding).Fill((byte)' ');
 
-		for (var i = 0; i < digitCount; ++i)
+		for (var i = 0; i < digitCount; i++)
 			buffer[padding + i] = (byte)digits[i];
 
 		buffer[length] = 0;

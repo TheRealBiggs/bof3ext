@@ -33,14 +33,34 @@ static partial class Gui {
 	[GameFunction(0x5738A0, hookable: true)]
 	public static partial void DrawStatusWindow(short x, short y, byte characterId);
 
+	[GameFunction(0x573A80, hookable: true)]
+	public static partial void DrawStatusEquipmentPanel(short x, short y, short characterId);
+
+	[GameFunction(0x573BF0, hookable: true)]
+	public static partial void DrawStatusXpPanel(short x, short y, byte characterId, byte nextLevel);
+
+	[GameFunction(0x573F70, hookable: true)]
+	public static partial void DrawFormationPanel(ushort x, ushort y, int index, byte flags, int pulse);
+
 	[GameFunction(0x574610, hookable: true)]
 	public static partial void DrawZennyPanel(short x, short y, int _, int amount);
+
+	[GameFunction(0x5746C0, hookable: true)]
+	public static partial void DrawTimePanel(short x, short y);
 
 	[GameFunction(0x574890, hookable: true)]
 	public static partial void DrawMenuTabs(short x, short y, byte index, byte selectedTabIndex);
 
 	[GameFunction(0x574EC0, hookable: true)]
-	public static partial void DrawEquipmentWindow(byte charId, short x, short y, nint equipment, bool noCompare, nint win);
+	public static partial void DrawEquipmentWindow(
+		byte charId, short x, short y, nint equipment, bool noCompare, ref UiWindow window
+	);
+
+	[GameFunction(0x575F50, hookable: true)]
+	public static partial void DrawSkillWindow(ref UiWindow window);
+
+	[GameFunction(0x5763F0, hookable: true)]
+	public static partial void DrawEquipmentInventoryWindow(ref UiWindow window);
 
 	[GameFunction(0x57D360)]
 	public static partial void DrawItemIcon(short x, short y, byte id, bool greyed);
@@ -58,6 +78,9 @@ static partial class Gui {
 
 	[GameFunction(0x5905D0, hookable: true)]
 	public static partial void DrawCursor(short x, short y);
+
+	[GameFunction(0x599B90, hookable: true)]
+	public static partial void DrawMenuCharacterPanel(ref UiWindow window);
 
 
 	[GameVariable(0x653808, arrayLength: 6)]

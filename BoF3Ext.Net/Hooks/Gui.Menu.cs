@@ -9,6 +9,11 @@ namespace BoF3Ext.Hooks;
 static partial class Gui {
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static unsafe void DrawStatusWindowHook(short x, short y, byte characterId) {
+		ref var window = ref Game.Gui.CurrentUiWindow;
+
+		if (window.Type == 6 && window.State == 5)
+			x = x < 137 ? GetSlidingWindowX(x, 137, -180) : GetSlidingWindowX(x, 137, 320);
+
 		Game.Gui.DrawWindowBackground(
 			(short)(x + 5), (short)(y + 3), 164, 45, 0, Game.World.PersistentStateData.WindowColour
 		);
@@ -61,7 +66,7 @@ static partial class Gui {
 
 		parts = Game.Gui.StatusWindowMiddleUiParts;
 
-		for (var i = 0; i < 18; ++i)
+		for (var i = 0; i < 18; i++)
 			Game.Gui.DrawUiParts((short)(x + 8 * i), y, (nint)Unsafe.AsPointer(ref parts[0]), 0);
 
 		parts = Game.Gui.StatusWindowRightUiParts;
@@ -70,7 +75,7 @@ static partial class Gui {
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static unsafe void DrawZennyPanelHook(short x, short y, int a3, int amount) {
-		var diff = ConfigManager.Instance.RenderWidthDiff;
+		var diff = ConfigManager.Instance.HalfRenderWidthDiff;
 		var advance = (int)Math.Ceiling(GlyphManager.Instance.ScaledGlyphAdvance);
 		var largeAdvance = (int)Math.Ceiling(GlyphManager.Instance.ScaledGlyphAdvance * (16.0 / 12.0));
 
@@ -104,7 +109,7 @@ static partial class Gui {
 
 		parts = Game.Gui.ZennyPanelMiddleUiParts;
 
-		for (var i = 0; i < 11; ++i)
+		for (var i = 0; i < 11; i++)
 			Game.Gui.DrawUiParts((short)(x + 8 * i + diff), y, (nint)Unsafe.AsPointer(ref parts[0]), 0);
 
 		parts = Game.Gui.ZennyPanelRightUiParts;
@@ -113,10 +118,14 @@ static partial class Gui {
 	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static unsafe void DrawMenuTabsHook(short x, short y, byte index, byte selectedTabIndex) {
-		// Widescreen fix
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
+	static unsafe void DrawTimePanelHook(short x, short y) {
+		x -= (short)ConfigManager.Instance.HalfRenderWidthDiff;
 
+		Game.Gui.OriginalDrawTimePanel(x, y);
+	}
+
+	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+	static unsafe void DrawMenuTabsHook(short x, short y, byte index, byte selectedTabIndex) {
 		ref var group = ref Game.Gui.MenuTabGroups[index];
 
 		var advance = GlyphManager.Instance.ScaledGlyphAdvance;
@@ -152,8 +161,11 @@ static partial class Gui {
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static unsafe void DrawEquipmentWindowHook(
-		byte characterId, short x, short y, nint equipment, bool noCompare, nint win
+		byte characterId, short x, short y, nint equipment, bool noCompare, Game.Gui.UiWindow* window
 	) {
+		if (window->Type == 6 && window->State == 16)
+			x = GetSlidingWindowX(x, 165, 320);
+
 		Game.Gui.DrawWindowBackground(
 			(short)(x + 4), (short)(y + 4), 120, 163, 0, Game.World.PersistentStateData.WindowColour
 		);
@@ -243,7 +255,7 @@ static partial class Gui {
 			Game.Text.GetItemName(3, character.OptionId2)
 		];
 
-		for (var i = 0; i < 6; ++i) {
+		for (var i = 0; i < 6; i++) {
 			var textY = y + i + 12 * i;
 
 			Game.Gui.DrawItemIcon((short)(x + 6), (short)(textY + 87), Game.Gui.EquipWindowItemIconIds[i], false);
@@ -255,21 +267,21 @@ static partial class Gui {
 		var parts = Game.Gui.EquipmentWindowUiParts;
 		Game.Gui.DrawUiParts(x, y, (nint)Unsafe.AsPointer(ref parts[0]), 1);
 
-		for (var i = 0; i < 7; ++i) {
+		for (var i = 0; i < 7; i++) {
 			var frameY = (short)(y + 8 * i + 24);
 
 			Game.Gui.DrawUiPart(x, frameY, 4, 1);
 			Game.Gui.DrawUiPart((short)(x + 120), frameY, 8, 1);
 		}
 
-		for (var i = 0; i < 9; ++i) {
+		for (var i = 0; i < 9; i++) {
 			var frameY = (short)(y + 8 * i + 88);
 
 			Game.Gui.DrawUiPart(x, frameY, 4, 1);
 			Game.Gui.DrawUiPart((short)(x + 120), frameY, 8, 1);
 		}
 
-		for (var i = 0; i < 14; ++i) {
+		for (var i = 0; i < 14; i++) {
 			var frameX = (short)(x + 8 * i + 8);
 
 			Game.Gui.DrawUiPart(frameX, (short)(y + 80), 14, 1);
@@ -306,8 +318,7 @@ static partial class Gui {
 		Game.Gui.OriginalDrawSaves(x, y, colour);
 
 		// Draw page indicators as it's not obvious that there are more than 3 saves without them
-		var offset = ConfigManager.Instance.HalfRenderWidthDiff;
-		var indicatorX = 156 + offset;
+		var indicatorX = 156;
 
 		var tpage = Game.Render.GetTPage(0, 1, 960, 0);
 		var palette = Game.Render.CreatePaletteIndex(192, 480);
@@ -322,11 +333,76 @@ static partial class Gui {
 			RendererHelpers.DrawRectWHTexture(indicatorX, 221, 8, 8, 208, 248, tpage, palette, new(128, 128, 128), true);
 	}
 
+
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static unsafe void DrawCursorHook(short x, short y) {
+	static unsafe void DrawMenuCharacterPanelHook(Game.Gui.UiWindow* pWindow) {
+		ref var window = ref *pWindow;
+		var x = window.X;
+
+		window.X = x < 17 ? GetSlidingWindowX(x, 17, -300) : GetSlidingWindowX(x, 182, 320);
+
+		Game.Gui.OriginalDrawMenuCharacterPanel(pWindow);
+
+		window.X = x;
+	}
+
+	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+	static unsafe void DrawStatusEquipmentPanelHook(short x, short y, short characterId) {
+		if (Game.Gui.CurrentUiWindow.Type == 6)
+			x = GetSlidingWindowX(x, 166, 320);
+
+		Game.Gui.OriginalDrawStatusEquipmentPanel(x, y, characterId);
+	}
+
+	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+	static unsafe void DrawStatusXpPanelHook(short x, short y, byte characterId, byte nextLevel) {
+		x = GetSlidingWindowX(x, 45, -110);
+
+		Game.Gui.OriginalDrawStatusXpPanel(x, y, characterId, nextLevel);
+	}
+
+	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+	static unsafe void DrawFormationPanelHook(ushort x, ushort y, int index, byte flags, int pulse) {
+		var col = Game.Gui.CurrentUiWindow.StateParamsU8[3] & 1;
+		x = (ushort)GetSlidingWindowX((short)x, 150 + 75 * col, 320 + 75 * col);
+
+		Game.Gui.OriginalDrawFormationPanel(x, y, index, flags, pulse);
+	}
+
+	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+	static unsafe void DrawSkillWindowHook(Game.Gui.UiWindow* pWindow) {
+		ref var window = ref *pWindow;
+		var x = window.X;
+
+		window.X = GetSlidingWindowX(x, 165, 320);
+
+		Game.Gui.OriginalDrawSkillWindow(pWindow);
+
+		window.X = x;
+	}
+
+	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+	static unsafe void DrawEquipmentInventoryWindowHook(Game.Gui.UiWindow* pWindow) {
+		ref var window = ref *pWindow;
+		var x = window.X;
+
+		if (window.Type == 6)
+			window.X = GetSlidingWindowX(x, 150, 320);
+
+		Game.Gui.OriginalDrawEquipmentInventoryWindow(pWindow);
+
+		window.X = x;
+	}
+
+
+	internal static short GetSlidingWindowX(short currentX, int visibleX, int hiddenX) {
+		var progress = Math.Clamp((currentX - visibleX) / (float)(hiddenX - visibleX), 0f, 1f);
 		var offset = ConfigManager.Instance.HalfRenderWidthDiff;
 
-		Game.Gui.OriginalDrawCursor((short)(x + offset), y);
+		if (hiddenX < visibleX)
+			offset = -offset;
+
+		return (short)(currentX + Math.Round(progress * offset));
 	}
 
 
@@ -335,10 +411,16 @@ static partial class Gui {
 
 		Game.Gui.HookDrawStatusWindow(&DrawStatusWindowHook);
 		Game.Gui.HookDrawZennyPanel(&DrawZennyPanelHook);
+		Game.Gui.HookDrawTimePanel(&DrawTimePanelHook);
 		Game.Gui.HookDrawMenuTabs(&DrawMenuTabsHook);
 		Game.Gui.HookDrawEquipmentWindow(&DrawEquipmentWindowHook);
 		Game.Gui.HookDrawSkillInfo(&DrawSkillInfoHook);
 		Game.Gui.HookDrawSaves(&DrawSavesHook);
-		Game.Gui.HookDrawCursor(&DrawCursorHook);
+		Game.Gui.HookDrawMenuCharacterPanel(&DrawMenuCharacterPanelHook);
+		Game.Gui.HookDrawStatusEquipmentPanel(&DrawStatusEquipmentPanelHook);
+		Game.Gui.HookDrawStatusXpPanel(&DrawStatusXpPanelHook);
+		Game.Gui.HookDrawFormationPanel(&DrawFormationPanelHook);
+		Game.Gui.HookDrawSkillWindow(&DrawSkillWindowHook);
+		Game.Gui.HookDrawEquipmentInventoryWindow(&DrawEquipmentInventoryWindowHook);
 	}
 }

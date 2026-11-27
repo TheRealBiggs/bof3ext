@@ -10,16 +10,17 @@ layout(std140, binding = 0) uniform ProjectionMatrix {
 	mat4 proj;
 };
 
-layout(std140, binding = 1) uniform Scale {
+layout(std140, binding = 1) uniform ScaleAndOffset {
 	float scaleX;
 	float scaleY;
+	float offsetX;
 };
 
 out vec4 VertColor;
 out vec2 TexCoord;
 
 void main() {
-	gl_Position = proj * vec4(pos.x * scaleX, pos.y * scaleY, pos.z, 1.0);
+	gl_Position = proj * vec4((pos.x + offsetX) * scaleX, pos.y * scaleY, pos.z, 1.0);
 	VertColor = color;
 	TexCoord = uv;
 }

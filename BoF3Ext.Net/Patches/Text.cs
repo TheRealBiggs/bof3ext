@@ -72,7 +72,7 @@ static class Text {
 		var textMgr = TextManager.Instance;
 
 		// Translate item category texts
-		for (uint i = 0; i < 5; ++i) {
+		for (uint i = 0; i < 5; i++) {
 			if (!textMgr.TryGetCategoryText(i, out var text))
 				break;
 
@@ -82,7 +82,7 @@ static class Text {
 		}
 
 		// Translate skill category texts
-		for (uint i = 0; i < 4; ++i) {
+		for (uint i = 0; i < 4; i++) {
 			if (!textMgr.TryGetCategoryText(5 + i, out var text))
 				break;
 
@@ -91,7 +91,7 @@ static class Text {
 		}
 
 		// Translate battle action texts because the game is stupid and reads it multiple ways
-		for (uint i = 0; i < 12; ++i) {
+		for (uint i = 0; i < 12; i++) {
 			if (!textMgr.TryGetBattleActionText(i, out var text))
 				break;
 
@@ -114,7 +114,7 @@ static class Text {
 		// Skill note window text
 		var skillNoteSortTexts = Game.Text.SkillNoteSortTexts;
 
-		for (uint i = 0; i < 4; ++i) {
+		for (uint i = 0; i < 4; i++) {
 			if (!textMgr.TryGetSkillNoteText(i, out var text))
 				break;
 

@@ -29,16 +29,12 @@ static partial class Gui {
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static void DrawDialogueWindowHook(short x, short y, byte width, byte height) {
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
-
 		RendererHelpers.DrawDialogueBackground(x, y, width, height);
 		RendererHelpers.DrawDialogueBorder(x - 2, y - 2, width + 5, height + 5);
 	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static void DrawDialogueWindowBorderHook(short x, short y, byte width, byte height) {
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
-
 		RendererHelpers.DrawDialogueBorder(x - 2, y - 2, width + 5, height + 5);
 	}
 

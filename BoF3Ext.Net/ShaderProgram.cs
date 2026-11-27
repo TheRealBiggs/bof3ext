@@ -13,7 +13,7 @@ class ShaderProgram(GL gl) {
 		BlendMode,
 		Pass,
 		ProjectionMatrix,
-		Scale,
+		ScaleAndOffset,
 		TexturePages,
 	}
 
@@ -23,7 +23,7 @@ class ShaderProgram(GL gl) {
 		"BlendMode",
 		"Pass",
 		"ProjectionMatrix",
-		"Scale",
+		"ScaleAndOffset",
 		"TexturePages"
 	];
 
@@ -60,7 +60,7 @@ class ShaderProgram(GL gl) {
 		CacheUniformLocation(Uniforms.Pass);
 
 		CacheUniformBlockIndex(Uniforms.ProjectionMatrix);
-		CacheUniformBlockIndex(Uniforms.Scale);
+		CacheUniformBlockIndex(Uniforms.ScaleAndOffset);
 
 		CacheProgramResourceIndex(Uniforms.TexturePages);
 	}

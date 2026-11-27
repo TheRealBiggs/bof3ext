@@ -107,7 +107,7 @@ class InputManager : Singleton<InputManager> {
 
 		gamepad = null;
 
-		for (var i = 0; i < input!.Gamepads.Count; ++i) {
+		for (var i = 0; i < input!.Gamepads.Count; i++) {
 			if (!input.Gamepads[i].IsConnected)
 				continue;
 
@@ -130,7 +130,7 @@ class InputManager : Singleton<InputManager> {
 		var triggers = gamepad?.Triggers;
 		IKeyboard? keyboard = null;
 
-		for (var i = 0; i < input.Keyboards.Count; ++i) {
+		for (var i = 0; i < input.Keyboards.Count; i++) {
 			if (!input.Keyboards[i].IsConnected)
 				continue;
 
@@ -146,7 +146,7 @@ class InputManager : Singleton<InputManager> {
 
 			if (gamepad != null) {
 				if (binding.GamepadButton != ButtonName.Unknown) {
-					for (var i = 0; i < gamepadButtons!.Count; ++i) {
+					for (var i = 0; i < gamepadButtons!.Count; i++) {
 						if (gamepadButtons[i].Name != binding.GamepadButton)
 							continue;
 

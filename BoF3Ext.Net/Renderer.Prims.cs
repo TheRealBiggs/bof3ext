@@ -534,7 +534,7 @@ partial class Renderer {
 
 		Vec4f c = new(p.Colour1.X / 255f, p.Colour1.Y / 255f, p.Colour1.Z / 255f, alpha);
 
-		for (int i = p.BlockIndex; i < p.BlockIndex + p.BlockCount; ++i) {
+		for (int i = p.BlockIndex; i < p.BlockIndex + p.BlockCount; i++) {
 			ref var block = ref Game.Render.TextureBlockInfos[i];
 
 			int tx = block.Tx;
@@ -657,7 +657,7 @@ partial class Renderer {
 		nint sofs = sy * 2048 + sx * 2;
 		nint dofs = dy * 2048 + dx * 2;
 
-		for (int i = 0; i < h; ++i) {
+		for (int i = 0; i < h; i++) {
 			gl.CopyBufferSubData(
 				GLEnum.CopyReadBuffer,
 				GLEnum.CopyWriteBuffer,

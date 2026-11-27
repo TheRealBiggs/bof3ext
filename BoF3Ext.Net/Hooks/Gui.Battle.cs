@@ -22,8 +22,6 @@ static partial class Gui {
 		else if (index == 1 || index == 2)
 			x -= 7;
 
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
-
 		Game.Gui.DrawBorderedTextPanel_1(x, y, 54, 18, Game.World.PersistentStateData.WindowColour);
 
 		TextManager.Instance.TryGetBattleCommandText(index, out var text);
@@ -116,7 +114,7 @@ static partial class Gui {
 		ref var data = ref Game.Gui.BattleTextPanelDatas[win.StateParamsU8[2]];
 
 		var textLen = MemoryMarshal.CreateReadOnlySpanFromNullTerminated(data.Text.Pointer).Length;
-		var x = (short)(win.X + ConfigManager.Instance.HalfRenderWidthDiff);
+		var x = win.X;
 		var y = win.Y;
 
 		var advance = Math.Round(GlyphManager.Instance.ScaledGlyphAdvance);
@@ -147,7 +145,7 @@ static partial class Gui {
 
 		short y = 44;
 
-		for (byte i = 0; i < Game.Battle.PartyMemberCount; ++i) {
+		for (byte i = 0; i < Game.Battle.PartyMemberCount; i++) {
 			ref var character = ref Game.Battle.BattleCharacters[i];
 
 			GameString name = new((byte*)Unsafe.AsPointer(ref character.Name[0]));

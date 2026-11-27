@@ -49,7 +49,7 @@ static partial class Gui {
 		var startIndex = Game.Gui.ConfigValueStartIndices[index];
 		var count = Game.Gui.ConfigValueCounts[index];
 
-		for (var i = 0; i < count; ++i) {
+		for (var i = 0; i < count; i++) {
 			var _x = x + 116 + xOffsets[startIndex + i];
 
 			var colour = (byte)(i == selectedIndex ? 2 : 0);
@@ -107,8 +107,6 @@ static partial class Gui {
 			0,	// White
 			0
 		];
-
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
 
 		RendererHelpers.DrawConfigBackgroundWindow(
 			(short)(x - CONFIG_CONTROLLER_TEXT_WIDTH_ADJ),

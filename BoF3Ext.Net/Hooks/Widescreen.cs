@@ -8,8 +8,6 @@ namespace BoF3Ext.Hooks;
 static class Widescreen {
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static unsafe void DrawOverworldRegionPanel_Area016Hook(short x, short y) {
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
-
 		if ((Game.World.FieldRenderFlags & 0x1B) == 0)
 			return;
 
@@ -30,31 +28,16 @@ static class Widescreen {
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static unsafe void DrawOverworldCompassNeedleHook(short x, short y) {
-		// Negate geometry offset
+		// Negate shader offset
 		x -= (short)ConfigManager.Instance.HalfRenderWidthDiff;
 
 		Game.Gui.OriginalDrawOverworldCompassNeedle(x, y);
 	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static unsafe void DrawLargeMenuIconHook(byte id, short x, short y, byte width, byte height, byte whiteness) {
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
-
-		Game.Gui.OriginalDrawLargeMenuIcon(id, x, y, width, height, whiteness);
-	}
-
-	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static unsafe void DrawConfigMenuHook(short x, short y) {
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
-
-		Game.Gui.OriginalDrawConfigMenu(x, y);
-	}
-
-	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static unsafe nint DrawTitleDemoTextureFrameHook(short x, short y, byte frameIndex, byte drawIndex, byte translucent) {
-		x += (frameIndex == 10)		// 10 = Demo logo
-			? (short)ConfigManager.Instance.RenderWidthDiff
-			: (short)ConfigManager.Instance.HalfRenderWidthDiff;
+		if (frameIndex == 10)		// 10 = Demo logo
+			x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
 
 		return Game.Render.OriginalDrawTitleDemoTextureFrame(x, y, frameIndex, drawIndex, translucent);
 	}
@@ -103,25 +86,20 @@ static class Widescreen {
 	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static unsafe void DrawDialogueTextHook() {
-		var origX = Game.Text.DialogueTextX;
-
-		Game.Text.DialogueTextX += (short)ConfigManager.Instance.HalfRenderWidthDiff;
-
-		Game.Gui.OriginalDrawDialogueText();
-
-		Game.Text.DialogueTextX = origX;
-	}
-
-	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static unsafe void DrawDialoguePageIndicatorHook(short x, short y) {
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
-
 		Game.Gui.OriginalDrawDialoguePageIndicator(x, (short)(y + 2));
 	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static unsafe void DrawSelectedFrameOutlineHook(short x, short y, ushort width, ushort height, int pulse, int colour) {
+		ref var window = ref Game.Gui.CurrentUiWindow;
+
+		if (!Unsafe.IsNullRef(ref window) && window.Type == 6 && window.State == 11) {
+			var col = window.StateParamsU8[3] & 1;
+			var panelX = Gui.GetSlidingWindowX(window.X, 150 + 75 * col, 320 + 75 * col);
+			x += (short)(panelX - window.X);
+		}
+
 		// TODO: Replace the hooked function entirely to use quads instead of lines
 
 		var cfgMgr = ConfigManager.Instance;
@@ -132,21 +110,12 @@ static class Widescreen {
 		width += (ushort)Math.Round(scale / 2.0f);
 		height += (ushort)Math.Round(scale);
 
-		x += (short)cfgMgr.HalfRenderWidthDiff;
-
 		Game.Gui.OriginalDrawSelectedFrameOutline(x, y, width, height, pulse, colour);
 	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static unsafe void DrawSaveEntryHook(byte index, short x, short y, nint saveFile) {
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
-
-		Game.Gui.OriginalDrawSaveEntry(index, x, y, saveFile);
-	}
-
-	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static void DrawStartMenuItemHook(short y, byte index, bool greyed) {
-		var x = (ConfigManager.Instance.ScaledRenderWidth - 254) / 2;
+		var x = (320 - 254) / 2;
 		var whiteness = Game.Gui.StartMenuItemWhiteness[index];
 
 		if (greyed) {
@@ -164,34 +133,6 @@ static class Widescreen {
 			Game.Render.GetTPage(0, 1, 896, 0), Game.Render.CreatePaletteIndex(32, 483),
 			new(whiteness, whiteness, whiteness), greyed
 		);
-	}
-
-	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static unsafe void DrawStartMenuLogoHook(short x, short y, byte spriteIndex, byte drawIndex) {
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
-
-		Game.Render.OriginalDrawStartMenuLogo(x, y, spriteIndex, drawIndex);
-	}
-
-	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static unsafe void DrawMenuIconHook(byte id, short x, short y, byte width, byte height, byte whiteness) {
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
-
-		Game.Gui.OriginalDrawMenuIcon(id, x, y, width, height, whiteness);
-	}
-
-	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static unsafe GameString DrawDialogueChoiceHook(short x, short y, GameString text) {
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
-
-		return Game.Gui.OriginalDrawDialogueChoice(x, y, text);
-	}
-
-	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static unsafe void SetGeomOffsetHook(int x, int y) {
-		x += ConfigManager.Instance.HalfRenderWidthDiff;
-
-		Game.Render.OriginalSetGeomOffset(x, y);
 	}
 
 
@@ -216,18 +157,10 @@ static class Widescreen {
 	public static unsafe void Enable() {
 		Game.Gui.HookDrawOverworldRegionPanel(&DrawOverworldRegionPanel_Area016Hook);
 		Game.Gui.HookDrawOverworldCompassNeedle(&DrawOverworldCompassNeedleHook);
-		Game.Gui.HookDrawLargeMenuIcon(&DrawLargeMenuIconHook);
-		Game.Gui.HookDrawConfigMenu(&DrawConfigMenuHook);
 		Game.Render.HookDrawTitleDemoTextureFrame(&DrawTitleDemoTextureFrameHook);
 		Game.Intro.HookDrawTapestry(&DrawTapestryHook);
-		Game.Gui.HookDrawDialogueText(&DrawDialogueTextHook);
 		Game.Gui.HookDrawDialoguePageIndicator(&DrawDialoguePageIndicatorHook);
 		Game.Gui.HookDrawSelectedFrameOutline(&DrawSelectedFrameOutlineHook);
-		Game.Gui.HookDrawSaveEntry(&DrawSaveEntryHook);
 		Game.Gui.HookDrawStartMenuItem(&DrawStartMenuItemHook);
-		Game.Render.HookDrawStartMenuLogo(&DrawStartMenuLogoHook);
-		Game.Gui.HookDrawMenuIcon(&DrawMenuIconHook);
-		Game.Gui.HookDrawDialogueChoice(&DrawDialogueChoiceHook);
-		Game.Render.HookSetGeomOffset(&SetGeomOffsetHook);
 	}
 }

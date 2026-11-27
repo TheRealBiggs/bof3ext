@@ -174,12 +174,12 @@ static class RendererHelpers {
 		ReadOnlySpan<int> xEdges = [x, x + 2, x + width - 2, x + width];
 		ReadOnlySpan<int> yEdges = [y, y + 2, y + height - 2, y + height];
 
-		for (int row = 0; row < 3; ++row) {
-			for (int column = 0; column < 3; ++column) {
-				if (row == 1 && column == 1)
+		for (int row = 0; row < 3; row++) {
+			for (int col = 0; col < 3; col++) {
+				if (row == 1 && col == 1)
 					continue;
 
-				var sliceWidth = xEdges[column + 1] - xEdges[column];
+				var sliceWidth = xEdges[col + 1] - xEdges[col];
 				var sliceHeight = yEdges[row + 1] - yEdges[row];
 
 				if (sliceWidth <= 0 || sliceHeight <= 0)
@@ -187,8 +187,8 @@ static class RendererHelpers {
 
 				DrawTextureFrame(
 					textureId,
-					new(column / 3f, row / 3f, (column + 1) / 3f, (row + 1) / 3f),
-					xEdges[column],
+					new(col / 3f, row / 3f, (col + 1) / 3f, (row + 1) / 3f),
+					xEdges[col],
 					yEdges[row],
 					sliceWidth,
 					sliceHeight

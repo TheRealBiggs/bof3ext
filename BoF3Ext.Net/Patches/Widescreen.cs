@@ -2,8 +2,6 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-using unsafe DrawCenteredConfigDescriptionBackgroundSig =
-	delegate* unmanaged[Cdecl]<short, short, ushort, ushort, byte, void>;
 using unsafe DrawDemoTextSig = delegate* unmanaged[Cdecl]<short, short, uint, byte, BoF3Ext.GameString, nint>;
 
 namespace BoF3Ext.Patches;
@@ -17,6 +15,7 @@ static class Widescreen {
 		public float ObjectMin2, ObjectMax2;
 		public float SpriteMin1, SpriteMax1;
 		public short SpriteMin2, SpriteMax2;
+		public uint SpriteLeftMargin1, SpriteLeftMargin2;
 		public float UnknownMin1, UnknownMax1;
 		public float UnknownMax2;
 	}
@@ -25,13 +24,6 @@ static class Widescreen {
 	static unsafe readonly DrawRanges* drawRanges =
 		(DrawRanges*)NativeMemory.Alloc((nuint)Unsafe.SizeOf<DrawRanges>());
 
-
-	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static void DrawCenteredConfigDescriptionBackground(short x, short y, ushort width, ushort height, byte paletteIndex) {
-		x += (short)ConfigManager.Instance.HalfRenderWidthDiff;
-
-		Game.Gui.DrawBorderedTextPanel_1(x, y, width, height, paletteIndex);
-	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static unsafe nint DrawDemoText(short x, short y, uint paletteIndex, byte len, GameString text) {
@@ -79,7 +71,7 @@ static class Widescreen {
 			maxColumns = columns;
 
 		var advance = (int)Math.Round(GlyphManager.Instance.ScaledGlyphAdvance);
-		var width = ConfigManager.Instance.ScaledRenderWidth;
+		var width = 320;
 
 		x = (short)Math.Round((width - maxColumns * advance) * 0.5f);
 
@@ -88,23 +80,6 @@ static class Widescreen {
 
 
 	public static unsafe void Apply() {
-		static void PatchConfigDescriptionBackground(nuint address) {
-			ProtectedMemory.WriteCall(
-				address,
-				(DrawCenteredConfigDescriptionBackgroundSig)(&DrawCenteredConfigDescriptionBackground)
-			);
-		}
-
-
-		// Config menu
-		PatchConfigDescriptionBackground(0x460D0D);
-		PatchConfigDescriptionBackground(0x460D9B);
-		PatchConfigDescriptionBackground(0x460E37);
-		PatchConfigDescriptionBackground(0x46108E);
-		PatchConfigDescriptionBackground(0x4613CD);
-		PatchConfigDescriptionBackground(0x46164A);
-		PatchConfigDescriptionBackground(0x46169A);
-
 		// Demo text
 		ReadOnlySpan<nuint> DEMO_TEXT_DRAWSTRINGS = [
 			0x56B63A, 0x56B68E, 0x56B6EF, 0x56B781, 0x56B7C8, 0x56B819, 0x56B9AB, 0x56B9E4,
@@ -145,6 +120,10 @@ static class Widescreen {
 		ProtectedMemory.Write(0x5054FA, (nuint)(&drawRanges->UnknownMax1));
 		ProtectedMemory.Write(0x59293A, (nuint)(&drawRanges->UnknownMax2));
 
+		// Read the two sprite left margins as uints so they can include the widescreen offset.
+		ProtectedMemory.Write(0x57B9F5, new byte[] { 0x8B, 0x90 }); // mov edx, [eax + margins]
+		ProtectedMemory.Write(0x57B9F7, (nuint)(&drawRanges->SpriteLeftMargin1));
+
 		Update();
 	}
 
@@ -153,67 +132,50 @@ static class Widescreen {
 
 		var renderWidth = (float)cfgMgr.ScaledRenderWidth;
 
-		PatchDrawRanges(cfgMgr.RenderWidthDiff);
-
-		// Widescreen fix for sprite culling
-		ProtectedMemory.Write(0x57B9EB, (uint)renderWidth);
-
 		var offset = cfgMgr.HalfRenderWidthDiff;
 
-		// Widescreen fix for save menu
-		ProtectedMemory.Write(0x5881AC, (byte)(20 + offset));   // Top panel X
-		ProtectedMemory.Write(0x5881C7, (byte)(28 + offset));   // Top panel text
-		ProtectedMemory.Write(0x58820D, (byte)(20 + offset));
-		ProtectedMemory.Write(0x588228, (byte)(28 + offset));
-		ProtectedMemory.Write(0x58835C, (byte)(20 + offset));
-		ProtectedMemory.Write(0x588377, (byte)(28 + offset));
-		ProtectedMemory.Write(0x5883DD, (byte)(20 + offset));
-		ProtectedMemory.Write(0x5884BE, (byte)(20 + offset));
-		ProtectedMemory.Write(0x588515, (byte)(28 + offset));
-		ProtectedMemory.Write(0x58857C, (byte)(20 + offset));
-		ProtectedMemory.Write(0x5885A2, (byte)(28 + offset));
-		ProtectedMemory.Write(0x5887C2, (byte)(20 + offset));
-		ProtectedMemory.Write(0x5887E8, (byte)(28 + offset));
+		PatchDrawRanges(cfgMgr.RenderWidthDiff, offset);
+
+		// Widescreen fix for sprite culling
+		ProtectedMemory.Write(0x57B9EB, (uint)(cfgMgr.ScaledRenderWidth - offset));
 
 		// Widescreen fix for black fade
+		ProtectedMemory.Write(0x4957C1, (float)-offset);
 		ProtectedMemory.Write(0x4957CF, renderWidth);
 
 		// Widescreen fix for menu background
+		ProtectedMemory.Write(0x575721, -offset); // Cancel shader offset for the first column
+
 		// Repeat background pattern to fit extended screen width.
 		// Each column is 32px wide and alternates between 2 patterns, meaning 64px per repeat.
 		ProtectedMemory.Write(0x575732, (uint)Math.Ceiling(renderWidth / 32 / 2));
 
-		// Widescreen fix for overworld popups ("!", location name, etc.)
-		ProtectedMemory.Write(0x4112A9, (ushort)(160 + offset));
-
 		// Widescreen fix for sky
 		ProtectedMemory.Write(0x571C85, renderWidth);
-
-		// Widescreen fix for pause menu
-		ProtectedMemory.Write(0x589F9C, (short)(116 + offset)); // Top text panel X
-		ProtectedMemory.Write(0x589EB7, (short)(98 + offset));  // Character panels X
 	}
 
 
-	static unsafe void PatchDrawRanges(float diff) {
+	static unsafe void PatchDrawRanges(float diff, int offset) {
 		var r = drawRanges;
 
 		*r = new() {
-			TerrainMin1 = -50f - diff,
-			TerrainMax1 = 370f + diff,
-			TerrainMin2 = -200f - diff,
-			TerrainMax2 = 520f + diff,
-			ObjectMin1 = -100f - diff,
-			ObjectMax1 = 420f + diff,
-			ObjectMin2 = -80f - diff,
-			ObjectMax2 = 400f + diff,
-			SpriteMin1 = -60f - diff,
-			SpriteMax1 = 380f + diff,
-			SpriteMin2 = (short)(384 + diff),
-			SpriteMax2 = (short)(-64 - diff),
-			UnknownMin1 = -20f - diff,
-			UnknownMax1 = 340f + diff,
-			UnknownMax2 = 320f + diff
+			TerrainMin1 = -50f - diff - offset,
+			TerrainMax1 = 370f + diff - offset,
+			TerrainMin2 = -200f - diff - offset,
+			TerrainMax2 = 520f + diff - offset,
+			ObjectMin1 = -100f - diff - offset,
+			ObjectMax1 = 420f + diff - offset,
+			ObjectMin2 = -80f - diff - offset,
+			ObjectMax2 = 400f + diff - offset,
+			SpriteMin1 = -60f - diff - offset,
+			SpriteMax1 = 380f + diff - offset,
+			SpriteMin2 = (short)(384 + diff - offset),
+			SpriteMax2 = (short)(-64 - diff - offset),
+			SpriteLeftMargin1 = (uint)(80 + offset),
+			SpriteLeftMargin2 = (uint)(100 + offset),
+			UnknownMin1 = -20f - diff - offset,
+			UnknownMax1 = 340f + diff - offset,
+			UnknownMax2 = 320f + diff - offset
 		};
 
 		ProtectedMemory.Write(0x59360B, r->SpriteMin2);

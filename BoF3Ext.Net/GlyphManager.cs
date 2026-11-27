@@ -162,7 +162,7 @@ unsafe class GlyphManager : Singleton<GlyphManager>, IDisposable {
 			gl.GetInteger(GetPName.UnpackRowLength, out int rowLength);
 			gl.PixelStore(PixelStoreParameter.UnpackRowLength, width);
 
-			for (var i = 0; i < BUTTON_CHAR_CODES.Length; ++i) {
+			for (var i = 0; i < BUTTON_CHAR_CODES.Length; i++) {
 				var buttonCharCode = BUTTON_CHAR_CODES[i];
 
 				if (buttonCharCode == 0)

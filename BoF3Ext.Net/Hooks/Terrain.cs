@@ -30,7 +30,7 @@ static unsafe partial class Terrain {
 		var row = (int)Game.Terrain.CacheRow;
 		var result = 0;
 
-		for (var i = 0; i < TerrainManager.TERRAIN_CACHE_ROWS; ++i) {
+		for (var i = 0; i < TerrainManager.TERRAIN_CACHE_ROWS; i++) {
 			row = WrapTerrainCacheIndex(row + 1, TerrainManager.TERRAIN_CACHE_ROWS);
 
 			ref var cell = ref GetTerrainCell(row, cacheColumn);
@@ -52,14 +52,14 @@ static unsafe partial class Terrain {
 	static int ScrollTerrainColumnsForwardHook() {
 		var cacheColumn = Game.Terrain.CacheColumn;
 
-		var column = WrapTerrainCacheIndex(cacheColumn + 1, TerrainManager.TERRAIN_CACHE_COLUMNS);
+		var col = WrapTerrainCacheIndex(cacheColumn + 1, TerrainManager.TERRAIN_CACHE_COLUMNS);
 		var row = (int)Game.Terrain.CacheRow;
 		var result = 0;
 
-		for (var i = 0; i < TerrainManager.TERRAIN_CACHE_ROWS; ++i) {
+		for (var i = 0; i < TerrainManager.TERRAIN_CACHE_ROWS; i++) {
 			row = WrapTerrainCacheIndex(row + 1, TerrainManager.TERRAIN_CACHE_ROWS);
 
-			ref var cell = ref GetTerrainCell(row, column);
+			ref var cell = ref GetTerrainCell(row, col);
 
 			TerrainManager.Instance.ReleaseTerrainCell(ref cell);
 			result = PopulateTerrainCell(i, (int)TerrainManager.TERRAIN_CACHE_COLUMNS, ref cell);
@@ -68,7 +68,7 @@ static unsafe partial class Terrain {
 		Game.Terrain.CacheOriginX++;
 		Game.Terrain.CacheOriginY--;
 
-		Game.Terrain.CacheColumn = (short)column;
+		Game.Terrain.CacheColumn = (short)col;
 
 		return result;
 	}
@@ -79,15 +79,15 @@ static unsafe partial class Terrain {
 
 		var row = (int)Game.Terrain.CacheRow;
 
-		for (var i = 0; i < TerrainManager.TERRAIN_CACHE_ROWS; ++i) {
+		for (var i = 0; i < TerrainManager.TERRAIN_CACHE_ROWS; i++) {
 			row = WrapTerrainCacheIndex(row + 1, TerrainManager.TERRAIN_CACHE_ROWS);
 
-			var column = (int)cacheColumn;
+			var col = (int)cacheColumn;
 
-			for (var j = 0; j < TerrainManager.TERRAIN_CACHE_COLUMNS; ++j) {
-				column = WrapTerrainCacheIndex(column + 1, TerrainManager.TERRAIN_CACHE_COLUMNS);
+			for (var j = 0; j < TerrainManager.TERRAIN_CACHE_COLUMNS; j++) {
+				col = WrapTerrainCacheIndex(col + 1, TerrainManager.TERRAIN_CACHE_COLUMNS);
 
-				PopulateTerrainCell(i, j, ref GetTerrainCell(row, column));
+				PopulateTerrainCell(i, j, ref GetTerrainCell(row, col));
 			}
 		}
 
@@ -118,7 +118,7 @@ static unsafe partial class Terrain {
 		Game.Terrain.PositionX = 0x7FFF - (cameraX >> 8);
 		Game.Terrain.PositionY = 0x8000 - (cameraY >> 8);
 
-		for (var frame = 0; frame < 2; ++frame) {
+		for (var frame = 0; frame < 2; frame++) {
 			ref var prim = ref prims[0][frame];
 
 			prim.Vert1.X = prim.Vert1.Y = 0f;
@@ -333,18 +333,18 @@ static unsafe partial class Terrain {
 	}
 
 	static void ResetTerrainCache() {
-		for (var row = 0; row < TerrainManager.TERRAIN_CACHE_ROWS; ++row) {
-			for (var column = 0; column < TerrainManager.TERRAIN_CACHE_COLUMNS; ++column) {
-				ref var cell = ref GetTerrainCell(row, column);
+		for (var row = 0; row < TerrainManager.TERRAIN_CACHE_ROWS; row++) {
+			for (var col = 0; col < TerrainManager.TERRAIN_CACHE_COLUMNS; col++) {
+				ref var cell = ref GetTerrainCell(row, col);
 
 				cell.SlotAndFlags = 0;
-				PopulateTerrainCell(row, column, ref cell);
+				PopulateTerrainCell(row, col, ref cell);
 			}
 		}
 
 		var freeSlots = TerrainManager.Instance.TerrainFreeSlots;
 
-		for (var i = 0; i < TerrainManager.TERRAIN_SLOT_COUNT; ++i)
+		for (var i = 0; i < TerrainManager.TERRAIN_SLOT_COUNT; i++)
 			freeSlots[i] = (ushort)i;
 
 		Game.Terrain.FreeSlotIndex = 1;
@@ -378,13 +378,13 @@ static unsafe partial class Terrain {
 	static int ScrollTerrainRowsBack() {
 		var cacheColumn = Game.Terrain.CacheColumn;
 
-		for (var i = 0; i < 2; ++i) {
-			var column = (int)cacheColumn;
+		for (var i = 0; i < 2; i++) {
+			var col = (int)cacheColumn;
 
-			for (var j = 0; j < TerrainManager.TERRAIN_CACHE_COLUMNS; ++j) {
-				column = WrapTerrainCacheIndex(column + 1, TerrainManager.TERRAIN_CACHE_COLUMNS);
+			for (var j = 0; j < TerrainManager.TERRAIN_CACHE_COLUMNS; j++) {
+				col = WrapTerrainCacheIndex(col + 1, TerrainManager.TERRAIN_CACHE_COLUMNS);
 
-				ref var cell = ref GetTerrainCell(Game.Terrain.CacheRow, column);
+				ref var cell = ref GetTerrainCell(Game.Terrain.CacheRow, col);
 
 				TerrainManager.Instance.ReleaseTerrainCell(ref cell);
 				PopulateTerrainCell((i == 0 ? 1 : 0) - 3, j, ref cell);
@@ -405,14 +405,14 @@ static unsafe partial class Terrain {
 	static short ScrollTerrainRowsForward() {
 		var cacheColumn = Game.Terrain.CacheColumn;
 
-		for (var i = 0; i < 2; ++i) {
+		for (var i = 0; i < 2; i++) {
 			var row = WrapTerrainCacheIndex(Game.Terrain.CacheRow + 1, TerrainManager.TERRAIN_CACHE_ROWS);
-			var column = (int)cacheColumn;
+			var col = (int)cacheColumn;
 
-			for (var j = 0; j < TerrainManager.TERRAIN_CACHE_COLUMNS; ++j) {
-				column = WrapTerrainCacheIndex(column + 1, TerrainManager.TERRAIN_CACHE_COLUMNS);
+			for (var j = 0; j < TerrainManager.TERRAIN_CACHE_COLUMNS; j++) {
+				col = WrapTerrainCacheIndex(col + 1, TerrainManager.TERRAIN_CACHE_COLUMNS);
 
-				ref var cell = ref GetTerrainCell(row, column);
+				ref var cell = ref GetTerrainCell(row, col);
 
 				TerrainManager.Instance.ReleaseTerrainCell(ref cell);
 				PopulateTerrainCell(i + (int)TerrainManager.TERRAIN_CACHE_ROWS, j, ref cell);
@@ -445,13 +445,13 @@ static unsafe partial class Terrain {
 			var x = (int)((*record >> 8) & 0xFF) - originX;
 			var y = (int)(*record & 0xFF) - originY;
 			var row = x + y;
-			var column = x - y;
+			var col = x - y;
 
-			if ((uint)row < TerrainManager.TERRAIN_CACHE_ROWS && (uint)column < TerrainManager.TERRAIN_CACHE_COLUMNS * 2) {
+			if ((uint)row < TerrainManager.TERRAIN_CACHE_ROWS && (uint)col < TerrainManager.TERRAIN_CACHE_COLUMNS * 2) {
 				row = WrapTerrainCacheIndex(row + cacheRow + 1, TerrainManager.TERRAIN_CACHE_ROWS);
-				column = WrapTerrainCacheIndex(column / 2 + cacheColumn + 1, TerrainManager.TERRAIN_CACHE_COLUMNS);
+				col = WrapTerrainCacheIndex(col / 2 + cacheColumn + 1, TerrainManager.TERRAIN_CACHE_COLUMNS);
 
-				terrainObjectCells[row * TerrainManager.TERRAIN_CACHE_COLUMNS + column] = (ushort)(record - records + 1);
+				terrainObjectCells[row * TerrainManager.TERRAIN_CACHE_COLUMNS + col] = (ushort)(record - records + 1);
 			}
 
 			record += *record >> 16;

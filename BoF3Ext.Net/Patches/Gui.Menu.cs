@@ -21,13 +21,6 @@ static partial class Gui {
 	static nint DrawCenteredText_Sub2(short x, short y, uint paletteIndex, byte len, GameString text)
 		=> DrawCenteredTextFix(x, y, paletteIndex, len, text, -2);
 
-	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static nint DrawConfigDescriptionText(short x, short y, uint paletteIndex, byte len, GameString text) {
-		var offset = ConfigManager.Instance.HalfRenderWidthDiff;
-
-		return Game.Render.DrawStringNormal((short)(x + offset), y, paletteIndex, len, text);
-	}
-
 
 	static nint DrawCenteredTextFix(short x, short y, uint paletteIndex, byte len, GameString text, short offset) {
 		var textLen = Game.Text.GetStringLength(text);
@@ -77,14 +70,6 @@ static partial class Gui {
 
 		// Align the controller cursor with the expanded window
 		ProtectedMemory.Write(0x461450, 176 - Hooks.Gui.CONFIG_CONTROLLER_TEXT_WIDTH_ADJ);
-
-		// Fix config rendering
-		ReadOnlySpan<nuint> CONFIG_DESCRIPTION_TEXT_CALLS = [
-			0x460E5B, 0x4610B4, 0x461428
-		];
-
-		foreach (var address in CONFIG_DESCRIPTION_TEXT_CALLS)
-			ProtectedMemory.WriteCall(address, (DrawCenteredTextSig)(&DrawConfigDescriptionText));
 
 		// Remove draw of 2nd ':' in time text for save entries
 		ProtectedMemory.Nop(0x576ACD, 5);
