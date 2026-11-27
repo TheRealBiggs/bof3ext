@@ -149,6 +149,26 @@ static class Text {
 	}
 
 
+	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+	static unsafe void LoadTextParameterHook(byte index, byte length, GameString text) {
+		var skills = Game.Skill.SkillDatas;
+		var start = (nuint)Unsafe.AsPointer(ref skills[0]);
+		var end = (nuint)Unsafe.AsPointer(ref skills[^1]);
+		var address = (nuint)text.Pointer;
+
+		if (address >= start && address <= end) {
+			var id = (uint)((address - start) / (nuint)Unsafe.SizeOf<Game.Skill.SkillData>());
+
+			if (TextManager.Instance.TryGetSkillName(id, out var name)) {
+				text = name.GameString;
+				length = (byte)name.ByteCount;
+			}
+		}
+
+		Game.Text.OriginalLoadTextParameter(index, length, text);
+	}
+
+
 	public static unsafe void Enable() {
 		Game.Text.HookLoadTextParameter_BattleAction(&LoadTextParameter_BattleActionHook);
 		Game.Text.HookLoadTextParameter_EnemyName(&LoadTextParameter_EnemyNameHook);
@@ -157,5 +177,6 @@ static class Text {
 		Game.Text.HookLoadItemName(&LoadItemNameHook);
 		Game.Text.HookGetStringLength(&GetStringLengthHook);
 		Game.Text.HookGetItemName(&GetItemNameHook);
+		Game.Text.HookLoadTextParameter(&LoadTextParameterHook);
 	}
 }

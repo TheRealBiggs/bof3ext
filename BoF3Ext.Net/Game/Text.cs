@@ -30,7 +30,7 @@ static partial class Text {
 	[GameFunction(0x591680, hookable: true)]
 	public static partial GameString GetItemName(byte type, byte index);
 
-	[GameFunction(0x591940)]
+	[GameFunction(0x591940, hookable: true)]
 	public static partial void LoadTextParameter(byte index, byte length, GameString text);
 
 

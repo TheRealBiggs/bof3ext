@@ -56,6 +56,9 @@ static partial class Gui {
 		byte charId, short x, short y, nint equipment, bool noCompare, ref UiWindow window
 	);
 
+	[GameFunction(0x575830)]
+	public static partial void DrawMenuWindow(short x, short y, byte columns, byte rows);
+
 	[GameFunction(0x575F50, hookable: true)]
 	public static partial void DrawSkillWindow(ref UiWindow window);
 
@@ -115,6 +118,9 @@ static partial class Gui {
 
 	[GameVariable(0x663458, arrayLength: 14)]
 	public static partial Span<UiPart> EquipmentWindowUiParts { get; set; }
+
+	[GameVariable(0x6634CC, arrayLength: 30)]
+	public static partial Span<UiPart> StatusXpPanelUiParts { get; set; }
 
 	[GameVariable(0x66383C, arrayLength: 9)]
 	public static partial Span<MenuTabGroup> MenuTabGroups { get; set; }

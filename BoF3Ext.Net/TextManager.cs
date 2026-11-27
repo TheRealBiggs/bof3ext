@@ -30,6 +30,8 @@ class TextManager : Singleton<TextManager> {
 	TextEntry[] battleActions = [];
 	TextEntry[] statNames = [];
 	TextEntry[] skillNoteTexts = [];
+	TextEntry[] formationNames = [];
+	TextEntry[] statusTexts = [];
 	TextEntry? masterText;
 
 
@@ -94,6 +96,12 @@ class TextManager : Singleton<TextManager> {
 		if (File.Exists("NewData/Text/text_skillnotes.txt"))
 			skillNoteTexts = [.. File.ReadAllLines("NewData/Text/text_skillnotes.txt").Select(EncodeText)];
 
+		if (File.Exists("NewData/Text/text_formationnames.txt"))
+			formationNames = [.. File.ReadAllLines("NewData/Text/text_formationnames.txt").Select(EncodeText)];
+
+		if (File.Exists("NewData/Text/text_status.txt"))
+			statusTexts = [.. File.ReadAllLines("NewData/Text/text_status.txt").Select(EncodeText)];
+
 		if (File.Exists("NewData/Text/text_master.txt"))
 			masterText = EncodeText(File.ReadAllLines("NewData/Text/text_master.txt")[0]);
 	}
@@ -150,6 +158,12 @@ class TextManager : Singleton<TextManager> {
 
 	public bool TryGetSkillNoteText(uint id, out TextEntry text)
 		=> TryGetSimpleReplacementText(skillNoteTexts, id, out text);
+
+	public bool TryGetFormationName(uint id, out TextEntry text)
+		=> TryGetSimpleReplacementText(formationNames, id, out text);
+
+	public bool TryGetStatusText(uint id, out TextEntry text)
+		=> TryGetSimpleReplacementText(statusTexts, id, out text);
 
 	public bool TryGetMasterText(out TextEntry text) {
 		if (masterText != null) {

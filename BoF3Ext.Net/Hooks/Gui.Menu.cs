@@ -347,18 +347,75 @@ static partial class Gui {
 	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static unsafe void DrawStatusEquipmentPanelHook(short x, short y, short characterId) {
+	static void DrawStatusEquipmentPanelHook(short x, short y, short characterId) {
 		if (Game.Gui.CurrentUiWindow.Type == 6)
 			x = GetSlidingWindowX(x, 166, 320);
 
-		Game.Gui.OriginalDrawStatusEquipmentPanel(x, y, characterId);
+		Game.Gui.DrawMenuWindow(x, y, 9, 10);
+
+		TextManager.Instance.TryGetStatusText(0 /* "Equipment" */, out var title);
+		var advance = (int)Math.Round(GlyphManager.Instance.ScaledGlyphAdvance);
+		var titleX = (short)Math.Round(x + 66 - title.Length * advance * 0.5f);
+
+		Game.Render.DrawStringNormal(titleX, (short)(y + 6), 0, 255, title.GameString);
+
+		Game.Gui.DrawMenuIcon(0, (short)(x + 7), (short)(y + 5), 16, 16, 128);
+
+		ref var character = ref Game.World.PersistentStateData.Characters[(byte)characterId];
+
+		ReadOnlySpan<GameString> equipNames = [
+			Game.Text.GetItemName(1, character.WeaponId),
+			Game.Text.GetItemName(2, character.ArmorId1),
+			Game.Text.GetItemName(2, character.ArmorId2),
+			Game.Text.GetItemName(2, character.ArmorId3),
+			Game.Text.GetItemName(3, character.OptionId1),
+			Game.Text.GetItemName(3, character.OptionId2)
+		];
+
+		for (var i = 0; i < 6; i++) {
+			var textY = (short)(y + 13 * i + 26);
+
+			Game.Gui.DrawItemIcon((short)(x + 5), (short)(textY + 2), Game.Gui.EquipWindowItemIconIds[i], false);
+
+			var len = Game.Text.GetStringLength(equipNames[i]);
+			Game.Render.DrawStringNormal((short)(x + 17), (short)(textY - 1), 0, len, equipNames[i]);
+		}
 	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static unsafe void DrawStatusXpPanelHook(short x, short y, byte characterId, byte nextLevel) {
+	static unsafe void DrawStatusXpPanelHook(short x, short y, byte characterId, byte type) {
 		x = GetSlidingWindowX(x, 45, -110);
 
-		Game.Gui.OriginalDrawStatusXpPanel(x, y, characterId, nextLevel);
+		Game.Gui.DrawWindowBackground(
+			(short)(x + 3), (short)(y + 3), 101, 37, 0, Game.World.PersistentStateData.WindowColour
+		);
+
+		TextManager.Instance.TryGetStatusText(type != 0 ? 2U : 1U, out var title);
+		var advance = (int)Math.Round(GlyphManager.Instance.ScaledGlyphAdvance);
+		var titleX = (short)Math.Round(x + 54 - title.Length * advance * 0.5f);
+
+		Game.Render.DrawStringNormal(titleX, (short)(y + 7), 0, 255, title.GameString);
+
+		ref var character = ref Game.World.PersistentStateData.Characters[characterId];
+		var xp = type != 0
+			? Game.World.GetXpForLevel(characterId, (byte)(character.Level + 1))
+			: (int)character.Xp;
+
+		var buffer = stackalloc byte[12];
+		Span<byte> formatted = new(buffer, 11);
+		GameString number = new(buffer);
+
+		if (xp == -1)
+			"--------\0"u8.CopyTo(new Span<byte>(buffer, 9));
+		else {
+			Utf8.TryWrite(formatted, $"{xp,8}", out var length);
+			buffer[length] = 0;
+		}
+
+		Game.Render.DrawStringLarge((short)(x + 19), (short)(y + 26), 0, number);
+
+		var parts = Game.Gui.StatusXpPanelUiParts;
+		Game.Gui.DrawUiParts(x, y, (nint)Unsafe.AsPointer(ref parts[0]), 1);
 	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]

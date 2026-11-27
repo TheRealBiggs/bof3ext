@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 
 using unsafe DrawCenteredTextSig = delegate* unmanaged[Cdecl]<short, short, uint, byte, BoF3Ext.GameString, nint>;
 using unsafe DrawConfigBackgroundWindowSig = delegate* unmanaged[Cdecl]<short, short, byte, byte, void>;
+using unsafe DrawFormationNameFixSig = delegate* unmanaged[Cdecl]<short, short, byte, byte, BoF3Ext.GameString, nint>;
 
 namespace BoF3Ext.Patches;
 
@@ -22,6 +23,23 @@ static partial class Gui {
 		=> DrawCenteredTextFix(x, y, paletteIndex, len, text, -2);
 
 
+	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+	static nint DrawFormationNameFix(short x, short y, byte paletteIndex, byte len, GameString text) {
+		var index = Game.Gui.CurrentUiWindow.StateParamsU8[2];
+
+		if (TextManager.Instance.TryGetFormationName(index, out var name))
+			text = name.GameString;
+
+		var textLen = Game.Text.GetStringLength(text);
+		var advance = (int)Math.Round(GlyphManager.Instance.ScaledGlyphAdvance * 10 / 12.0);
+
+		x += 16;
+		x -= (short)Math.Round(textLen * advance * 0.5f);
+
+		return Game.Render.DrawStringSmall(x, (short)(y + 1), paletteIndex, len, text);
+	}
+
+
 	static nint DrawCenteredTextFix(short x, short y, uint paletteIndex, byte len, GameString text, short offset) {
 		var textLen = Game.Text.GetStringLength(text);
 		var advance = (int)Math.Round(GlyphManager.Instance.ScaledGlyphAdvance);
@@ -37,6 +55,9 @@ static partial class Gui {
 	static unsafe void ApplyMenuGuiPatches() {
 		// Increase width of status window selection outline
 		Game.Gui.MenuOutlineSizes[0].X = 288;
+
+		// Translate formation names
+		ProtectedMemory.WriteCall(0x573FD4, (DrawFormationNameFixSig)(&DrawFormationNameFix));
 
 		// Fix text centering for category in inventory window
 		ProtectedMemory.WriteCall(0x575C8B, (DrawCenteredTextSig)(&DrawCenteredText_Sub2));

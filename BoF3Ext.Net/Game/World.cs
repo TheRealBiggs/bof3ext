@@ -266,6 +266,9 @@ static partial class World {
 	public const nint GAMEMODE_FIRST = 0x496B60;
 
 
+	[GameFunction(0x574A60)]
+	public static partial int GetXpForLevel(byte characterId, byte level);
+
 	[GameFunction(0x5A98A0)]
 	public static partial void UpdateScheduler();
 
