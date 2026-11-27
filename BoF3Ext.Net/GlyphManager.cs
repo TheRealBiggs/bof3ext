@@ -142,7 +142,7 @@ unsafe class GlyphManager : Singleton<GlyphManager>, IDisposable {
 
 			ReadOnlySpan<ushort> BUTTON_CHAR_CODES = [
 				'◯', '☓', '⬜', '△',
-			'⮪', 0, '⮫', 0
+				'⮪', 0, '⮫', 0
 			];
 
 			// Button glyphs

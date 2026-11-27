@@ -53,7 +53,6 @@ static partial class Gui {
 
 		// Shadow
 		RendererHelpers.SetDrawEnv(0, 0, 960, 0);
-
 		RendererHelpers.DrawRectWH(x + 4, y + 8, 74, 18, colour, true);
 
 		RendererHelpers.DrawQuad(
@@ -68,6 +67,7 @@ static partial class Gui {
 			colour, true
 		);
 
+		// Panel
 		RendererHelpers.DrawBorderedPanel(x, y, 74, 22, colour, false);
 
 		enemyIndex -= 3;

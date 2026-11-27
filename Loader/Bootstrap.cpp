@@ -1,5 +1,3 @@
-// Only the startup patch is native. Managed code runs after the loader lock is released.
-// These declarations keep this small object independent of SDK header search paths.
 typedef unsigned char BYTE;
 typedef unsigned long DWORD;
 typedef int BOOL;

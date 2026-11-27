@@ -69,6 +69,7 @@ static class Window {
 	static unsafe void OnLoad() {
 		gl = GL.GetApi(window);
 		input = window.CreateInput();
+		input.Keyboards[0].KeyDown += OnKeyboardKeyDown;
 
 		var inputMgr = InputManager.Instance;
 
@@ -178,6 +179,14 @@ static class Window {
 		Game.Render.TerrainRefreshCounter = 3;
 
 		Renderer.Instance.SetViewport(0, 0, size.X, size.Y);
+	}
+
+	static void OnKeyboardKeyDown(IKeyboard keyboard, Key key, int keyCode) {
+		if (key == Key.Enter && (keyboard.IsKeyPressed(Key.AltLeft) || keyboard.IsKeyPressed(Key.AltRight))) {
+			window.WindowState = window.WindowState == WindowState.Fullscreen
+				? WindowState.Normal
+				: WindowState.Fullscreen;
+		}
 	}
 
 

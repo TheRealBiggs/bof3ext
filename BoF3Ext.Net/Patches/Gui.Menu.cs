@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 
 using unsafe DrawCenteredTextSig = delegate* unmanaged[Cdecl]<short, short, uint, byte, BoF3Ext.GameString, nint>;
 using unsafe DrawConfigBackgroundWindowSig = delegate* unmanaged[Cdecl]<short, short, byte, byte, void>;
-using unsafe DrawConfigCursorSig = delegate* unmanaged[Cdecl]<short, short, void>;
 
 namespace BoF3Ext.Patches;
 
@@ -75,6 +74,9 @@ static partial class Gui {
 
 		// Fix text centering for submenu text in pause menu
 		ProtectedMemory.Write(0x59A023, (byte)36);
+
+		// Align the controller cursor with the expanded window
+		ProtectedMemory.Write(0x461450, 176 - Hooks.Gui.CONFIG_CONTROLLER_TEXT_WIDTH_ADJ);
 
 		// Fix config rendering
 		ReadOnlySpan<nuint> CONFIG_DESCRIPTION_TEXT_CALLS = [

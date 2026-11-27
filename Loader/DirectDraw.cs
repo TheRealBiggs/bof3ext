@@ -2,21 +2,20 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-
 namespace Loader;
 
 
 public static unsafe class DirectDraw {
-	private static delegate* unmanaged[Stdcall]<void*, void*, int> directDrawEnumerateA;
-	private static delegate* unmanaged[Stdcall]<void*, void*, void*, int> directDrawCreate;
-	private static delegate* unmanaged[Stdcall]<void> releaseDDThreadLock;
-	private static delegate* unmanaged[Stdcall]<void> acquireDDThreadLock;
-	private static delegate* unmanaged[Stdcall]<uint, uint> ddInternalUnlock;
-	private static delegate* unmanaged[Stdcall]<uint, uint, uint> ddInternalLock;
-	private static delegate* unmanaged[Stdcall]<void*, void*, int> d3DParseUnknownCommand;
+	static delegate* unmanaged[Stdcall]<void*, void*, int> directDrawEnumerateA;
+	static delegate* unmanaged[Stdcall]<void*, void*, void*, int> directDrawCreate;
+	static delegate* unmanaged[Stdcall]<void> releaseDDThreadLock;
+	static delegate* unmanaged[Stdcall]<void> acquireDDThreadLock;
+	static delegate* unmanaged[Stdcall]<uint, uint> ddInternalUnlock;
+	static delegate* unmanaged[Stdcall]<uint, uint, uint> ddInternalLock;
+	static delegate* unmanaged[Stdcall]<void*, void*, int> d3DParseUnknownCommand;
 
 
-	internal static void Load() {
+	public static void Load() {
 		// Keep the system DLL loaded for the lifetime of the process.
 		char* path = stackalloc char[512];
 		var length = Win32.GetSystemDirectory(path, 512);
@@ -39,7 +38,7 @@ public static unsafe class DirectDraw {
 		d3DParseUnknownCommand = (delegate* unmanaged[Stdcall]<void*, void*, int>)GetExport(module, "D3DParseUnknownCommand\0"u8);
 	}
 
-	private static nint GetExport(nint module, ReadOnlySpan<byte> name) {
+	static nint GetExport(nint module, ReadOnlySpan<byte> name) {
 		fixed (byte* pointer = name) {
 			var address = Win32.GetProcAddress(module, pointer);
 

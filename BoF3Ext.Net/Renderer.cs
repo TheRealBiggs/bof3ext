@@ -71,11 +71,9 @@ unsafe partial class Renderer : Singleton<Renderer> {
 		uboScale = gl.GenBuffer();
 		ssboTPages = gl.GenBuffer();
 
-		// Load location popup background texture
 		if (!LoadTexture("location_name_bg.png", out locationNameBgTextureId))
 			return false;
 
-		// Load dialogue border texture
 		if (!LoadTexture("dialogue_border.png", out dialogueBorderTextureId))
 			return false;
 

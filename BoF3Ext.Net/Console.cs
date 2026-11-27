@@ -8,13 +8,8 @@ static partial class Console {
 	const int STDERR = 2;
 	const uint UTF8 = 65001;
 
-	static bool ownsConsole;
-
 
 	public static bool AllocConsole() {
-		if (ownsConsole)
-			return true;
-
 		if (!Win32.AllocConsole())
 			return false;
 
@@ -32,17 +27,13 @@ static partial class Console {
 		}
 
 		Win32.SetConsoleOutputCP(UTF8);
-		ownsConsole = true;
 
 		return true;
 	}
 
 	public static bool FreeConsole() {
-		if (ownsConsole) {
-			Win32.fclose(Win32.GetStream(STDOUT));
-			Win32.fclose(Win32.GetStream(STDERR));
-			ownsConsole = false;
-		}
+		Win32.fclose(Win32.GetStream(STDOUT));
+		Win32.fclose(Win32.GetStream(STDERR));
 
 		return Win32.FreeConsole();
 	}

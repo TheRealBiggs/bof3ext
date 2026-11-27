@@ -35,16 +35,16 @@ unsafe class TerrainManager : Singleton<TerrainManager> {
 
 	public bool TryGetCacheIndex(int x, int y, out int index) {
 		var row = x + y;
-		var column = x - y;
+		var col = x - y;
 
 		index = 0;
 
-		if ((uint)row >= TERRAIN_CACHE_ROWS || (uint)column >= TERRAIN_CACHE_COLUMNS * 2)
+		if ((uint)row >= TERRAIN_CACHE_ROWS || (uint)col >= TERRAIN_CACHE_COLUMNS * 2)
 			return false;
 
 		row = (row + Game.Terrain.CacheRow + 1) % TERRAIN_CACHE_ROWS;
-		column = (column / 2 + Game.Terrain.CacheColumn + 1) % TERRAIN_CACHE_COLUMNS;
-		index = row * TERRAIN_CACHE_COLUMNS + column;
+		col = (col / 2 + Game.Terrain.CacheColumn + 1) % TERRAIN_CACHE_COLUMNS;
+		index = row * TERRAIN_CACHE_COLUMNS + col;
 
 		return true;
 	}

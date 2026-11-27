@@ -10,7 +10,7 @@ static partial class Gui {
 
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-	static void DrawConfigCategoryHook(short x, short y, byte index, byte rowExpand) {
+	static unsafe void DrawConfigCategoryHook(short x, short y, byte index, byte rowExpand) {
 		Game.Gui.DrawWindowBackground(
 			x, (short)(y - rowExpand), 249, (ushort)(2 * rowExpand + 11), 0, Game.World.PersistentStateData.WindowColour
 		);
@@ -27,7 +27,7 @@ static partial class Gui {
 			Game.Render.DrawStringNormal((short)_x, (short)(y - 1), 0, (byte)text.Length, text.GameString);
 
 			if (Game.Gui.ConfigMenuState != 1)
-				Game.Gui.DrawCursor((short)(x + 4), y);
+				Game.Gui.OriginalDrawCursor((short)(x + 4), y);
 		} else {
 			_x -= (short)(advance * (10f / 12f) * text.Length);
 			Game.Render.DrawStringSmall((short)_x, (short)(y + 3), 0, (byte)text.Length, text.GameString);

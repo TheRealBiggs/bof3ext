@@ -4,13 +4,12 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-
 namespace Loader;
 
 
 public static class EntryPoint {
-	private static readonly Lock initialiseLock = new();
-	private static int state;
+	static readonly Lock initialiseLock = new();
+	static int state;
 
 
 	[UnmanagedCallersOnly(EntryPoint = "Initialise", CallConvs = [typeof(CallConvCdecl)])]
@@ -18,7 +17,7 @@ public static class EntryPoint {
 		InitialiseLoader();
 	}
 
-	internal static unsafe void InitialiseLoader() {
+	public static void InitialiseLoader() {
 		if (Volatile.Read(ref state) == 2)
 			return;
 
@@ -40,7 +39,7 @@ public static class EntryPoint {
 	}
 
 
-	private static unsafe void LoadMods() {
+	static unsafe void LoadMods() {
 		if (!File.Exists("loader.cfg"))
 			return;
 
