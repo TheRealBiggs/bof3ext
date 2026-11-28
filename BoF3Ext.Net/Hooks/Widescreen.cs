@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -91,6 +91,51 @@ static class Widescreen {
 	}
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+	static unsafe void DrawSkyHook(Game.Render.SkyRenderCommand* command) {
+		if (Game.Terrain.BackgroundDrawFlags == 0)
+			return;
+
+		var x = (uint)(0x7FFF - Game.Terrain.PositionX) >> 8;
+		var y = (uint)(0x8000 - Game.Terrain.PositionY) >> 8;
+		var bounds = command->Bounds;
+
+		if (x < bounds.X || y < bounds.Y || x > bounds.Z || y > bounds.W)
+			return;
+
+		ref var drawPrim = ref RendererHelpers.GetGpuPrim<Game.Render.GpuPrim_SetDrawEnv>();
+		Game.Render.InitGpuPrim_SetDrawEnv(ref drawPrim, 0, 1, 149, ref Unsafe.NullRef<Game.Render.PSX_RECT>());
+		Game.Render.PushGpuPrim(7, (byte)Game.Render.GpuPrim_SetDrawEnv.UnmanagedSize);
+
+		var colours = Game.Render.UseAlternateColours ? command->AlternateColours : command->Colours;
+
+		Vec3b cStart = new(
+			(byte)((colours & 31) * 8),
+			(byte)(((colours >> 5) & 31) * 8),
+			(byte)(((colours >> 10) & 31) * 8)
+		);
+
+		Vec3b cEnd = new(
+			(byte)(((colours >> 16) & 31) * 8),
+			(byte)(((colours >> 21) & 31) * 8),
+			(byte)(((colours >> 26) & 31) * 8)
+		);
+
+		var left = -ConfigManager.Instance.HalfRenderWidthDiff;
+		var right = ConfigManager.Instance.ScaledRenderWidth + left;
+
+		ref var prim = ref RendererHelpers.GetGpuPrim<Game.Render.GpuPrim_QuadGouraud>();
+		prim.Value = (byte)((int)Game.Render.GpuPrimType.QuadGouraud << 2);
+		prim.Vert1 = new(left, 0, 0.01f);
+		prim.Vert2 = new(right, 0, 0.01f);
+		prim.Vert3 = new(left, 240, 0.01f);
+		prim.Vert4 = new(right, 240, 0.01f);
+		prim.Colour1 = prim.Colour2 = cStart;
+		prim.Colour3 = prim.Colour4 = cEnd;
+
+		Game.Render.PushGpuPrim(7, (byte)Game.Render.GpuPrim_QuadGouraud.UnmanagedSize);
+	}
+
+	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
 	static unsafe void DrawSelectedFrameOutlineHook(short x, short y, ushort width, ushort height, int pulse, int colour) {
 		ref var window = ref Game.Gui.CurrentUiWindow;
 
@@ -160,6 +205,7 @@ static class Widescreen {
 		Game.Render.HookDrawTitleDemoTextureFrame(&DrawTitleDemoTextureFrameHook);
 		Game.Intro.HookDrawTapestry(&DrawTapestryHook);
 		Game.Gui.HookDrawDialoguePageIndicator(&DrawDialoguePageIndicatorHook);
+		Game.Render.HookDrawSky(&DrawSkyHook);
 		Game.Gui.HookDrawSelectedFrameOutline(&DrawSelectedFrameOutlineHook);
 		Game.Gui.HookDrawStartMenuItem(&DrawStartMenuItemHook);
 	}

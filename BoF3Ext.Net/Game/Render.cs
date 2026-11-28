@@ -373,6 +373,13 @@ static unsafe partial class Render {
 	}
 
 
+	public struct SkyRenderCommand {
+		public uint Command;
+		public Vec4b Bounds;
+		public uint Colours;
+		public uint AlternateColours;
+	}
+
 	[GameFunction(0x404560)]
 	public static partial void DrawOverworldUiTextureFrame(short x, short y, byte index);
 
@@ -415,6 +422,9 @@ static unsafe partial class Render {
 
 	[GameFunction(0x517090, hookable: true)]
 	public static partial void DrawStringNumFont(short x, short y, uint paletteIndex, GameString text);
+
+	[GameFunction(0x571BE0, hookable: true)]
+	public static partial void DrawSky(ref SkyRenderCommand command);
 
 	[GameFunction(0x588C90, hookable: true)]
 	public static partial void DrawStartMenuLogo(short x, short y, byte spriteIndex, byte drawIndex);
@@ -472,6 +482,9 @@ static unsafe partial class Render {
 
 	[GameVariable(0x7E0670, isPointer: true)]
 	public static partial ref GpuPrim GpuPrims { get; }
+
+	[GameVariable(0x7E1BE2)]
+	public static partial bool UseAlternateColours { get; set; }
 
 	[GameVariable(0x903880, arrayLength: 2)]
 	public static partial Span<ENV> Envs { get; set; }

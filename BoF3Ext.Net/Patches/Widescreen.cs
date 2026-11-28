@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -149,9 +149,6 @@ static class Widescreen {
 		// Repeat background pattern to fit extended screen width.
 		// Each column is 32px wide and alternates between 2 patterns, meaning 64px per repeat.
 		ProtectedMemory.Write(0x575732, (uint)Math.Ceiling(renderWidth / 32 / 2));
-
-		// Widescreen fix for sky
-		ProtectedMemory.Write(0x571C85, renderWidth);
 	}
 
 
