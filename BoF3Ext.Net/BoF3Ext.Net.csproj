@@ -48,12 +48,12 @@
     <DirectPInvoke Include="minhook" />
     <DirectPInvoke Include="freetype" />
     <DirectPInvoke Include="stb_image" />
-    <DirectPInvoke Include="stb_image_write" Condition="'$(Configuration)' == 'Debug'" />
+    <DirectPInvoke Include="stb_image_write" />
     
     <NativeLibrary Include="$(MSBuildThisFileDirectory)..\lib\minhook.x86.lib" />
     <NativeLibrary Include="$(MSBuildThisFileDirectory)..\lib\freetype.x86.lib" />
     <NativeLibrary Include="$(MSBuildThisFileDirectory)..\lib\stb_image.x86.lib" />
-    <NativeLibrary Include="$(MSBuildThisFileDirectory)..\lib\stb_image_write.x86.lib" Condition="'$(Configuration)' == 'Debug'" />
+    <NativeLibrary Include="$(MSBuildThisFileDirectory)..\lib\stb_image_write.x86.lib" />
   </ItemGroup>
   
   <ItemGroup>

@@ -65,7 +65,6 @@ sealed unsafe record TextureImage(int Width, int Height, byte[] Data) {
 		return texture;
 	}
 
-#if DEBUG
 	public static void WritePng(string filename, int width, int height, byte[] data) {
 		byte* png;
 		int length;
@@ -76,5 +75,4 @@ sealed unsafe record TextureImage(int Width, int Height, byte[] Data) {
 		File.WriteAllBytes(filename, new ReadOnlySpan<byte>(png, length));
 		StbImageWrite.Free(png);
 	}
-#endif
 }

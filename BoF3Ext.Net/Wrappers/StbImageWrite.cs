@@ -1,4 +1,3 @@
-#if DEBUG
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -14,4 +13,3 @@ static unsafe partial class StbImageWrite {
 	[UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
 	public static partial void Free(void* data);
 }
-#endif

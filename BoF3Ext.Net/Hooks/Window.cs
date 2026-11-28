@@ -1,5 +1,8 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 using Silk.NET.Core.Loader;
 using Silk.NET.Input;
@@ -15,9 +18,31 @@ namespace BoF3Ext.Hooks;
 
 
 static class Window {
+	enum MessageColour {
+		White,
+		PeriwinkleBlue,
+		LightRed,
+		SkyBlue,
+		PineappleYellow,
+		Pink,
+		Green,
+		StoneGrey,
+		Gainsboro,
+		SlateBlue = 10,
+		LightGrey,
+		ChartreuseYellow,
+		LightBlue,
+		Lead,
+		Black
+	}
+
+
 	static IWindow window = null!;
 	static IInputContext? input;
 	static GL? gl;
+	static int messageTimer = 0;
+	static unsafe byte* messageBuffer = null;
+	static MessageColour messageColour;
 
 
 	[UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
@@ -154,6 +179,21 @@ static class Window {
 
 		Game.World.UpdateScheduler();
 
+		if (messageTimer > 0) {
+			Game.Render.DrawStringSmall(
+				(short)(4 - ConfigManager.Instance.HalfRenderWidthDiff),
+				4,
+				(byte)messageColour,
+				255,
+				new GameString(messageBuffer)
+			);
+
+			messageTimer--;
+		} else if (messageBuffer != null) {
+			NativeMemory.Free(messageBuffer);
+			messageBuffer = null;
+		}
+
 		Game.Render.LinkGpuPrimBuffers();
 
 		Game.World.FrameCount++;
@@ -182,6 +222,38 @@ static class Window {
 			window.WindowState = window.WindowState == WindowState.Fullscreen
 				? WindowState.Normal
 				: WindowState.Fullscreen;
+		}
+		else if (key == Key.F10) {
+			var size = window.FramebufferSize;
+			var pixels = new byte[size.X * size.Y * 4];
+
+			gl!.ReadBuffer(ReadBufferMode.Front);
+			gl!.ReadPixels(0, 0, (uint)size.X, (uint)size.Y, PixelFormat.Rgba, PixelType.UnsignedByte, pixels.AsSpan());
+
+			var stride = size.X * 4;
+			byte[] row = new byte[stride];
+
+			for (int y = 0; y < size.Y / 2; y++) {
+				var top = pixels.AsSpan(y * stride, stride);
+				var bottom = pixels.AsSpan((size.Y - y - 1) * stride, stride);
+
+				top.CopyTo(row);
+				bottom.CopyTo(top);
+				row.AsSpan().CopyTo(bottom);
+			}
+
+			// Remove alpha
+			for (int i = 3; i < pixels.Length; i += 4)
+				pixels[i] = 255;
+
+			if (!Directory.Exists("Screenshots"))
+				Directory.CreateDirectory("Screenshots");
+
+			var filename = $"Screenshots/{DateTime.Now:yyyy-MM-dd_HHmmss}.png";
+
+			TextureImage.WritePng(filename, size.X, size.Y, pixels);
+
+			DisplayTimedMessage($"Screenshot saved as {filename}", 30 * 5, MessageColour.ChartreuseYellow);
 		}
 	}
 
@@ -343,6 +415,20 @@ static class Window {
 
 			address = Unsafe.Read<nint>((void*)address);
 		}
+	}
+
+	static unsafe void DisplayTimedMessage(string message, int frameCount, MessageColour colour = MessageColour.White) {
+		if (messageBuffer != null) {
+			NativeMemory.Free(messageBuffer);
+			messageBuffer = null;
+		}
+
+		messageBuffer = (byte*)NativeMemory.Alloc((nuint)(message.Length + 1));
+		Encoding.ASCII.GetBytes(message.AsSpan(), new Span<byte>(messageBuffer, message.Length));
+		messageBuffer[message.Length] = 0;
+
+		messageTimer = frameCount;
+		messageColour = colour;
 	}
 
 
